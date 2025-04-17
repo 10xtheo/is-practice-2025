@@ -1,154 +1,61 @@
-# FastAPI Project - Frontend
+# React Calendar
 
-The frontend is built with [Vite](https://vitejs.dev/), [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [TanStack Query](https://tanstack.com/query), [TanStack Router](https://tanstack.com/router) and [Chakra UI](https://chakra-ui.com/).
+This project is a clone of Google calendar with simplified functionality. Implemented without any third-party libraries, for example, working with date and time (moment.js, day.js) or ready-made UI components
 
-## Frontend development
+[Project](https://wonderful-raindrop-0d23f3.netlify.app/)
 
-Before you begin, ensure that you have either the Node Version Manager (nvm) or Fast Node Manager (fnm) installed on your system.
+When you enter the site, you get to the week of the current day, you can create an event by clicking on the area in which you are interested, then a window with the selected time will appear
 
-* To install fnm follow the [official fnm guide](https://github.com/Schniz/fnm#installation). If you prefer nvm, you can install it using the [official nvm guide](https://github.com/nvm-sh/nvm#installing-and-updating).
+![demo-pt-1](https://user-images.githubusercontent.com/91286167/214460218-bdadaf45-b463-48fa-9499-27c584e1d062.gif)
 
-* After installing either nvm or fnm, proceed to the `frontend` directory:
+In the month mode, you can change the month when scrolling the wheel
 
-```bash
-cd frontend
-```
-* If the Node.js version specified in the `.nvmrc` file isn't installed on your system, you can install it using the appropriate command:
+![demo-pt-2](https://user-images.githubusercontent.com/91286167/214460699-ada78fb0-368a-4c23-a3e4-1a57c538bd14.gif)
 
-```bash
-# If using fnm
-fnm install
+![demo-pt-3](https://user-images.githubusercontent.com/91286167/214461427-23b9cf5c-f02b-4a8e-8218-0d9e82e9fab5.gif)
 
-# If using nvm
-nvm install
-```
+![demo-pt-4](https://user-images.githubusercontent.com/91286167/214461539-5137c659-d9be-4776-ba91-9159c92d5cb8.gif)
 
-* Once the installation is complete, switch to the installed version:
+# How to start
 
-```bash
-# If using fnm
-fnm use
+1. Run `npm install` at the root folder
+2. Start: `npm run start`
+3. Build: `npm run build`
 
-# If using nvm
-nvm use
-```
 
-* Within the `frontend` directory, install the necessary NPM packages:
+# Tech stack
 
-```bash
-npm install
-```
+1. HTML5
+2. CSS3
+3. Typescript
+4. mockApi
+5. fetch
+6. SCSS-modules 
+7. BEM methodology
+8. React, hooks
+9. js Date api
 
-* And start the live server with the following `npm` script:
+#
+Custom implementations can be found in this repository:
 
-```bash
-npm run dev
-```
+> There may be bugs or flaws. I just wanted to try and implement my own variations of web solutions.
 
-* Then open your browser at http://localhost:5173/.
 
-Notice that this live server is not running inside Docker, it's for local development, and that is the recommended workflow. Once you are happy with your frontend, you can build the frontend Docker image and start it, to test it in a production-like environment. But building the image at every change will not be as productive as running the local development server with live reload.
+- **Fetch Api Class** (src/gateway/api) - class for working with rest api, uses fetch
+- **Hooks**
+  - **useForm** (src/hooks/useForm) - a hook for convenient work with the state of the form
+  - **useValidator** (sdk/hooks/useValidator) - a hook for convenient work with field validation
+  - **useCalendar** (src/hooks/useCalendar.ts) - hooks for convenient work with date and time using the js date api
+- **SCSS MODULES + Adaptive** - css modules were used + fully adaptive was made
+- **Components/UI kit**
+ - **TextField** (src/components/common/forms-elements/text-field) - a simple implementation of the field as in google calendar
+  - **DatePicker** (src/components/common/forms-elements/date-picker) - custom implementation of datepicker with simple support for all languages (this means that the date formatting does not fully match to how it should be written in the selected language) and you can change the state using the keyboard
 
-Check the file `package.json` to see other available options.
+  ![Date-picker-pt-1](https://user-images.githubusercontent.com/91286167/214438707-c4a765ca-4e8f-44fe-92de-e19cb916eb11.gif)
 
-### Removing the frontend
+  ![Date-picker-pt-2](https://user-images.githubusercontent.com/91286167/214438869-89c58d98-ae2b-452c-ac85-c350aca41a2a.gif)
+  - **TimePicker** (src/components/common/forms-elements/time-picker)- The timepicker is simple for all languages, the hint shows the time difference between two dates and appears when the dates correspond to each other (that is, the same day is selected) and you can change the state using the keyboard
 
-If you are developing an API-only app and want to remove the frontend, you can do it easily:
+  ![Time-picker](https://user-images.githubusercontent.com/91286167/214439024-68e96fad-1cd2-4de5-af6e-3dfc42e3d4d4.gif)
 
-* Remove the `./frontend` directory.
-
-* In the `docker-compose.yml` file, remove the whole service / section `frontend`.
-
-* In the `docker-compose.override.yml` file, remove the whole service / section `frontend` and `playwright`.
-
-Done, you have a frontend-less (api-only) app. 🤓
-
----
-
-If you want, you can also remove the `FRONTEND` environment variables from:
-
-* `.env`
-* `./scripts/*.sh`
-
-But it would be only to clean them up, leaving them won't really have any effect either way.
-
-## Generate Client
-
-### Automatically
-
-* Activate the backend virtual environment.
-* From the top level project directory, run the script:
-
-```bash
-./scripts/generate-client.sh
-```
-
-* Commit the changes.
-
-### Manually
-
-* Start the Docker Compose stack.
-
-* Download the OpenAPI JSON file from `http://localhost/api/v1/openapi.json` and copy it to a new file `openapi.json` at the root of the `frontend` directory.
-
-* To generate the frontend client, run:
-
-```bash
-npm run generate-client
-```
-
-* Commit the changes.
-
-Notice that everytime the backend changes (changing the OpenAPI schema), you should follow these steps again to update the frontend client.
-
-## Using a Remote API
-
-If you want to use a remote API, you can set the environment variable `VITE_API_URL` to the URL of the remote API. For example, you can set it in the `frontend/.env` file:
-
-```env
-VITE_API_URL=https://api.my-domain.example.com
-```
-
-Then, when you run the frontend, it will use that URL as the base URL for the API.
-
-## Code Structure
-
-The frontend code is structured as follows:
-
-* `frontend/src` - The main frontend code.
-* `frontend/src/assets` - Static assets.
-* `frontend/src/client` - The generated OpenAPI client.
-* `frontend/src/components` -  The different components of the frontend.
-* `frontend/src/hooks` - Custom hooks.
-* `frontend/src/routes` - The different routes of the frontend which include the pages.
-* `theme.tsx` - The Chakra UI custom theme.
-
-## End-to-End Testing with Playwright
-
-The frontend includes initial end-to-end tests using Playwright. To run the tests, you need to have the Docker Compose stack running. Start the stack with the following command:
-
-```bash
-docker compose up -d --wait backend
-```
-
-Then, you can run the tests with the following command:
-
-```bash
-npx playwright test
-```
-
-You can also run your tests in UI mode to see the browser and interact with it running:
-
-```bash
-npx playwright test --ui
-```
-
-To stop and remove the Docker Compose stack and clean the data created in tests, use the following command:
-
-```bash
-docker compose down -v
-```
-
-To update the tests, navigate to the tests directory and modify the existing test files or add new ones as needed.
-
-For more information on writing and running Playwright tests, refer to the official [Playwright documentation](https://playwright.dev/docs/intro).
+Author **Vladyslav Soltanovskyi**
