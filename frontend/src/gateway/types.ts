@@ -1,3 +1,5 @@
+import { IEvent, IEventCreate } from "../types/event";
+
 export enum METHODS {
   GET = 'GET',
   POST = 'POST',
@@ -16,15 +18,15 @@ type GetRequestOptions = BaseRequestOptions<METHODS.GET>;
 type DeleteRequestOptions = BaseRequestOptions<METHODS.DELETE>;
 
 interface PostRequestOptions extends BaseRequestOptions<METHODS.POST> {
-  body?: Object;
+  body?: IEventCreate;
 }
 
 interface PutRequestOptions extends BaseRequestOptions<METHODS.PUT> {
-  body?: Object;
+  body?: Partial<IEvent>;
 }
 
 interface PatchRequestOptions extends BaseRequestOptions<METHODS.PATCH> {
-  body?: Object;
+  body?: Partial<IEvent>;
 }
 
 export type RequestsOptions = GetRequestOptions | PostRequestOptions | DeleteRequestOptions | PutRequestOptions | PatchRequestOptions;
