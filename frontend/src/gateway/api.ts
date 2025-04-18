@@ -6,8 +6,8 @@ const initialEvents: IEvent[] = [
   {
     id: "1",
     title: "Sample Event 1",
-    start: "2025-04-18T10:00:00",
-    end: "2025-04-18T12:00:00",
+    start: Date.now(),
+    end: Date.now() + 1000 * 60 * 60 * 2,
     description: "This is a sample event",
     type: "event" as TEventTypes,
     color: "#FF0000"
@@ -15,8 +15,8 @@ const initialEvents: IEvent[] = [
   {
     id: "2",
     title: "Sample Event 2",
-    start: "2025-04-19T14:00:00",
-    end: "2025-04-19T16:00:00",
+    start: Date.now() + 1000 * 60 * 60 * 3,
+    end: Date.now() + 1000 * 60 * 60 * 4,
     description: "Another sample event",
     type: "event" as TEventTypes,
     color: "#00FF00"

@@ -22,8 +22,8 @@ const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames }) => {
       id: '1',
       title: 'Team Meeting',
       description: 'Weekly sync',
-      start: '2025-04-18T10:00:00',
-      end: '2025-04-18T11:00:00',
+      start: Date.now(),
+      end: Date.now() + 1000 * 60 * 60 * 2,
       type: 'event',
       color: '#2196F3'
     },
@@ -31,8 +31,8 @@ const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames }) => {
       id: '2',
       title: 'Lunch Break',
       description: 'Team lunch',
-      start: '2025-04-18T12:00:00',
-      end: '2025-04-18T13:00:00',
+      start: Date.now() + 1000 * 60 * 60 * 2,
+      end: Date.now() + 1000 * 60 * 60 * 3,
       type: 'event',
       color: '#4CAF50'
     },
@@ -40,15 +40,23 @@ const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames }) => {
       id: '3',
       title: 'Project Deadline',
       description: 'Final submission',
-      start: '2025-04-19T09:00:00',
-      end: '2025-04-19T17:00:00',
+      start: Date.now(),
+      end: Date.now() + 1000 * 60 * 60 * 5,
+      type: 'event',
+      color: '#F44336'
+    },
+    {
+      id: '4',
+      title: 'Project Deadline',
+      description: 'Final submission',
+      start: Date.now() + 1000 * 60 * 60 * 24,
+      end: Date.now() + 1000 * 60 * 60 * 25,
       type: 'event',
       color: '#F44336'
     }
   ];
 
   const weekEvents = getEventsInterval(weekDays, events);
-  console.log('weekEvents', weekEvents);
   const shortEvents = getShortEvents(weekEvents);
   const longEvents = getLongEvents(weekEvents);
   
