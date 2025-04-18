@@ -1,17 +1,17 @@
 export const checkIsEventsShowInCurrentInterval = (
-  startDateInInterval: Date,
-  endDateInInterval: Date,
-  eventStartDate: Date,
-  eventEndDate: Date
+  startDateInInterval: number,
+  endDateInInterval: number,
+  eventStartDate: number,
+  eventEndDate: number
 ) => {
-  const isEventFromCurrentInterval = startDateInInterval.getTime() <= eventStartDate.getTime() &&
-      endDateInInterval.getTime() >= eventEndDate.getTime();
+  const isEventFromCurrentInterval = startDateInInterval <= eventStartDate &&
+      endDateInInterval >= eventEndDate;
 
-  const isEventFromNextInterval = endDateInInterval.getTime() >= eventStartDate.getTime() &&
-    endDateInInterval.getTime() <= eventEndDate.getTime();
+  const isEventFromNextInterval = endDateInInterval >= eventStartDate &&
+    endDateInInterval <= eventEndDate;
 
-  const isEventFromPrevInterval = startDateInInterval.getTime() <= eventEndDate.getTime() &&
-    startDateInInterval.getTime() >= eventStartDate.getTime();
+  const isEventFromPrevInterval = startDateInInterval <= eventEndDate &&
+    startDateInInterval >= eventStartDate;
     
   return isEventFromCurrentInterval || isEventFromNextInterval || isEventFromPrevInterval;
 }

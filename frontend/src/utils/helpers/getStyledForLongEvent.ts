@@ -1,6 +1,6 @@
 import { IMonthDay } from "types/date";
 import { IEvent } from "types/event";
-import { checkDateIsEqual, getDateTime, getDifferenceOfTwoDates, shmoment } from "utils/date";
+import { checkDateIsEqual, getDateTime, shmoment } from "utils/date";
 
 export const getStyledForLongEvent = (daysInterval: IMonthDay[], day: IMonthDay, event: IEvent) => {
   const firstItem = daysInterval[0];
@@ -11,28 +11,26 @@ export const getStyledForLongEvent = (daysInterval: IMonthDay[], day: IMonthDay,
   const lastDay = shmoment(lastItem.date).add('hours', 23).add('minutes', 59).result();
 
   const isStartDayEvent = checkDateIsEqual(day.date, startDate);
-  const isEventMovingToNextInterval = firtDayOfNextInterval.getTime() < endDate.getTime();
-  const isEventMovingFromPrevInterval = checkDateIsEqual(firstItem.date, day.date) && day.date.getTime() > startDate.getTime();
+  const isEventMovingToNextInterval = firtDayOfNextInterval.getTime() < event.end;
+  const isEventMovingFromPrevInterval = checkDateIsEqual(firstItem.date, day.date) && day.date.getTime() > event.start;
 
   let eventWidth = 1;
   let isShowEvent = true;
 
-
   if (isStartDayEvent) {
-
     if (isEventMovingToNextInterval) {
-      const totalDiffInDays = getDifferenceOfTwoDates(startDate, lastDay).days;
-      eventWidth = Math.ceil(totalDiffInDays) % 7;
+      const totalDiffInDays = Math.ceil((lastDay.getTime() - event.start) / (1000 * 60 * 60 * 24));
+      eventWidth = totalDiffInDays % 7;
     }
     else {
-      const totalDiffInDays = getDifferenceOfTwoDates(startDate, endDate).days;
-      eventWidth = Math.ceil(totalDiffInDays);
+      const totalDiffInDays = Math.ceil((event.end - event.start) / (1000 * 60 * 60 * 24));
+      eventWidth = totalDiffInDays;
     }
   }
   else if (isEventMovingFromPrevInterval) {
-    const isLastDate = lastDay.getTime() < endDate.getTime();
-    const diffInDays = getDifferenceOfTwoDates(day.date, isLastDate ? lastDay : endDate).days;
-    eventWidth = Math.ceil(diffInDays);
+    const isLastDate = lastDay.getTime() < event.end;
+    const diffInDays = Math.ceil((isLastDate ? lastDay.getTime() : event.end - day.date.getTime()) / (1000 * 60 * 60 * 24));
+    eventWidth = diffInDays;
   }
   else {
     isShowEvent = false;

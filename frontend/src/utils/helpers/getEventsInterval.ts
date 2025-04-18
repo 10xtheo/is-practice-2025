@@ -5,12 +5,19 @@ import { checkIsEventsShowInCurrentInterval } from './checkIsEventsShowInCurrent
 
 export const getEventsInterval = (daysInterval: IMonthDay[], events: IEvent[]) => {
   const eventsInterval = events.filter((event) => {
-    const firstDayInInterval = daysInterval[0];
-    const lastDayInInterval = shmoment(daysInterval[daysInterval.length - 1].date).add('hours', 23).add('minutes', 59).result();
-    const eventStartDate = new Date(event.start);
-    const eventEndDate = new Date(event.end);
+    const firstDayInInterval = daysInterval[0].date.getTime();
+    const lastDayInInterval = shmoment(daysInterval[daysInterval.length - 1].date)
+      .add('hours', 23)
+      .add('minutes', 59)
+      .result()
+      .getTime();
     
-    return checkIsEventsShowInCurrentInterval(firstDayInInterval.date, lastDayInInterval, eventStartDate, eventEndDate);
+    return checkIsEventsShowInCurrentInterval(
+      firstDayInInterval,
+      lastDayInInterval,
+      event.start,
+      event.end
+    );
   });
 
   return eventsInterval;
