@@ -38,6 +38,15 @@ const initialEvents: IEvent[] = [
     end: Date.now() + 1000 * 60 * 60 * 25,
     type: 'event',
     color: '#FFC107'
+  },
+  {
+    id: '5',
+    title: 'date with Sizova',
+    description: 'descr',
+    start: Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 60 * 3,
+    end: Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 60 * 5,
+    type: 'event',
+    color: '#FFC0CB'
   }
 ];
 
