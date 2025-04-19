@@ -15,4 +15,5 @@ npm run build
 npm run start
 ```
 
-Победа
+Победа, по дефолту всё запускается на localhost:3000
+<br>Изменить порт можно в webpack.config.js
