@@ -5,7 +5,7 @@ import { IEvent, IEventCreate, TPartialEvent } from 'types/event';
 export const getEvents = createAsyncThunk<IEvent[]>(
   'events/get-events',
   async (_, thunkAPI) => {
-    try {
+    try {      
       const events = await apiEvents.getEvents();
       return events;
     } catch (error) {
@@ -17,13 +17,9 @@ export const getEvents = createAsyncThunk<IEvent[]>(
 export const createEvent = createAsyncThunk<IEvent, IEventCreate>(
   'events/create-event',
   async (newEvent, thunkAPI) => {
-    try {
-      console.log('Creating event in action:', newEvent);
-      const event = await apiEvents.createEvent({...newEvent});
-      console.log('Event created successfully:', event);
-      return event;
-    } catch (error) {
-      console.error('Error in createEvent action:', error);
+    try {      
+      return await apiEvents.createEvent(newEvent);
+    } catch (error) {      
       return thunkAPI.rejectWithValue(error);
     }
   }

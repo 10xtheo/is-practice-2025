@@ -36,7 +36,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
-    // rules: createEventSchema
+    // rules: createEventSchema @TODO добавить валидацию
   });
 
   const [isRecurring, setIsRecurring] = useState(false);
@@ -128,7 +128,6 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   }
 
   const onSubmit: TSubmitHandler<IModalValues> = async (data) => {
-    alert('on submit handler watafack')
     const newEvent: TPartialEvent = {
       title: data.title,
       description: data.description,
@@ -144,9 +143,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       color: data.color
     };
     
-    try {
-      console.log('newEvent from modal form', newEvent);
-      
+    try {      
       await handlerSubmit(newEvent);
       closeModal();
     } catch (error) {

@@ -15,7 +15,7 @@ export const createEventSchema: IRules = {
   },
   end: {
     isRequired: true,
-    // isDateInFeature: 'start'
+    isDateInFuture: 'start' // @TODO нейроистория не работает
   },
   repeat_step: {
     isRequired: false,
@@ -28,10 +28,10 @@ export const createEventSchema: IRules = {
     min: 0
   },
   is_private: {
-    isRequired: true
+    isRequired: false
   },
   creator_id: {
-    isRequired: true
+    isRequired: false // @TODO: добавить потом
   },
   type: {
     isRequired: true
@@ -40,6 +40,6 @@ export const createEventSchema: IRules = {
     isRequired: true
   },
   color: {
-    isRequired: true
+    isRequired: true,
   }
 }

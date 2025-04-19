@@ -32,8 +32,8 @@ export const validationMethodsWithParams = {
 }
 
 export const validationMethodsWithDates = {
-  isDateInFeature(date1: number, date2: number) {
-    return (date2- date1) > 0 ? { status: false, errorMessage: "Дата окончания не может быть раньше даты начала" } : { status: true };
+  isDateInFuture(date1: number, date2: number) {
+    return (date2 - date1) > 0 ? { status: false, errorMessage: "Дата окончания не может быть раньше даты начала" } : { status: true };
   },
 }
 

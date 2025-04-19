@@ -93,7 +93,7 @@ class Http {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       switch (options.method) {
-        case METHODS.GET:
+        case METHODS.GET:          
           return this.events as IDtoRequest;
         
         case METHODS.POST:
@@ -103,7 +103,7 @@ class Http {
             ...options.body,
             is_finished: false
           };
-          this.events.push(newEvent);
+          this.events = [...this.events, newEvent];
           return newEvent as IDtoRequest;
         
         case METHODS.PUT:
