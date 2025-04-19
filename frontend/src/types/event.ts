@@ -12,7 +12,7 @@ export interface IEvent {
   color: string;
   type: EEventTypes;
   priority: EEventPriority;
-  // @TODO мб категорию сюда добавить
+  category_id: string; // Календарь @TODO фильтрация по календарю
 }
 
 export type TPartialEvent = Partial<IEvent>;
@@ -29,7 +29,7 @@ export interface IEventCreate {
   color: string;
   type: EEventTypes;
   priority: EEventPriority;
-  // @TODO мб категорию сюда добавить
+  category_id: string; // Календарь @TODO фильтрация по календарю
 }
 
 export enum EEventTypes {

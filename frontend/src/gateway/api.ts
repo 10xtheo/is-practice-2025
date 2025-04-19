@@ -17,7 +17,8 @@ const initialEvents: IEvent[] = [
     max_repeats_count: 1,
     color: '#2196F3',
     type: EEventTypes.MEETING,
-    priority: EEventPriority.LOW
+    priority: EEventPriority.LOW,
+    category_id: '1'
   },
   {
     id: '2',
@@ -32,7 +33,8 @@ const initialEvents: IEvent[] = [
     max_repeats_count: 1,
     color: '#4CAF50',
     type: EEventTypes.OTHER,
-    priority: EEventPriority.MEDIUM
+    priority: EEventPriority.MEDIUM,
+    category_id: '3'
   },
   {
     id: '3',
@@ -47,7 +49,8 @@ const initialEvents: IEvent[] = [
     max_repeats_count: 1,
     color: '#F44336',
     type: EEventTypes.TASK,
-    priority: EEventPriority.HIGH
+    priority: EEventPriority.HIGH,
+    category_id: '2'
   },
   {
     id: '4',
@@ -62,7 +65,8 @@ const initialEvents: IEvent[] = [
     max_repeats_count: 1,
     color: '#FFC107',
     type: EEventTypes.TASK,
-    priority: EEventPriority.LOW
+    priority: EEventPriority.LOW,
+    category_id: '2'
   },
   {
     id: '5',
@@ -77,7 +81,8 @@ const initialEvents: IEvent[] = [
     max_repeats_count: 1,
     color: '#FFC0CB',
     type: EEventTypes.MEETING,
-    priority: EEventPriority.HIGH
+    priority: EEventPriority.HIGH,
+    category_id: '1'
   }
 ];
 
