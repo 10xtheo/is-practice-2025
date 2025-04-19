@@ -11,7 +11,7 @@ interface ChildProps {
 }
 
 const Layout: FC<LayoutProps> = ({ children }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   const handleMenuToggle = () => {
     setIsMenuOpen(!isMenuOpen);

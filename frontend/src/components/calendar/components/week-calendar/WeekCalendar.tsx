@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import { useTypedSelector } from 'hooks/index';
 import { IMonthDay, IWeekDay } from 'types/date';
 import { getEventsInterval, getLongEvents, getShortEvents } from 'utils/helpers';
@@ -16,10 +16,27 @@ interface IWeekCalendarProps {
 
 const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames }) => {
   const { events } = useTypedSelector(({ events }) => events);
+  const calendarBodyRef = useRef<HTMLDivElement>(null);
 
   const weekEvents = getEventsInterval(weekDays, events);
   const shortEvents = getShortEvents(weekEvents);
   const longEvents = getLongEvents(weekEvents);
+
+  useEffect(() => {
+    if (shortEvents.length > 0 && calendarBodyRef.current) {
+      const firstEvent = shortEvents[0];
+      const eventStartTime = new Date(firstEvent.start);
+      const hour = eventStartTime.getHours();
+      
+      // Wait for the DOM to be fully rendered
+      setTimeout(() => {
+        const hourElement = calendarBodyRef.current.querySelector(`[data-time="${hour + 1}"]`);
+        if (hourElement) {
+          hourElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [shortEvents]);
   
   return (
     <>
@@ -33,7 +50,7 @@ const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames }) => {
           events={longEvents}
         />
       </div>
-      <div className="calendar__body">
+      <div className="calendar__body" ref={calendarBodyRef}>
         <div className={styles.calendar__week__container}>
           <Sidebar />
           <Week
