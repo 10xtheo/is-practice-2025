@@ -1,28 +1,17 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import './MenuIcon.scss';
-import SideMenu from '../SideMenu/SideMenu';
 
 interface MenuIconProps {
-  onClick?: () => void;
+  onMenuToggle: () => void;
 }
 
-const MenuIcon: FC<MenuIconProps> = ({ onClick }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleClick = () => {
-    setIsMenuOpen(!isMenuOpen);
-    if (onClick) onClick();
-  };
-
+const MenuIcon: FC<MenuIconProps> = ({ onMenuToggle }) => {
   return (
-    <>
-      <button className="menu-icon" onClick={handleClick} aria-label="Menu">
-        <span className="menu-icon__line"></span>
-        <span className="menu-icon__line"></span>
-        <span className="menu-icon__line"></span>
-      </button>
-      <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-    </>
+    <button className="menu-icon" onClick={onMenuToggle} aria-label="Menu">
+      <span className="menu-icon__line"></span>
+      <span className="menu-icon__line"></span>
+      <span className="menu-icon__line"></span>
+    </button>
   );
 };
 

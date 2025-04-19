@@ -1,22 +1,43 @@
 .side-menu {
   position: fixed;
   top: 0;
-  left: -20%;
+  left: 0;
   width: 20%;
   height: 100vh;
   background-color: white;
-  z-index: 1000;
-  transition: transform 0.3s ease-in-out;
+  z-index: 1;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%);
 
   &--open {
-    transform: translateX(100%);
+    transform: translateX(0);
   }
 
   &__content {
     height: 100%;
     padding: 20px;
     position: relative;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; // For smooth scrolling on iOS
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
   }
 
   &__close-btn {

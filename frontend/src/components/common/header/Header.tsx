@@ -14,6 +14,7 @@ interface IHeaderProps {
   onChangeOption: (option: IModes) => void;
   selectedOption: string;
   selectedDay: TDate;
+  onMenuToggle: () => void;
 }
 
 const modes = ['week', 'month', 'year']
@@ -23,7 +24,8 @@ const Header: FC<IHeaderProps> = ({
   displayedDate,
   onChangeOption,
   selectedOption,
-  selectedDay
+  selectedDay,
+  onMenuToggle
 }) => {
   const {
     isOpenModalCreateEvent,
@@ -31,7 +33,6 @@ const Header: FC<IHeaderProps> = ({
     isOpenModalEditEvent,
     openModalCreate
   } = useModal();
-
 
   const isBtnCreateEventDisable = isOpenModalCreateEvent || isOpenModalDayInfoEvents || isOpenModalEditEvent;
   
@@ -53,7 +54,7 @@ const Header: FC<IHeaderProps> = ({
   
   return (
     <header className={styles.header}>
-      <MenuIcon />
+      <MenuIcon onMenuToggle={onMenuToggle} />
       <button
         className={styles.create__btn}
         onClick={handleOpenModal}

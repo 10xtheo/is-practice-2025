@@ -8,9 +8,10 @@ import MonthCalendar from './components/month-calendar/MonthCalendar';
 import './calendar.scss';
 
 interface ICalendarProps {
+  onMenuToggle?: () => void;
 }
 
-const Calendar: FC<ICalendarProps> = ({  }) => {
+const Calendar: FC<ICalendarProps> = ({ onMenuToggle }) => {
   const { state, functions } = useCalendar({ selectedDate: new Date() });
 
   return (
@@ -21,6 +22,7 @@ const Calendar: FC<ICalendarProps> = ({  }) => {
         onChangeOption={functions.setMode}
         selectedOption={state.mode}
         selectedDay={state.selectedDay}
+        onMenuToggle={onMenuToggle}
       />
       <section className="calendar">
         {state.mode === 'year' && (
