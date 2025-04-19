@@ -4,22 +4,40 @@ import { IEvent, IEventCreate, TEventTypes } from "../types/event";
 // Stub data for events
 const initialEvents: IEvent[] = [
   {
-    id: "1",
-    title: "Sample Event 1",
-    start: Date.now(),
+    id: '1',
+    title: 'Team Meeting',
+    description: 'Weekly sync',
+    start: Date.now() - 1000 * 60 * 60 * 2,
     end: Date.now() + 1000 * 60 * 60 * 2,
-    description: "This is a sample event",
-    type: "event" as TEventTypes,
-    color: "#FF0000"
+    type: 'event',
+    color: '#2196F3'
   },
   {
-    id: "2",
-    title: "Sample Event 2",
-    start: Date.now() + 1000 * 60 * 60 * 3,
-    end: Date.now() + 1000 * 60 * 60 * 4,
-    description: "Another sample event",
-    type: "event" as TEventTypes,
-    color: "#00FF00"
+    id: '2',
+    title: 'Lunch Break',
+    description: 'Team lunch',
+    start: Date.now() + 1000 * 60 * 60 * 2,
+    end: Date.now() + 1000 * 60 * 60 * 3,
+    type: 'event',
+    color: '#4CAF50'
+  },
+  {
+    id: '3',
+    title: 'Project Deadline',
+    description: 'Final submission',
+    start: Date.now(),
+    end: Date.now() + 1000 * 60 * 60 * 5,
+    type: 'event',
+    color: '#F44336'
+  },
+  {
+    id: '4',
+    title: 'Project Deadline',
+    description: 'Final submission',
+    start: Date.now() + 1000 * 60 * 60 * 24,
+    end: Date.now() + 1000 * 60 * 60 * 25,
+    type: 'event',
+    color: '#FFC107'
   }
 ];
 
