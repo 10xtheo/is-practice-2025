@@ -85,6 +85,6 @@ alembic upgrade head
 ```
 ## Запуск сервера
 ```bash
-uvicorn app.main:app --reload
+fastapi run --reload app/main.py
 ```
 Бэкенд будет доступен по адресу: http://localhost:8000.
