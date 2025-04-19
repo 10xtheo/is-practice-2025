@@ -1,13 +1,13 @@
 import { IEvent, IEventCreate, TPartialEvent } from "types/event";
-import { request } from "./api";
+import { requestEvents } from "./api";
 
-const getEvents = () => request.get<IEvent[]>('');
+const getEvents = () => requestEvents.get<IEvent[]>('');
 
-const createEvent = (eventData: IEventCreate) => request.post<IEvent>('', eventData);
+const createEvent = (eventData: IEventCreate) => requestEvents.post<IEvent>('', eventData);
 
-const deleteEvent = (eventId: string) => request.delete(`/${eventId}`);
+const deleteEvent = (eventId: string) => requestEvents.delete(`/${eventId}`);
 
-const updateEvent = (eventId: string, eventData: TPartialEvent) => request.put<IEvent>(`/${eventId}`, eventData);
+const updateEvent = (eventId: string, eventData: TPartialEvent) => requestEvents.put<IEvent>(`/${eventId}`, eventData);
 
 export default {
   getEvents,

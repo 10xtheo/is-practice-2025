@@ -3,6 +3,7 @@ import './SideMenu.scss';
 import Month from '../calendar/components/year-calendar/components/month/Month';
 import { IMonthDay, IWeekDay, IMonth } from 'types/date';
 import { getCalendarDaysOfMonth, getWeekDaysNames, createMonth, createDate } from 'utils/date';
+import CalendarsList from './CalendarsList/CalendarsList';
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -42,6 +43,7 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {
             onChangeState={() => {}}
           />
         </div>
+        <CalendarsList />
         <button className="side-menu__close-btn" onClick={onClose}>
           <i className="fas fa-times"></i>
         </button>

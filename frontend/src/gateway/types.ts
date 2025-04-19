@@ -1,3 +1,4 @@
+import { ICalendar } from "types/calendar";
 import { IEvent, IEventCreate } from "../types/event";
 
 export enum METHODS {
@@ -17,21 +18,35 @@ type GetRequestOptions = BaseRequestOptions<METHODS.GET>;
 
 type DeleteRequestOptions = BaseRequestOptions<METHODS.DELETE>;
 
-interface PostRequestOptions extends BaseRequestOptions<METHODS.POST> {
+interface PostRequestOptionsEvents extends BaseRequestOptions<METHODS.POST> {
   body?: IEventCreate;
 }
 
-interface PutRequestOptions extends BaseRequestOptions<METHODS.PUT> {
+interface PutRequestOptionsEvents extends BaseRequestOptions<METHODS.PUT> {
   body?: Partial<IEvent>;
 }
 
-interface PatchRequestOptions extends BaseRequestOptions<METHODS.PATCH> {
+interface PatchRequestOptionsEvents extends BaseRequestOptions<METHODS.PATCH> {
   body?: Partial<IEvent>;
 }
 
-export type RequestsOptions = GetRequestOptions | PostRequestOptions | DeleteRequestOptions | PutRequestOptions | PatchRequestOptions;
+export type RequestsOptionsEvents = GetRequestOptions | PostRequestOptionsEvents | DeleteRequestOptions | PutRequestOptionsEvents | PatchRequestOptionsEvents;
+
+interface PostRequestOptionsCalendars extends BaseRequestOptions<METHODS.POST> {
+  body?: ICalendar;
+}
+
+interface PutRequestOptionsCalendars extends BaseRequestOptions<METHODS.PUT> {
+  body?: Partial<ICalendar>;
+}
+
+interface PatchRequestOptionsCalendars extends BaseRequestOptions<METHODS.PATCH> {
+  body?: Partial<ICalendar>;
+}
+
+export type RequestsOptionsCalendars = GetRequestOptions | PostRequestOptionsCalendars | DeleteRequestOptions | PutRequestOptionsCalendars | PatchRequestOptionsCalendars;
 
 export interface RequestArgs {
   method: METHODS;
-  options: RequestsOptions;
+  options: RequestsOptionsEvents | RequestsOptionsCalendars;
 }
