@@ -1,16 +1,47 @@
 import React, { FC } from 'react';
 import './SideMenu.scss';
+import Month from '../calendar/components/year-calendar/components/month/Month';
+import { IMonthDay, IWeekDay, IMonth } from 'types/date';
+import { getCalendarDaysOfMonth, getWeekDaysNames, createMonth, createDate } from 'utils/date';
 
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {
+const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {  
+  const currentDate = new Date();
+  const currentMonthObj = createMonth({ date: currentDate });
+  const selectedDay = createDate({ date: currentDate });
+  
+  const currentMonth: IMonth = {
+    month: currentMonthObj.monthName,
+    monthShort: currentMonthObj.monthName.slice(0, 3),
+    monthIndex: currentMonthObj.monthIndex,
+    date: currentMonthObj.date
+  };
+  
+  const weekDaysNames = getWeekDaysNames(1);
+  const calendarDaysOfMonth = getCalendarDaysOfMonth({
+    year: currentMonthObj.year,
+    monthIndex: currentMonthObj.monthIndex,
+    firstWeekDayNumber: 1,
+    locale: 'en'
+  });
+  
   return (
     <div className={`side-menu ${isOpen ? 'side-menu--open' : ''}`}>
       <div className="side-menu__content">
-        {/* Add your menu items here */}
+        <div className="side-menu__calendar">
+          <Month
+            calendarDaysOfMonth={calendarDaysOfMonth}
+            month={currentMonth}
+            weekDaysNames={weekDaysNames}
+            monthIndex={currentMonthObj.monthIndex}
+            selectedDay={selectedDay}
+            onChangeState={() => {}}
+          />
+        </div>
         <button className="side-menu__close-btn" onClick={onClose}>
           <i className="fas fa-times"></i>
         </button>
