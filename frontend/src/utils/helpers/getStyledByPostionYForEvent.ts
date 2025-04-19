@@ -15,7 +15,7 @@ export const getStyledByPostionYForEvent = (event: IEvent, dateDay: Date) => {
   let eventHeight = (end - start) / (1000 * 60);
   // Ensure minimum height of 60 minutes (1 hour) for visibility
   eventHeight = Math.max(eventHeight, 60);
-  let offsetTop = startDate.getMinutes();
+  let offsetTop = 0 //startDate.getMinutes();
 
   if (!checkDateIsEqual(startDate, endDate)) {
     if (startDate.getDate() < dateDay.getDate()) {
