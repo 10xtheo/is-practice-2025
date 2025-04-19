@@ -9,7 +9,11 @@ const initialEvents: IEvent[] = [
     description: 'Weekly sync',
     start: Date.now() - 1000 * 60 * 60 * 2,
     end: Date.now() + 1000 * 60 * 60 * 2,
-    type: 'event',
+    repeat_step: 1,
+    is_private: false,
+    creator_id: '1',
+    is_finished: false,
+    max_repeats_count: 1,
     color: '#2196F3'
   },
   {
@@ -18,7 +22,11 @@ const initialEvents: IEvent[] = [
     description: 'Team lunch',
     start: Date.now() + 1000 * 60 * 60 * 2,
     end: Date.now() + 1000 * 60 * 60 * 3,
-    type: 'event',
+    repeat_step: 1,
+    is_private: false,
+    creator_id: '1',
+    is_finished: false,
+    max_repeats_count: 1,
     color: '#4CAF50'
   },
   {
@@ -27,7 +35,11 @@ const initialEvents: IEvent[] = [
     description: 'Final submission',
     start: Date.now(),
     end: Date.now() + 1000 * 60 * 60 * 5,
-    type: 'event',
+    repeat_step: 1,
+    is_private: false,
+    creator_id: '1',
+    is_finished: false,
+    max_repeats_count: 1,
     color: '#F44336'
   },
   {
@@ -36,7 +48,11 @@ const initialEvents: IEvent[] = [
     description: 'Final submission',
     start: Date.now() + 1000 * 60 * 60 * 24,
     end: Date.now() + 1000 * 60 * 60 * 25,
-    type: 'event',
+    repeat_step: 1,
+    is_private: false,
+    creator_id: '1',
+    is_finished: false,
+    max_repeats_count: 1,
     color: '#FFC107'
   },
   {
@@ -45,7 +61,11 @@ const initialEvents: IEvent[] = [
     description: 'descr',
     start: Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 60 * 3,
     end: Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 60 * 5,
-    type: 'event',
+    repeat_step: 1,
+    is_private: false,
+    creator_id: '1',
+    is_finished: false,
+    max_repeats_count: 1,
     color: '#FFC0CB'
   }
 ];
@@ -70,7 +90,8 @@ class Http {
           if (!options.body) throw new Error('Event data is required');
           const newEvent: IEvent = { 
             id: Date.now().toString(), 
-            ...options.body 
+            ...options.body,
+            is_finished: false
           };
           this.events.push(newEvent);
           return newEvent as IDtoRequest;

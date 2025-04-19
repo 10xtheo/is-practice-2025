@@ -4,19 +4,26 @@ export const createEventSchema: IRules = {
   title: {
     isRequired: true
   },
-  startDate: {
+  start: {
+    isRequired: true, 
+  },
+  end: {
     isRequired: true,
+    isDateInFeature: 'start'
   },
-  endDate: {
+  repeat_step: {
     isRequired: true,
-    isDateInFeature: 'startDate'
+    isNumber: true
   },
-  startTime: {
-    maxLength: 5,
-    isNumberWithColon: true
+  is_private: {
+    isRequired: true
   },
-  endTime: {
-    maxLength: 5,
-    isNumberWithColon: true
+  creator_id: {
+    isRequired: true
+  },
+  max_repeats_count: {
+    isRequired: true,
+    isNumber: true,
+    min: 0
   }
 }

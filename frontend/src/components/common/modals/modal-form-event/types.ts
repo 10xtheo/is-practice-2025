@@ -3,20 +3,23 @@ import { TEventTypes } from "types/event";
 
 export interface IModalValues extends IValidatorData {
   title: string;
-  startDate: Date;
-  endDate: Date;
-  startTime: string;
-  endTime: string;
+  start: number; // timestamp
+  end: number; // timestamp
   description: string;
   isLongEvent: boolean;
-  color: string;
+  repeat_step: number;
+  is_private: boolean;
+  creator_id: string;
+  max_repeats_count: number;
 }
 
 export interface IMapEventValues {
   title: string;
   description: string;
-  startDate: Date;
-  endDate: Date;
-  type?: TEventTypes;
-  color?: string;
+  start: number;
+  end: number;
+  repeat_step: number;
+  is_private: boolean;
+  creator_id: string;
+  max_repeats_count: number;
 }
