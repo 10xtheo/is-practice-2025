@@ -4,13 +4,8 @@ import apiCalendars from 'gateway/calendars';
 import ModalCreateCalendar from 'components/common/modals/modal-create-calendar/ModalCreateCalendar';
 import './CalendarsList.scss';
 
-interface CalendarsListProps {
-  onSelectedCalendarsChange: (selectedIds: string[]) => void;
-}
-
-const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) => {
+const CalendarsList: FC = () => {
   const [calendars, setCalendars] = useState<ICalendar[]>([]);
-  const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -18,33 +13,13 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
     const fetchCalendars = async () => {
       const data = await apiCalendars.getCalendars();
       setCalendars(data);
-      // Select all calendars by default
-      const allIds = data.map(calendar => calendar.id);
-      setSelectedCalendarIds(allIds);
-      onSelectedCalendarsChange(allIds);
     };
 
     fetchCalendars();
-  }, [onSelectedCalendarsChange]);
+  }, []);
 
   const handleCalendarCreated = (newCalendar: ICalendar) => {
     setCalendars(prev => [...prev, newCalendar]);
-    // Add new calendar to selected calendars
-    setSelectedCalendarIds(prev => {
-      const newSelected = [...prev, newCalendar.id];
-      onSelectedCalendarsChange(newSelected);
-      return newSelected;
-    });
-  };
-
-  const handleCalendarToggle = (calendarId: string) => {
-    setSelectedCalendarIds(prev => {
-      const newSelected = prev.includes(calendarId)
-        ? prev.filter(id => id !== calendarId)
-        : [...prev, calendarId];
-      onSelectedCalendarsChange(newSelected);
-      return newSelected;
-    });
   };
 
   return (
@@ -73,8 +48,6 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
               <input 
                 type="checkbox" 
                 id={`calendar-${calendar.id}`}
-                checked={selectedCalendarIds.includes(calendar.id)}
-                onChange={() => handleCalendarToggle(calendar.id)}
               />
               <label htmlFor={`calendar-${calendar.id}`}>
                 <span 
