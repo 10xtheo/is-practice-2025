@@ -25,5 +25,14 @@ export const createEventSchema: IRules = {
     isRequired: true,
     isNumber: true,
     min: 0
+  },
+  type: {
+    isRequired: true
+  },
+  priority: {
+    isRequired: true
+  },
+  color: {
+    isRequired: true
   }
 }

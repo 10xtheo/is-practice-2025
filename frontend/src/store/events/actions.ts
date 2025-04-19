@@ -7,7 +7,6 @@ export const getEvents = createAsyncThunk<IEvent[]>(
   async (_, thunkAPI) => {
     try {
       const events = await apiEvents.getEvents();
-      console.log('eventsss', events);
       return events;
     } catch (error) {
       return thunkAPI.rejectWithValue(error)

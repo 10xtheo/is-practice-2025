@@ -1,5 +1,5 @@
-import { formatDate } from "utils/date";
 import { IMapEventValues, IModalValues } from "./types";
+import { EEventTypes, EEventPriority } from "types/event";
 import { colors } from "../form-elements/color-picker/colors";
 
 export const getMapEventValues = ({
@@ -7,17 +7,29 @@ export const getMapEventValues = ({
   description,
   startDate,
   endDate,
-  type,
+  type = EEventTypes.EVENT,
+  priority = EEventPriority.MEDIUM,
+  is_private = false,
+  repeat_step = 0,
+  max_repeats_count = 0,
+  creator_id = '',
   color = colors[0]
 }: IMapEventValues): IModalValues => {
+  // Ensure we're working with Date objects
+  const start = startDate instanceof Date ? startDate : new Date(startDate);
+  const end = endDate instanceof Date ? endDate : new Date(endDate);
+
   return {
     title,
-    startDate,
-    endDate,
-    startTime: formatDate(startDate, `hh:mm`),
-    endTime: formatDate(endDate, `hh:mm`),
     description,
-    isLongEvent: type === 'long-event',
+    start: start.getTime(),
+    end: end.getTime(),
+    type,
+    priority,
+    is_private,
+    repeat_step,
+    max_repeats_count,
+    creator_id,
     color
   }
 }

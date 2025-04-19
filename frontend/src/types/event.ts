@@ -10,6 +10,8 @@ export interface IEvent {
   is_finished: boolean;
   max_repeats_count: number;
   color: string;
+  type: EEventTypes;
+  priority: EEventPriority;
   // @TODO мб категорию сюда добавить
 }
 
@@ -25,7 +27,22 @@ export interface IEventCreate {
   creator_id: string;
   max_repeats_count: number; // @TODO ивент может повторяться до даты!
   color: string;
+  type: EEventTypes;
+  priority: EEventPriority;
   // @TODO мб категорию сюда добавить
 }
 
-export type TEventTypes = 'event' | 'long-event';
+export enum EEventTypes {
+  TASK = 'Задача',
+  EVENT = 'Событие',
+  MEETING = 'Встреча',
+  NOTE = 'Заметка',
+  REMINDER = 'Напоминание',
+  OTHER = 'Другое'
+}
+
+export enum EEventPriority {
+  LOW = 'Низкий',
+  MEDIUM = 'Средний',
+  HIGH = 'Высокий'
+}

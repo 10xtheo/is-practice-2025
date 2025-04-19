@@ -1,5 +1,5 @@
 import { METHODS, RequestsOptions } from "./types";
-import { IEvent, IEventCreate, TEventTypes } from "../types/event";
+import { EEventPriority, EEventTypes, IEvent, IEventCreate } from "../types/event";
 
 // Stub data for events
 const initialEvents: IEvent[] = [
@@ -14,7 +14,9 @@ const initialEvents: IEvent[] = [
     creator_id: '1',
     is_finished: false,
     max_repeats_count: 1,
-    color: '#2196F3'
+    color: '#2196F3',
+    type: EEventTypes.MEETING,
+    priority: EEventPriority.LOW
   },
   {
     id: '2',
@@ -27,7 +29,9 @@ const initialEvents: IEvent[] = [
     creator_id: '1',
     is_finished: false,
     max_repeats_count: 1,
-    color: '#4CAF50'
+    color: '#4CAF50',
+    type: EEventTypes.OTHER,
+    priority: EEventPriority.MEDIUM
   },
   {
     id: '3',
@@ -40,7 +44,9 @@ const initialEvents: IEvent[] = [
     creator_id: '1',
     is_finished: false,
     max_repeats_count: 1,
-    color: '#F44336'
+    color: '#F44336',
+    type: EEventTypes.TASK,
+    priority: EEventPriority.HIGH
   },
   {
     id: '4',
@@ -53,7 +59,9 @@ const initialEvents: IEvent[] = [
     creator_id: '1',
     is_finished: false,
     max_repeats_count: 1,
-    color: '#FFC107'
+    color: '#FFC107',
+    type: EEventTypes.TASK,
+    priority: EEventPriority.LOW
   },
   {
     id: '5',
@@ -66,7 +74,9 @@ const initialEvents: IEvent[] = [
     creator_id: '1',
     is_finished: false,
     max_repeats_count: 1,
-    color: '#FFC0CB'
+    color: '#FFC0CB',
+    type: EEventTypes.MEETING,
+    priority: EEventPriority.HIGH
   }
 ];
 

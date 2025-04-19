@@ -14,4 +14,11 @@
     min-height: 100vh;
     padding-top: 60px; // Header height
   }
+
+  @media (max-width: 1300px) {
+    &--menu-open {
+      width: 80%;
+      margin-left: 30%;
+    }
+  }
 } 

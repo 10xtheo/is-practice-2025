@@ -1,22 +1,30 @@
 import { IValidatorData } from "hooks/useValidator/types";
-import { TEventTypes } from "types/event";
+import { EEventTypes, EEventPriority } from "types/event";
 
 export interface IModalValues extends IValidatorData {
   title: string;
-  startDate: Date;
-  endDate: Date;
-  startTime: string;
-  endTime: string;
+  start: number; // timestamp
+  end: number; // timestamp
   description: string;
-  isLongEvent: boolean;
+  type: EEventTypes;
+  priority: EEventPriority;
+  is_private: boolean;
+  repeat_step: number;
+  max_repeats_count: number;
+  creator_id: string;
   color: string;
 }
 
 export interface IMapEventValues {
   title: string;
   description: string;
-  startDate: Date;
-  endDate: Date;
-  type: TEventTypes;
+  startDate: Date | number;
+  endDate: Date | number;
+  type?: EEventTypes;
+  priority?: EEventPriority;
+  is_private?: boolean;
+  repeat_step?: number;
+  max_repeats_count?: number;
+  creator_id?: string;
   color?: string;
 }
