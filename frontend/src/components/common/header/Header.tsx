@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import Select from '../select/Select';
+import MenuIcon from '../../MenuIcon/MenuIcon';
 import { useModal } from 'hooks/index';
 import { IDirections, IModes, TDate } from 'types/date';
 import { createDate, getNextStartMinutes, shmoment } from 'utils/date';
@@ -52,6 +53,7 @@ const Header: FC<IHeaderProps> = ({
   
   return (
     <header className={styles.header}>
+      <MenuIcon />
       <button
         className={styles.create__btn}
         onClick={handleOpenModal}
