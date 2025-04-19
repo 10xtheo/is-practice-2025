@@ -8,9 +8,10 @@ import CalendarsList from './CalendarsList/CalendarsList';
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectedCalendarsChange: (selectedIds: string[]) => void;
 }
 
-const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {  
+const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChange }) => {  
   const currentDate = new Date();
   const currentMonthObj = createMonth({ date: currentDate });
   const selectedDay = createDate({ date: currentDate });
@@ -43,7 +44,7 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {
             onChangeState={() => {}}
           />
         </div>
-        <CalendarsList />
+        <CalendarsList onSelectedCalendarsChange={onSelectedCalendarsChange} />
         <button className="side-menu__close-btn" onClick={onClose}>
           <i className="fas fa-times"></i>
         </button>
@@ -52,4 +53,4 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default SideMenu; 
+export default SideMenu;
