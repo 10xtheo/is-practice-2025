@@ -36,7 +36,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
-    rules: createEventSchema
+    // rules: createEventSchema
   });
 
   const [isRecurring, setIsRecurring] = useState(false);
@@ -128,6 +128,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   }
 
   const onSubmit: TSubmitHandler<IModalValues> = async (data) => {
+    alert('on submit handler watafack')
     const newEvent: TPartialEvent = {
       title: data.title,
       description: data.description,
@@ -144,6 +145,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     };
     
     try {
+      console.log('newEvent from modal form', newEvent);
+      
       await handlerSubmit(newEvent);
       closeModal();
     } catch (error) {
@@ -170,7 +173,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
             <TextField
               type="text"
               name="title"
-              placeholder="Title"
+              placeholder="Название"
               onChange={handleChange}
               value={values.title}
               error={errors.title}
@@ -269,7 +272,6 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 <span className={styles.modal__form__checkbox__title}>Повторяющееся?</span>
               </label>
             </div>
-            {/* Блок с полями повторения */}
             <div style={{ display: isRecurring ? 'block' : 'none' }}>
               <span className={styles.modal__form__group}>Повторять каждые</span>
               <div className={cn(styles.modal__form__group)} style={{ display: 'flex', gap: 8 }}>
@@ -303,17 +305,15 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
             <div className={cn(styles.modal__form__textarea__container, styles.modal__form__group)}>
               <textarea
                 name="description"
-                placeholder="Description"
+                placeholder="Описание"
                 onChange={handleChange}
                 value={values.description}
                 className={styles.modal__form__textarea}
               />
             </div>
             <button
+              className={cn(styles.navigation__today__btn, "button")}
               type="submit"
-              className={cn(styles.modal__form__submit, {
-                [styles.modal__form__submit_disabled]: !isValid || submitting
-              })}
               disabled={!isValid || submitting}
             >
               {submitting ? textSendingBtn : textSendButton}

@@ -7,7 +7,6 @@ import { useActions, useModal } from "hooks/index";
 
 const ModalCreateEvent: FC<IModalCreateEventOptions> = ({
   selectedDate,
-  type = 'event'
 }) => {
   const { createEvent } = useActions();
   const { closeModalCreate } = useModal();
@@ -17,14 +16,13 @@ const ModalCreateEvent: FC<IModalCreateEventOptions> = ({
     title: '',
     description: '',
     startDate: selectedDate,
-    endDate,
-    type
+    endDate
   });
 
   return (
     <ModalFormEvent
-      textSendButton="Create"
-      textSendingBtn="Creating"
+      textSendButton="Создать событие"
+      textSendingBtn="Создание.."
       defaultEventValues={defaultEventValues}
       closeModal={closeModalCreate}
       handlerSubmit={createEvent}

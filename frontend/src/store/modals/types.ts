@@ -1,4 +1,4 @@
-import { TEventTypes, TPartialEvent } from "types/event";
+import { TPartialEvent } from "types/event";
 
 export interface IModalsState {
   isOpenModalEditEvent: boolean;
@@ -11,7 +11,6 @@ export interface IModalsState {
 
 export interface IModalCreateEventOptions {
   selectedDate: Date;
-  type?: TEventTypes;
 }
 
 export interface IModalEditEventOptions {

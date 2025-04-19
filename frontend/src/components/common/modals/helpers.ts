@@ -15,7 +15,6 @@ export const getMapEventValues = ({
   creator_id = '',
   color = colors[0]
 }: IMapEventValues): IModalValues => {
-  // Ensure we're working with Date objects
   const start = startDate instanceof Date ? startDate : new Date(startDate);
   const end = endDate instanceof Date ? endDate : new Date(endDate);
 

@@ -29,7 +29,7 @@ const Navigation: FC<INavigationProps> = ({
           <div
             className={styles.day__label}
             key={uniqKey}
-            onClick={() => openModalCreate({ selectedDate: dayDate.date, type: 'long-event' })}
+            onClick={() => openModalCreate({ selectedDate: dayDate.date })}
           >
             <span
               className={cn(styles.day__label___name, {

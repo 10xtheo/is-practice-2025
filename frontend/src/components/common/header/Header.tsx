@@ -43,7 +43,7 @@ const Header: FC<IHeaderProps> = ({
           className={cn(styles.navigation__today__btn, "button")}
           onClick={changeToToday}
         >
-          Today</button>
+          Сегодня</button>
         <div className={styles.navigation__body}>
           <div className={styles.navigation__icons}>
             <button
