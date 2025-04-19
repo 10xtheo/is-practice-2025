@@ -2,16 +2,16 @@
 !!! Нужно у себя на ПК иметь [npm и Node.js](https://nodejs.org/en/download/)
 
 ### Перед первым запуском - установка зависимостей
-bash```
+```
 npm install
 ```
 (Ну и билд скрипт на всякий выполнить, доступные скрипты лежат в package.json)
-bash```
+```
 npm run build
 ```
 
 ### Запуск
-bash```
+```
 npm run start
 ```
 
