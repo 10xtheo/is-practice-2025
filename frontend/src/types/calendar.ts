@@ -4,3 +4,5 @@ export interface ICalendar {
   owner_id: string;
   color: string;
 } 
+
+export interface ICalendarCreate extends Omit<ICalendar, 'id'> {} 

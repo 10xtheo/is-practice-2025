@@ -1,6 +1,6 @@
 import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars } from "./types";
 import { EEventPriority, EEventTypes, IEvent, IEventCreate } from "../types/event";
-import { ICalendar } from "types/calendar";
+import { ICalendar, ICalendarCreate } from "types/calendar";
 
 // Stub data for events
 const initialEvents: IEvent[] = [
@@ -225,7 +225,7 @@ class HttpCalendars {
   }
 
   get = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.GET });
-  post = async <IDto>(url: string, body: ICalendar) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
+  post = async <IDto>(url: string, body: ICalendarCreate) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
   delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });
   patch = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PATCH, body });
   put = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });

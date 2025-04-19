@@ -1,4 +1,4 @@
-import { ICalendar } from "types/calendar";
+import { ICalendar, ICalendarCreate } from "types/calendar";
 import { IEvent, IEventCreate } from "../types/event";
 
 export enum METHODS {
@@ -33,7 +33,7 @@ interface PatchRequestOptionsEvents extends BaseRequestOptions<METHODS.PATCH> {
 export type RequestsOptionsEvents = GetRequestOptions | PostRequestOptionsEvents | DeleteRequestOptions | PutRequestOptionsEvents | PatchRequestOptionsEvents;
 
 interface PostRequestOptionsCalendars extends BaseRequestOptions<METHODS.POST> {
-  body?: ICalendar;
+  body?: ICalendarCreate;
 }
 
 interface PutRequestOptionsCalendars extends BaseRequestOptions<METHODS.PUT> {
