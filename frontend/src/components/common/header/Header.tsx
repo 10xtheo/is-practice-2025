@@ -1,9 +1,7 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import Select from '../select/Select';
 import MenuIcon from '../../MenuIcon/MenuIcon';
-import { useModal } from 'hooks/index';
 import { IDirections, IModes, TDate } from 'types/date';
-import { createDate, getNextStartMinutes, shmoment } from 'utils/date';
 import cn from 'classnames';
 
 import styles from './header.module.scss';
@@ -27,30 +25,15 @@ const Header: FC<IHeaderProps> = ({
   selectedDay,
   onMenuToggle
 }) => {
-  const {
-    isOpenModalCreateEvent,
-    isOpenModalDayInfoEvents,
-    isOpenModalEditEvent,
-    openModalCreate
-  } = useModal();
-
-  const isBtnCreateEventDisable = isOpenModalCreateEvent || isOpenModalDayInfoEvents || isOpenModalEditEvent;
+  const [searchQuery, setSearchQuery] = useState('');
   
   const changeToPrev = () => onClickArrow('left');
   const changeToNext = () => onClickArrow('right');
   const changeToToday = () => onClickArrow('today');
 
-  const handleOpenModal = () => {
-    const date = new Date();
-    const { hours, minutes } = createDate({ date: date });
-    const startMins = getNextStartMinutes(minutes);
-    const selectedDate = shmoment(selectedDay.date)
-      .set('hours', hours)
-      .set('minutes', startMins + minutes)
-      .result();
-
-    openModalCreate({ selectedDate });
-  }
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
   
   return (
     <header className={styles.header}>
@@ -78,6 +61,16 @@ const Header: FC<IHeaderProps> = ({
           </div>
           <span className={styles.navigation__date}>{displayedDate}</span>
         </div>
+      </div>
+      <div className={styles.search}>
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className={styles.search__input}
+        />
+        <i className={`fas fa-search ${styles.search__icon}`}></i>
       </div>
       <Select
         onChangeOption={onChangeOption}
