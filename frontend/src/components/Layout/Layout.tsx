@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 import './Layout.scss';
 import SideMenu from '../SideMenu/SideMenu';
+import { useActions } from 'hooks/useActions';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,14 +13,23 @@ interface ChildProps {
 
 const Layout: FC<LayoutProps> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const { setSelectedCalendars } = useActions();
 
   const handleMenuToggle = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleSelectedCalendarsChange = (selectedIds: string[]) => {
+    setSelectedCalendars(selectedIds);
+  };
+
   return (
     <div className={`layout ${isMenuOpen ? 'layout--menu-open' : ''}`}>
-      <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <SideMenu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+        onSelectedCalendarsChange={handleSelectedCalendarsChange}
+      />
       <div className="layout__content">
         {React.Children.map(children, child => {
           if (React.isValidElement<ChildProps>(child)) {

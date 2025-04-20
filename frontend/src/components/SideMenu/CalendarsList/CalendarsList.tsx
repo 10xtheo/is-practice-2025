@@ -1,25 +1,32 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState } from 'react';
 import { ICalendar } from 'types/calendar';
-import apiCalendars from 'gateway/calendars';
+import { useTypedSelector } from 'hooks/useTypedSelector';
+import { useActions } from 'hooks/useActions';
 import ModalCreateCalendar from 'components/common/modals/modal-create-calendar/ModalCreateCalendar';
 import './CalendarsList.scss';
 
-const CalendarsList: FC = () => {
-  const [calendars, setCalendars] = useState<ICalendar[]>([]);
+interface CalendarsListProps {
+  onSelectedCalendarsChange: (selectedIds: string[]) => void;
+}
+
+const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchCalendars = async () => {
-      const data = await apiCalendars.getCalendars();
-      setCalendars(data);
-    };
-
-    fetchCalendars();
-  }, []);
+  
+  const { calendars, selectedCalendarIds } = useTypedSelector(({ calendars }) => calendars);
+  const { createCalendar, setSelectedCalendars } = useActions();
 
   const handleCalendarCreated = (newCalendar: ICalendar) => {
-    setCalendars(prev => [...prev, newCalendar]);
+    createCalendar(newCalendar);
+  };
+
+  const handleCalendarSelect = (calendarId: string) => {
+    const newSelectedIds = selectedCalendarIds.includes(calendarId)
+      ? selectedCalendarIds.filter(id => id !== calendarId)
+      : [...selectedCalendarIds, calendarId];
+    
+    setSelectedCalendars(newSelectedIds);
+    onSelectedCalendarsChange(newSelectedIds);
   };
 
   return (
@@ -48,6 +55,8 @@ const CalendarsList: FC = () => {
               <input 
                 type="checkbox" 
                 id={`calendar-${calendar.id}`}
+                checked={selectedCalendarIds.includes(calendar.id)}
+                onChange={() => handleCalendarSelect(calendar.id)}
               />
               <label htmlFor={`calendar-${calendar.id}`}>
                 <span 

@@ -5,7 +5,7 @@ import { IEvent, IEventCreate, TPartialEvent } from 'types/event';
 export const getEvents = createAsyncThunk<IEvent[]>(
   'events/get-events',
   async (_, thunkAPI) => {
-    try {      
+    try {
       const events = await apiEvents.getEvents();
       return events;
     } catch (error) {

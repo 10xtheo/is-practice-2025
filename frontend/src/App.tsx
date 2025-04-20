@@ -6,10 +6,11 @@ import { useActions } from './hooks';
 import './common.scss';
 
 const App: FC = () => {
-  const { getEvents } = useActions();
+  const { getEvents, getCalendars } = useActions();
 
   useEffect(() => {
     getEvents();
+    getCalendars();
   }, []);
   
   return (

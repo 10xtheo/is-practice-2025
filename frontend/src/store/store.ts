@@ -10,4 +10,9 @@ export const store = configureStore({
   })
 })
 
+// Для отладки
+if (typeof window !== 'undefined') {
+  window['store'] = store
+}
+
 export type TypeRootState = ReturnType<typeof store.getState>
