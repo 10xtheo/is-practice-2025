@@ -13,7 +13,8 @@ export const getMapEventValues = ({
   repeat_step = 0,
   max_repeats_count = 0,
   creator_id = '',
-  color = colors[0]
+  color = colors[0],
+  category_id,
 }: IMapEventValues): IModalValues => {
   const start = startDate instanceof Date ? startDate : new Date(startDate);
   const end = endDate instanceof Date ? endDate : new Date(endDate);
@@ -29,6 +30,7 @@ export const getMapEventValues = ({
     repeat_step,
     max_repeats_count,
     creator_id,
-    color
+    color,
+    category_id
   }
 }

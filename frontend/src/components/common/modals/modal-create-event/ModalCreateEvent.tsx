@@ -16,7 +16,8 @@ const ModalCreateEvent: FC<IModalCreateEventOptions> = ({
     title: '',
     description: '',
     startDate: selectedDate,
-    endDate
+    endDate,
+    category_id: '',
   });
 
   return (

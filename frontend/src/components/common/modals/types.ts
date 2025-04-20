@@ -13,6 +13,7 @@ export interface IModalValues extends IValidatorData {
   max_repeats_count: number;
   creator_id: string;
   color: string;
+  category_id: string;
 }
 
 export interface IMapEventValues {
@@ -27,4 +28,5 @@ export interface IMapEventValues {
   max_repeats_count?: number;
   creator_id?: string;
   color?: string;
+  category_id: string;
 }

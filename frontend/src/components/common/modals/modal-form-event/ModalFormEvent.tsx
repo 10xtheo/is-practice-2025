@@ -1,9 +1,8 @@
 import React, { ChangeEvent, FC, useRef, useState } from 'react';
-import { useClickOutside, useForm } from 'hooks/index';
+import { useClickOutside, useForm, useTypedSelector } from 'hooks/index';
 import { checkDateIsEqual, getDateTime, getDifferenceInTimeFromTwoTimes, getDifferenceOfTwoDates, getDifferenceOfTwoTimestamps, shmoment } from 'utils/date';
 import { TSubmitHandler } from 'hooks/useForm/types';
-import { createEventSchema } from 'validation-schemas/index';
-import { IModalValues } from './types';
+import { IModalValues } from 'components/common/modals/types';
 import { TPartialEvent, EEventTypes, EEventPriority } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
 import cn from 'classnames';
@@ -33,7 +32,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   handlerSubmit
 }) => {
   const modalRef = useRef<HTMLDivElement>();
-
+  const { calendars } = useTypedSelector(({ calendars }) => calendars);
+  
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
     // rules: createEventSchema @TODO добавить валидацию
@@ -104,12 +104,6 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const onToggleIsPrivate = (e: ChangeEvent<HTMLInputElement>) => {
     setValue('is_private', e.target.checked);
   }
-
-  const onChangeRepeatStep = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    setValue('repeat_step', isNaN(value) ? 0 : value);
-  }
-
   const onChangeMaxRepeats = (e: ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     setValue('max_repeats_count', isNaN(value) ? 0 : value);
@@ -126,6 +120,17 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const onChangeColor = (color: string) => {
     setValue('color', color);
   }
+
+  const onChangeCategoryValue = (category_id: string) => {
+
+    const calendar = calendars.find(i => i.id === category_id);
+    if (category_id) {
+      setValue('category_id', category_id);
+    } else {
+      // @TODO добавить фичу чтобы автоматом создавалась категория если новая
+      console.log('нет такой категории:', category_id);
+    }
+  };
 
   const onSubmit: TSubmitHandler<IModalValues> = async (data) => {
     const newEvent: TPartialEvent = {
@@ -168,6 +173,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
             onSubmit={handleSubmit(onSubmit)}
           >
             <TextField
+              required
               type="text"
               name="title"
               placeholder="Название"
@@ -238,6 +244,20 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 }))}
                 placeholder="Приоритет"
                 error={errors.priority}
+                fullWidth
+              />
+            </div>
+            <div className={cn(styles.modal__form__group)}>
+              <Select
+                name="category"
+                value={values.category_id}
+                onChange={onChangeCategoryValue}
+                options={calendars.map(calendar => ({
+                  value: calendar.id,
+                  label: calendar.title
+                }))}
+                placeholder="Календарь"
+                error={errors.category_id}
                 fullWidth
               />
             </div>
