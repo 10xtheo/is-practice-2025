@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useCalendar } from 'hooks/useCalendar';
-import { useModal } from 'hooks/index';
+import { useModal, useTypedSelector } from 'hooks/index';
 import { createDate, getNextStartMinutes, shmoment } from 'utils/date';
 import WeekCalendar from './components/week-calendar/WeekCalendar';
 import Header from 'components/common/header/Header';
@@ -15,6 +15,8 @@ interface ICalendarProps {
 
 const Calendar: FC<ICalendarProps> = ({ onMenuToggle }) => {
   const { state, functions } = useCalendar({ selectedDate: new Date() });
+  const { selectedCalendarIds } = useTypedSelector(({ calendars }) => calendars);
+  
   const {
     isOpenModalCreateEvent,
     isOpenModalDayInfoEvents,
@@ -77,6 +79,7 @@ const Calendar: FC<ICalendarProps> = ({ onMenuToggle }) => {
             calendarDaysOfMonth={state.calendarDaysOfMonth}
             selectedMonth={state.selectedMonth}
             onClickArrow={functions.onClickArrow}
+            selectedCalendarIds={selectedCalendarIds}
           />
         )}
         
@@ -84,6 +87,7 @@ const Calendar: FC<ICalendarProps> = ({ onMenuToggle }) => {
           <WeekCalendar
             weekDays={state.weekDays}
             weekDaysNames={state.weekDaysNames}
+            selectedCalendarIds={selectedCalendarIds}
           />
         )}
       </section>

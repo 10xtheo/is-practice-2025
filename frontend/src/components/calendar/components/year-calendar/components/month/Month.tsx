@@ -19,7 +19,7 @@ const Month: FC<IMonthProps> = ({
   weekDaysNames,
   monthIndex,
   selectedDay,
-  onChangeState
+  onChangeState,
 }) => {
   return (
     <div className={styles.month}>

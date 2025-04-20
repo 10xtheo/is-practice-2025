@@ -62,7 +62,7 @@ const ModalDayInfo: FC<IModalDayInfoProps> = ({
           style={modalContentStyle}
         >
           {dayEvents.length === 0 && (
-            <div className={styles.modal__empty__events}>There are no events scheduled on this day.</div>
+            <div className={styles.modal__empty__events}>На этот день ничего не запланировано! 🥳</div>
           )}
           {daySortedLongEvents.map((event, indx) => {
             const { isMovingToNext, isMovingFromPrev } = getStyledForLongEvent([selectedDay], selectedDay, event);

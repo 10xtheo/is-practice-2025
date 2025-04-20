@@ -12,10 +12,13 @@ import styles from './week-calendar.module.scss';
 interface IWeekCalendarProps {
   weekDays: IMonthDay[];
   weekDaysNames: IWeekDay[];
+  selectedCalendarIds: string[];
 }
 
-const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames }) => {
-  const { events } = useTypedSelector(({ events }) => events);
+const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames, selectedCalendarIds }) => {
+  let { events } = useTypedSelector(({ events }) => events);
+  events = events.filter(e => selectedCalendarIds.includes(e.category_id));
+  
   const calendarBodyRef = useRef<HTMLDivElement>(null);
 
   const weekEvents = getEventsInterval(weekDays, events);

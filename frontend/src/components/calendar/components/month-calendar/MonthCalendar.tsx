@@ -13,16 +13,19 @@ interface IMonthCalendarProps {
   calendarDaysOfMonth: IMonthDay[];
   selectedMonth: TMonth;
   onClickArrow: (direction: IDirections) => void;
+  selectedCalendarIds: string[];
 }
 
 const MonthCalendar: FC<IMonthCalendarProps> = ({
   weekDaysNames,
   calendarDaysOfMonth,
   selectedMonth,
-  onClickArrow
+  onClickArrow,
+  selectedCalendarIds
 }) => {
-  const { events } = useTypedSelector(({ events }) => events);
-
+  let { events } = useTypedSelector(({ events }) => events);
+  events = events.filter(e => selectedCalendarIds.includes(e.category_id));
+  
   const monthEvents = getEventsInterval(calendarDaysOfMonth, events);
   const shortEvents = getShortEvents(monthEvents);
   const longEvents = getLongEvents(monthEvents);

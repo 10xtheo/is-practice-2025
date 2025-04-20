@@ -15,7 +15,11 @@ interface IHeaderProps {
   onMenuToggle: () => void;
 }
 
-const modes = ['week', 'month', 'year']
+const modes = [
+  { value: 'week', label: 'Неделя' },
+  { value: 'month', label: 'Месяц' },
+  { value: 'year', label: 'Год' }
+];
 
 const Header: FC<IHeaderProps> = ({
   onClickArrow,
@@ -33,6 +37,10 @@ const Header: FC<IHeaderProps> = ({
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleModeChange = (value: string) => {
+    onChangeOption(value as IModes);
   };
   
   return (
@@ -73,7 +81,7 @@ const Header: FC<IHeaderProps> = ({
         <i className={`fas fa-search ${styles.search__icon}`}></i>
       </div>
       <Select
-        onChangeOption={onChangeOption}
+        onChangeOption={handleModeChange}
         options={modes}
         selectedOption={selectedOption}
       />

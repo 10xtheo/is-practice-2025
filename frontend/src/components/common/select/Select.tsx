@@ -5,8 +5,13 @@ import cn from "classnames";
 
 import styles from './select.module.scss';
 
+interface ISelectOption {
+  value: string;
+  label: string;
+}
+
 interface SelectProps {
-  options: string[];
+  options: ISelectOption[];
   onChangeOption: (option: string) => void;
   selectedOption: string;
 }
@@ -23,7 +28,9 @@ const Select: FC<SelectProps> = ({
 
   const close = () => setIsOpen(false);
 
-  useClickOutside(selectContainerRef, close)
+  useClickOutside(selectContainerRef, close);
+
+  const selectedOptionLabel = options.find(opt => opt.value === selectedOption)?.label || selectedOption;
 
   return (
     <div
@@ -34,7 +41,7 @@ const Select: FC<SelectProps> = ({
         className={cn(styles.select__header, "button")}
         onClick={toggling}
       >
-        <div className={styles.select__header__title}>{selectedOption}</div>
+        <div className={styles.select__header__title}>{selectedOptionLabel}</div>
         <i className={cn(styles.select__icon__down, "fas fa-chevron-down")}></i>
       </div>
       {isOpen && (
@@ -42,9 +49,9 @@ const Select: FC<SelectProps> = ({
           <ul className={styles.select__list}>
             {options.map(option => (
               <SelectOption
-                key={option}
-                option={option}
-                onChangeOption={onChangeOption}
+                key={option.value}
+                option={option.label}
+                onChangeOption={() => onChangeOption(option.value)}
                 close={close}
               />
             ))}
@@ -53,6 +60,6 @@ const Select: FC<SelectProps> = ({
       )}
     </div>
   );
-}
+};
 
 export default Select;
