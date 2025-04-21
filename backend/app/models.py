@@ -194,6 +194,24 @@ class CategoryParticipant(SQLModel, table=True):
     category: "Category" = Relationship(back_populates="participants")
     user: "User" = Relationship(back_populates="category_participations")
 
+class CategoryParticipantCreate(SQLModel):
+    user_id: uuid.UUID
+    is_creator: bool = False
+    permissions: CategoryPermission = CategoryPermission.VIEW
+
+class CategoryParticipantUpdate(SQLModel):
+    is_creator: bool | None = None
+    permissions: CategoryPermission | None = None
+
+class CategoryParticipantPublic(CategoryParticipantCreate):
+    id: uuid.UUID
+    category_id: uuid.UUID
+
+class CategoryParticipantsPublic(SQLModel):
+    data: list[CategoryParticipantPublic]
+    count: int
+
+
 # --- Event Models ---
 class EventBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
@@ -257,4 +275,21 @@ class EventParticipant(SQLModel, table=True):
     event: "Event" = Relationship(back_populates="participants")
     user: "User" = Relationship(back_populates="event_participations")
 
+class EventParticipantCreate(SQLModel):
+    user_id: uuid.UUID
+    is_creator: bool = False
+    is_listener: bool = False
+    permissions: EventPermission = EventPermission.VIEW
 
+class EventParticipantUpdate(SQLModel):
+    is_creator: bool | None = None
+    is_listener: bool | None = None
+    permissions: EventPermission | None = None
+
+class EventParticipantPublic(EventParticipantCreate):
+    id: uuid.UUID
+    event_id: uuid.UUID
+
+class EventParticipantsPublic(SQLModel):
+    data: list[EventParticipantPublic]
+    count: int
