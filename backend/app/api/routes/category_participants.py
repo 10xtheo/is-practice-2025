@@ -63,7 +63,7 @@ def add_category_participant(
     participant_in: CategoryParticipantCreate
 ):
     """
-    Add a participant to a category and also add them to all associated events.
+    Add a participant to a category (without adding to category's events).
     """
     # Verify category exists and user has manage permissions
     category = session.get(Category, category_id)
@@ -98,22 +98,6 @@ def add_category_participant(
     session.add(participant)
     session.commit()
     session.refresh(participant)
-
-    # Now add the user to all events associated with the category
-    event_links = session.exec(
-        select(EventCategoryLink)
-        .where(EventCategoryLink.category_id == category_id)
-    ).all()
-
-    for link in event_links:
-        event_participant = EventParticipant(
-            user_id=participant_in.user_id,
-            event_id=link.event_id,
-            permissions=EventPermission.VIEW  # Set default permissions as needed
-        )
-        session.add(event_participant)
-
-    session.commit()  # Commit the new event participants to the database
 
     return participant
 
@@ -161,7 +145,7 @@ def remove_category_participant(
     user_id: uuid.UUID,
 ) -> Message:
     """
-    Remove a participant from a category based on user_id and also remove them from all associated events.
+    Remove a participant from a category based on user_id (without removing them from category's events).
     """
     # Verify category exists
     category = session.get(Category, category_id)
@@ -180,23 +164,6 @@ def remove_category_participant(
     # Delete the participant from the category
     session.delete(participant)
 
-    # Now remove the user from all events associated with the category
-    event_links = session.exec(
-        select(EventCategoryLink)
-        .where(EventCategoryLink.category_id == category_id)
-    ).all()
-
-    for link in event_links:
-        # Delete the user from the event participants
-        event_participant = session.exec(
-            select(EventParticipant)
-            .where(EventParticipant.event_id == link.event_id)
-            .where(EventParticipant.user_id == user_id)
-        ).first()
-        
-        if event_participant:
-            session.delete(event_participant)
-
     session.commit()  # Commit the changes to the database
 
-    return Message(message="Participant removed successfully from category and all associated events")
+    return Message(message="Participant removed successfully from category")
