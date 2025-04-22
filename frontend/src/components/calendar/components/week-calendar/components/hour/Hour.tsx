@@ -47,7 +47,6 @@ const Hour: FC<IHourProps> = ({
         <TimeLine currentDate={currentDate} setCurrentDate={setCurrentDate} />
       )}
 
-      {/* if no events in the current hour nothing will render here */}
       {hourEvents.map((event) => {
         const { id, title, color } = event;
 

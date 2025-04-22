@@ -3,7 +3,7 @@ import { EEventPriority, EEventTypes, IEvent, IEventCreate } from "../types/even
 import { ICalendar, ICalendarCreate } from "types/calendar";
 
 // Stub data for events
-const initialEvents: IEvent[] = [
+let initialEvents: IEvent[] = [
   {
     id: '1',
     title: 'Team Meeting',
@@ -83,6 +83,22 @@ const initialEvents: IEvent[] = [
     type: EEventTypes.MEETING,
     priority: EEventPriority.HIGH,
     category_id: '1'
+  },
+  {
+    id: "12345",
+    title: "tw",
+    description: "",
+    start: 1745182800000,
+    end: 1745186400000,
+    repeat_step: 0,
+    is_private: false,
+    creator_id: "",
+    is_finished: false,
+    max_repeats_count: 0,
+    type: EEventTypes.TASK,
+    priority: EEventPriority.MEDIUM,
+    color: "rgb(142, 36, 170)",
+    category_id: "2"
   }
 ];
 
@@ -100,6 +116,7 @@ class HttpEvents {
 
       switch (options.method) {
         case METHODS.GET:
+          console.log('get', this.events);
           return this.events as IDtoRequest;
         
         case METHODS.POST:
