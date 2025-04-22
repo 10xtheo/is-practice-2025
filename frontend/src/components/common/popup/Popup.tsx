@@ -12,7 +12,7 @@ interface IPopupProps {
 const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const { events } = useTypedSelector(({ events }) => events);
-  const { deleteEvent } = useActions();
+  const { deleteEvent, getEvents, getCalendars } = useActions();
   const { closePopup } = usePopup();
   const { openModalEdit } = useModal();
   const { width: windowWidth, height: windowHeight } = useWindowSize();
@@ -46,8 +46,10 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
 
   useClickOutside(popupRef, handleClosePopup);
 
-  const onDelete = () => {
-    deleteEvent(eventId);
+  const onDelete = async () => {
+    await deleteEvent(eventId);
+    await getEvents();
+    await getCalendars();
     closePopup();
   }
 

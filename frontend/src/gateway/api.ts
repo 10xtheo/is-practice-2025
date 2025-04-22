@@ -1,6 +1,6 @@
 import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars } from "./types";
 import { EEventPriority, EEventTypes, IEvent, IEventCreate } from "../types/event";
-import { ICalendar, ICalendarCreate } from "types/calendar";
+import { ICalendar } from "../types/calendar";
 
 // Stub data for events
 let initialEvents: IEvent[] = [
@@ -116,7 +116,6 @@ class HttpEvents {
 
       switch (options.method) {
         case METHODS.GET:
-          console.log('get', this.events);
           return this.events as IDtoRequest;
         
         case METHODS.POST:
@@ -145,8 +144,8 @@ class HttpEvents {
         case METHODS.DELETE:
           const deleteId = options.url.split('/')[1];
           const deleteIndex = this.events.findIndex(e => e.id === deleteId);
-          if (deleteIndex !== -1) {
-            this.events.splice(deleteIndex, 1);
+          if (deleteIndex !== -1) {            
+            this.events = [...this.events.slice(0, deleteIndex), ...this.events.slice(deleteIndex + 1)];
             return {} as IDtoRequest;
           }
           throw new Error('Event not found');
@@ -202,7 +201,7 @@ class HttpCalendars {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       switch (options.method) {
-        case METHODS.GET:
+        case METHODS.GET:          
           return this.calendars as IDtoRequest;
         
         case METHODS.POST:
@@ -213,6 +212,7 @@ class HttpCalendars {
             owner_id: 'user1'
           };
           this.calendars = [...this.calendars, newCalendar];
+          
           return newCalendar as IDtoRequest;
         
         case METHODS.PUT:
@@ -232,7 +232,7 @@ class HttpCalendars {
           const deleteId = options.url.split('/')[1];
           const deleteIndex = this.calendars.findIndex(c => c.id === deleteId);
           if (deleteIndex !== -1) {
-            this.calendars.splice(deleteIndex, 1);
+            this.calendars = [...this.calendars.slice(0, deleteIndex), ...this.calendars.slice(deleteIndex + 1)];
             return {} as IDtoRequest;
           }
           throw new Error('Calendar not found');
@@ -247,7 +247,7 @@ class HttpCalendars {
   }
 
   get = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.GET });
-  post = async <IDto>(url: string, body: ICalendarCreate) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
+  post = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
   delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });
   patch = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PATCH, body });
   put = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });

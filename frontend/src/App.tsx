@@ -13,7 +13,6 @@ const App: FC = () => {
     getEvents();
     getCalendars();
   }, []);
-  console.log('wlh', window.location.href);
   
   return (
     <Layout>

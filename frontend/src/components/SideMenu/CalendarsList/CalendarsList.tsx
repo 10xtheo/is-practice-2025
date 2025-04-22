@@ -1,7 +1,7 @@
-import React, { FC, useState } from 'react';
-import { ICalendar } from 'types/calendar';
+import React, { FC, useState, MouseEvent } from 'react';
+import { ICalendar, TPartialCalendar } from 'types/calendar';
 import { useTypedSelector } from 'hooks/useTypedSelector';
-import { useActions } from 'hooks/useActions';
+import { useActions, usePopup } from 'hooks/index';
 import ModalCreateCalendar from 'components/common/modals/modal-create-calendar/ModalCreateCalendar';
 import './CalendarsList.scss';
 
@@ -15,10 +15,7 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
   
   const { calendars, selectedCalendarIds } = useTypedSelector(({ calendars }) => calendars);
   const { createCalendar, setSelectedCalendars } = useActions();
-
-  const handleCalendarCreated = (newCalendar: ICalendar) => {
-    createCalendar(newCalendar);
-  };
+  const { openPopup } = usePopup();
 
   const handleCalendarSelect = (calendarId: string) => {
     const newSelectedIds = selectedCalendarIds.includes(calendarId)
@@ -28,6 +25,20 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
     setSelectedCalendars(newSelectedIds);
     onSelectedCalendarsChange(newSelectedIds);
   };
+
+  const handleCalendarContextMenu = (e: MouseEvent<HTMLDivElement>, calendar: ICalendar) => {
+    e.preventDefault();
+    const { clientX, clientY } = e;
+    openPopup({
+      x: clientX,
+      y: clientY,
+      calendarId: calendar.id,
+      calendarData: calendar
+    });
+  };
+
+  const onCreateCalendar = (calendar: TPartialCalendar) => createCalendar(calendar);
+
 
   return (
     <div className="calendars-list">
@@ -51,7 +62,11 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
       {isExpanded && (
         <div className="calendars-list__items">
           {calendars.map(calendar => (
-            <div key={calendar.id} className="calendars-list__item">
+            <div 
+              key={calendar.id} 
+              className="calendars-list__item"
+              onContextMenu={(e) => handleCalendarContextMenu(e, calendar)}
+            >
               <input 
                 type="checkbox" 
                 id={`calendar-${calendar.id}`}
@@ -71,8 +86,8 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
       )}
       <ModalCreateCalendar
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCalendarCreated={handleCalendarCreated}
+        closeModal={() => setIsModalOpen(false)}
+        handlerSubmit={onCreateCalendar}
       />
     </div>
   );

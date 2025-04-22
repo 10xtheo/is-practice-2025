@@ -30,3 +30,9 @@ export interface IMapEventValues {
   color?: string;
   category_id: string;
 }
+
+export interface IModalValuesCalendar extends IValidatorData {
+  title: string;
+  color: string;
+  owner_id: string;
+}

@@ -5,4 +5,4 @@ export interface ICalendar {
   color: string;
 } 
 
-export interface ICalendarCreate extends Omit<ICalendar, 'id'> {} 
+export type TPartialCalendar = Partial<ICalendar>

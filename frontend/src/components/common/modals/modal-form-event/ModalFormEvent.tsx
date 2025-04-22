@@ -124,11 +124,11 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const onChangeCategoryValue = (category_id: string) => {
 
     const calendar = calendars.find(i => i.id === category_id);
-    if (category_id) {
+    if (calendar) {
       setValue('category_id', category_id);
     } else {
       // @TODO добавить фичу чтобы автоматом создавалась категория если новая
-      console.log('нет такой категории:', category_id);
+      alert(`нет такой категории: ${category_id}`);
     }
   };
 

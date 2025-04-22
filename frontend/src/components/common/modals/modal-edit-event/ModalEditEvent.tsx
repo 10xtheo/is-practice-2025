@@ -21,7 +21,8 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
     startDate,
     endDate,
     type: eventData.type,
-    color: eventData.color
+    color: eventData.color,
+    category_id: eventData.category_id
   });
 
   const onUpdateEvent = (event: TPartialEvent) => updateEvent({ eventId: eventId, event });
