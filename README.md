@@ -8,7 +8,7 @@
 
 ### Требования
 - Node.js (версия X.X или выше)
-- npm (версия X.X или выше)
+- yarn (версия X.X или выше)
 - Python (версия X.X или выше)
 - PostgreSQL
 
@@ -46,16 +46,16 @@
 ## ⚙ Установка и запуск фронтенда 
 1. **Установить зависимости**
     ```bash
-    cd /frontend
-    npm install
+    cd frontend/
+    yarn install
     ```
 2. **(Опционально) Собрать проект**
     ```bash
-    npm run build
+    yarn run build
     ```
 3. **Запустить фронтенд**
     ```bash
-    npm run start
+    yarn run start
     ```
 Фронтенд будет доступен по адресу: http://localhost:3000.
 Чтобы изменить порт, отредактируйте webpack.config.js.
@@ -66,12 +66,31 @@
 sudo apt update
 sudo apt install postgresql postgresql-contrib
 ```
-2. **Создать пользователя и базу данных**
+
+2. **Запустить PostgreSQL**
+```bash
+sudo systemctl start postgresql
+sudo systemctl status postgresql
+```
+
+3. **Создать пользователя и базу данных**
 ```bash
 sudo -u postgres psql -c "CREATE USER postgres WITH PASSWORD 'postgres';"
 
 sudo -u postgres psql -c "CREATE DATABASE app OWNER postgres;"
 ```
+
+4. **Создать виртуальное окружение Python (где X - ваша версия питона)**
+```bash
+pythonX -m venv <YOUR_VENV_NAME>
+```
+
+## Активация виртуального окружения
+```bash
+cd is-practice-2025/backend
+source <YOUR_VENV_NAME>/bin/activate
+```
+
 ## Установка зависимостей
 ```bash
 cd is-practice-2025/backend
