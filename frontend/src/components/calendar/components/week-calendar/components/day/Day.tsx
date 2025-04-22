@@ -21,24 +21,23 @@ const Day: FC<IDayProps> = ({
   const hours = Array(24)
     .fill(0)
     .map((_, index) => index);
-
+  
   return (
     <div
       className={styles.day}
       data-day={dayData.dayNumber}
     >
       {hours.map((hour) => {
-        //getting all events from the day we will render
         const currentHourEvents = dayEvents?.filter(
           (event) => new Date(event.start).getHours() === hour
         );
-
+        
         const eventsFromPrevDay = prevDayEvents.filter((_) => 0 === hour);
         
         const eventsToNextDay = nextDayEvents.filter(
           (event) => new Date(event.start).getHours() === hour
         );
-
+        
         const allDayEvents = [
           ...prevDayEvents,
           ...dayEvents,
