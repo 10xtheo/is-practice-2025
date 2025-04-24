@@ -3,7 +3,7 @@ import { useClickOutside, useForm, useTypedSelector } from 'hooks/index';
 import { checkDateIsEqual, getDateTime, getDifferenceInTimeFromTwoTimes, getDifferenceOfTwoDates, getDifferenceOfTwoTimestamps, shmoment } from 'utils/date';
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValues } from 'components/common/modals/types';
-import { TPartialEvent, EEventTypes, EEventPriority } from 'types/event';
+import { TPartialEvent, EventType, EventPriority } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
 import cn from 'classnames';
 
@@ -110,11 +110,11 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   }
 
   const onChangeType = (value: string) => {
-    setValue('type', value as EEventTypes);
+    setValue('type', value as EventType);
   }
 
   const onChangePriority = (value: string) => {
-    setValue('priority', value as EEventPriority);
+    setValue('priority', value as EventPriority);
   }
 
   const onChangeColor = (color: string) => {
@@ -225,7 +225,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 name="type"
                 value={values.type}
                 onChange={onChangeType}
-                options={Object.entries(EEventTypes).map(([key, value]) => ({
+                options={Object.entries(EventType).map(([key, value]) => ({
                   value: key,
                   label: value
                 }))}
@@ -239,7 +239,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 name="priority"
                 value={values.priority}
                 onChange={onChangePriority}
-                options={Object.entries(EEventPriority).map(([key, value]) => ({
+                options={Object.entries(EventPriority).map(([key, value]) => ({
                   value: key,
                   label: value
                 }))}

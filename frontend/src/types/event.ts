@@ -10,8 +10,8 @@ export interface IEvent {
   is_finished: boolean;
   max_repeats_count: number;
   color: string;
-  type: EEventTypes;
-  priority: EEventPriority;
+  type: EventType;
+  priority: EventPriority;
   category_id: string; // Календарь @TODO фильтрация по календарю
 }
 
@@ -24,25 +24,28 @@ export interface IEventCreate {
   end: number;
   repeat_step: number; // @TODO мб указать единицы измерения
   is_private: boolean;
-  creator_id: string;
   max_repeats_count: number; // @TODO ивент может повторяться до даты!
   color: string;
-  type: EEventTypes;
-  priority: EEventPriority;
+  type: EventType;
+  priority: EventPriority;
   category_id: string; // Календарь @TODO фильтрация по календарю
 }
 
-export enum EEventTypes {
-  TASK = 'Задача',
-  EVENT = 'Событие',
-  MEETING = 'Встреча',
-  NOTE = 'Заметка',
-  REMINDER = 'Напоминание',
-  OTHER = 'Другое'
+export enum EventType {
+  MEETING = "meeting",
+  TASK = "task",
+  REMINDER = "reminder",
+  HOLIDAY = "holiday"
 }
 
-export enum EEventPriority {
-  LOW = 'Низкий',
-  MEDIUM = 'Средний',
-  HIGH = 'Высокий'
+export enum EventPriority {
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high"
+}
+
+export enum EventPermission {
+  VIEW = "view",
+  EDIT = "edit",
+  ORGANIZE = "organize"
 }

@@ -24,7 +24,6 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
       calendarData: {
         title,
         color,
-        owner_id: calendarData.owner_id
       }
     });
     closeModalEditCalendar();

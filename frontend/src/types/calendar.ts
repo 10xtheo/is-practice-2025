@@ -6,3 +6,14 @@ export interface ICalendar {
 } 
 
 export type TPartialCalendar = Partial<ICalendar>
+
+export interface ICalendarCreate {
+  title: string;
+  color: string;
+}
+
+export enum CategoryPermission {
+  VIEW = "view",
+  EDIT = "edit",
+  MANAGE = "manage"
+}

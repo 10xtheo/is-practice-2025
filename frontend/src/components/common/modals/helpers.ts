@@ -1,5 +1,5 @@
 import { IMapEventValues, IModalValues } from "./types";
-import { EEventTypes, EEventPriority } from "types/event";
+import { EventType, EventPriority } from "types/event";
 import { colors } from "../form-elements/color-picker/colors";
 
 export const getMapEventValues = ({
@@ -7,8 +7,8 @@ export const getMapEventValues = ({
   description,
   startDate,
   endDate,
-  type = EEventTypes.EVENT,
-  priority = EEventPriority.MEDIUM,
+  type = EventType.TASK,
+  priority = EventPriority.MEDIUM,
   is_private = false,
   repeat_step = 0,
   max_repeats_count = 0,

@@ -1,6 +1,6 @@
 import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars } from "./types";
-import { EEventPriority, EEventTypes, IEvent, IEventCreate } from "../types/event";
-import { ICalendar } from "../types/calendar";
+import { EventPriority, EventType, IEvent, IEventCreate } from "../types/event";
+import { ICalendar, ICalendarCreate } from "../types/calendar";
 
 // Stub data for events
 let initialEvents: IEvent[] = [
@@ -16,8 +16,8 @@ let initialEvents: IEvent[] = [
     is_finished: false,
     max_repeats_count: 1,
     color: '#2196F3',
-    type: EEventTypes.MEETING,
-    priority: EEventPriority.LOW,
+    type: EventType.MEETING,
+    priority: EventPriority.LOW,
     category_id: '1'
   },
   {
@@ -32,8 +32,8 @@ let initialEvents: IEvent[] = [
     is_finished: false,
     max_repeats_count: 1,
     color: '#4CAF50',
-    type: EEventTypes.OTHER,
-    priority: EEventPriority.MEDIUM,
+    type: EventType.HOLIDAY,
+    priority: EventPriority.MEDIUM,
     category_id: '3'
   },
   {
@@ -48,8 +48,8 @@ let initialEvents: IEvent[] = [
     is_finished: false,
     max_repeats_count: 1,
     color: '#F44336',
-    type: EEventTypes.TASK,
-    priority: EEventPriority.HIGH,
+    type: EventType.TASK,
+    priority: EventPriority.HIGH,
     category_id: '2'
   },
   {
@@ -64,8 +64,8 @@ let initialEvents: IEvent[] = [
     is_finished: false,
     max_repeats_count: 1,
     color: '#FFC107',
-    type: EEventTypes.TASK,
-    priority: EEventPriority.LOW,
+    type: EventType.TASK,
+    priority: EventPriority.LOW,
     category_id: '2'
   },
   {
@@ -80,8 +80,8 @@ let initialEvents: IEvent[] = [
     is_finished: false,
     max_repeats_count: 1,
     color: '#FFC0CB',
-    type: EEventTypes.MEETING,
-    priority: EEventPriority.HIGH,
+    type: EventType.MEETING,
+    priority: EventPriority.HIGH,
     category_id: '1'
   },
   {
@@ -95,8 +95,8 @@ let initialEvents: IEvent[] = [
     creator_id: "",
     is_finished: false,
     max_repeats_count: 0,
-    type: EEventTypes.TASK,
-    priority: EEventPriority.MEDIUM,
+    type: EventType.REMINDER,
+    priority: EventPriority.MEDIUM,
     color: "rgb(142, 36, 170)",
     category_id: "2"
   }
@@ -123,6 +123,7 @@ class HttpEvents {
           const newEvent: IEvent = { 
             id: Date.now().toString(), 
             ...options.body,
+            creator_id: '1',
             is_finished: false
           };
           this.events = [...this.events, newEvent];
@@ -247,7 +248,7 @@ class HttpCalendars {
   }
 
   get = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.GET });
-  post = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
+  post = async <IDto>(url: string, body: ICalendarCreate) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
   delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });
   patch = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PATCH, body });
   put = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });

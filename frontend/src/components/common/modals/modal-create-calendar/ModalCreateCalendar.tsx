@@ -19,16 +19,14 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
     defaultValues: {
       title: '',
       color: '#FF5733',
-      owner_id: ''
     },
     // rules: createEventSchema @TODO добавить валидацию
   });
 
   const onSubmit: TSubmitHandler<IModalValuesCalendar> = async (data) => {
-    const newCalendar: TPartialCalendar = {
+    const newCalendar: ICalendarCreate = {
       title: data.title,
       color: data.color,
-      owner_id: data.owner_id,
     };
     
     try {      
