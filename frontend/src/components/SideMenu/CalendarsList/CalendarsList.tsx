@@ -12,7 +12,7 @@ interface CalendarsListProps {
 const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { calendars, selectedCalendarIds } = useTypedSelector(({ calendars }) => calendars);
   const { createCalendar, setSelectedCalendars } = useActions();
   const { openPopup } = usePopup();
@@ -28,12 +28,13 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
 
   const handleCalendarContextMenu = (e: MouseEvent<HTMLDivElement>, calendar: ICalendar) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     const { clientX, clientY } = e;
     openPopup({
       x: clientX,
       y: clientY,
-      calendarId: calendar.id,
-      calendarData: calendar
+      calendarId: calendar.id
     });
   };
 

@@ -38,7 +38,8 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
 
     return {
       left,
-      top
+      top,
+      zIndex: 1001
     }
   } 
 
@@ -48,8 +49,6 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
 
   const onDelete = async () => {
     await deleteEvent(eventId);
-    await getEvents();
-    await getCalendars();
     closePopup();
   }
 
@@ -67,24 +66,24 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
       >
         <button
           className={styles.btn__action}
-          onClick={onDelete}
-        >
-          <span className="delete-event-btn__icon">
-            <i className="fas fa-trash"></i>
-          </span>
-          <span className={styles.btn__action__text}>
-            Delete
-          </span>
-        </button>
-        <button
-          className={styles.btn__action}
           onClick={handleOpenEditEventModal}
         >
           <span className="delete-event-btn__icon">
             <i className="fas fa-edit"></i>
           </span>
           <span className={styles.btn__action__text}>
-            Edit
+            Изменить
+          </span>
+        </button>
+        <button
+          className={styles.btn__action}
+          onClick={onDelete}
+        >
+          <span className="delete-event-btn__icon">
+            <i className="fas fa-trash"></i>
+          </span>
+          <span className={styles.btn__action__text}>
+            Удалить
           </span>
         </button>
       </div>

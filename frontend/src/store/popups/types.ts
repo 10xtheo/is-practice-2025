@@ -1,5 +1,3 @@
-import { ICalendar } from "types/calendar";
-
 export interface IPopupState {
   isOpenPopup: boolean;
   popupOptions: IPopupOptions | null;
@@ -10,5 +8,4 @@ export interface IPopupOptions {
   y: number;
   eventId?: string;
   calendarId?: string;
-  calendarData?: ICalendar;
 }

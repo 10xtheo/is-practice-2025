@@ -15,12 +15,11 @@ export const PopupProvider: FC = ({ children }) => {
           eventId={popupOptions.eventId}
         />
       )}
-      {isOpenPopup && popupOptions?.calendarId && popupOptions?.calendarData && (
+      {isOpenPopup && popupOptions?.calendarId && (
         <CalendarPopup
           x={popupOptions.x}
           y={popupOptions.y}
           calendarId={popupOptions.calendarId}
-          calendarData={popupOptions.calendarData}
         />
       )}
       {children}
