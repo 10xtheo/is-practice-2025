@@ -20,36 +20,55 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredUsers = users.filter(user => 
+  // Локальное состояние для выбранных пользователей
+  const [selectedUsers, setSelectedUsers] = useState<IUser[]>(() => {
+    // Инициализация из window или defaultSelectedUsers
+    if (window["selectedUsers"] && window["selectedUsers"].length > 0) {
+      return window["selectedUsers"];
+    }
+    if (defaultSelectedUsers.length > 0 && users.length > 0) {
+      const initial = users.filter(user => defaultSelectedUsers.includes(user.id));
+      window["selectedUsers"] = initial;
+      return initial;
+    }
+    return [];
+  });
+
+  // При изменении users или defaultSelectedUsers синхронизируем состояние
+  useEffect(() => {
+    if ((!window["selectedUsers"] || window["selectedUsers"].length === 0) && defaultSelectedUsers.length > 0) {
+      const initial = users.filter(user => defaultSelectedUsers.includes(user.id));
+      window["selectedUsers"] = initial;
+      setSelectedUsers(initial);
+    }
+  }, [users, defaultSelectedUsers]);
+
+  const filteredUsers = users.filter(user =>
     user.full_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  // @TODO прокидывать текущего юзера
-  
-  if (defaultSelectedUsers.length > 0 && (window["selectedUsers"] === undefined || window["selectedUsers"].length === 0)) {
-    window["selectedUsers"] = users.filter(user => defaultSelectedUsers.includes(user.id));
-  }
 
-  const selectedUsers = window["selectedUsers"] || []
-  
   const handleUserToggle = (user: IUser) => {
-    const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
+    setSelectedUsers(prev => {
+      const isSelected = prev.some(u => u.id === user.id);
+      const newSelected = isSelected
+        ? prev.filter(u => u.id !== user.id)
+        : [...prev, user];
 
-    if (isSelected) {
-        window["selectedUsers"] = selectedUsers.filter(selectedUser => selectedUser.id !== user.id);
-    } else {
-        window["selectedUsers"] = [...selectedUsers, user];
-    }
+      // Синхронизируем с window
+      window["selectedUsers"] = newSelected;
 
-    onChange(window["selectedUsers"]);
+      onChange(newSelected);
+      return newSelected;
+    });
   };
 
   const isUserSelected = (user: IUser) => {
-    return selectedUsers.some(selectedUser => selectedUser.id === user.id);
+    return selectedUsers.some(u => u.id === user.id);
   };
 
   return (
     <div className={`${styles.container} ${className}`}>
-      <div 
+      <div
         className={styles.selector}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -73,7 +92,7 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
             className={styles.searchInput}
             placeholder="Поиск..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
           />
           <div className={styles.userList}>
             {filteredUsers.map(user => (
@@ -95,4 +114,4 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   );
 };
 
-export default UserMultiSelector; 
+export default UserMultiSelector;

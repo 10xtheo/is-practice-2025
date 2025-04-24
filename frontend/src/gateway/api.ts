@@ -185,9 +185,6 @@ class HttpEvents {
             id: Date.now().toString(), 
             ...options.body,
             creator_id: '1',
-            participants: options.body.participants.map(participant_id => {
-              return {id: participant_id, full_name: '', position: '', department: ''}
-            }),
             is_finished: false
           };
           this.events = [...this.events, newEvent];
@@ -239,14 +236,23 @@ export const initialCalendars: ICalendar[] = [
     title: 'Work Calendar',
     owner_id: 'user1',
     color: '#FF5733',
-    participants: []
+    participants: [
+      initialUsers[0],
+      initialUsers[1],
+      initialUsers[2],
+      initialUsers[3],
+      initialUsers[4],
+    ]
   },
   {
     id: '2',
     title: 'Personal Calendar',
     owner_id: 'user1',
     color: '#33FF57',
-    participants: []
+    participants: [
+      initialUsers[0],
+      initialUsers[1],
+    ]
   },
   {
     id: '3',

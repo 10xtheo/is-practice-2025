@@ -316,7 +316,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 <input
                   id="repeat_step_input"
                   type="number"
-                  min="1"
+                  min={defaultEventValues.repeat_step === 0 ? 0 : 1}
                   onChange={onChangeRepeatStepValue}
                   defaultValue={defaultEventValues.repeat_step}
                   style={{ width: 80 }}

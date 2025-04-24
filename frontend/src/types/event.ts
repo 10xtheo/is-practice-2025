@@ -32,7 +32,7 @@ export interface IEventCreate {
   type: EventType;
   priority: EventPriority;
   category_id: string; // Календарь @TODO фильтрация по календарю
-  participants: string[];
+  participants: IUser[];
 }
 
 export enum EventType {
