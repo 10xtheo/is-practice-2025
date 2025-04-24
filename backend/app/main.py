@@ -3,9 +3,12 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 
+from app.websockets.notifier import send_scheduled_notifications_loop
 from app.api.main import api_router
 from app.core.config import settings
 
+from app.websockets.router import register_websocket_routes
+import app.websockets.routes
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
@@ -31,3 +34,11 @@ if settings.all_cors_origins:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Register websocket routes for chat/notifications
+register_websocket_routes(app)
+
+@app.on_event("startup")
+async def startup_event():
+    import asyncio
+    asyncio.create_task(send_scheduled_notifications_loop())
