@@ -13,6 +13,7 @@ interface IHeaderProps {
   selectedOption: string;
   selectedDay: TDate;
   onMenuToggle: () => void;
+  onProfileClick: () => void;
 }
 
 const modes = [
@@ -27,7 +28,8 @@ const Header: FC<IHeaderProps> = ({
   onChangeOption,
   selectedOption,
   selectedDay,
-  onMenuToggle
+  onMenuToggle,
+  onProfileClick
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -85,6 +87,12 @@ const Header: FC<IHeaderProps> = ({
         options={modes}
         selectedOption={selectedOption}
       />
+      <button
+        className={cn("icon-button", styles.navigation__icon)}
+        onClick={onProfileClick}
+      >
+        <i className="fas fa-user"></i>
+      </button>
     </header>
   );
 };

@@ -17,6 +17,8 @@ interface IWeekCalendarProps {
 
 const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames, selectedCalendarIds }) => {
   let { events } = useTypedSelector(({ events }) => events);
+  // console.log('state events', events);
+  
   events = events.filter(e => selectedCalendarIds.includes(e.category_id));
   
   const calendarBodyRef = useRef<HTMLDivElement>(null);
@@ -24,14 +26,13 @@ const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames, selecte
   const weekEvents = getEventsInterval(weekDays, events);
   const shortEvents = getShortEvents(weekEvents);
   const longEvents = getLongEvents(weekEvents);
-
+  
   useEffect(() => {
     if (shortEvents.length > 0 && calendarBodyRef.current) {
       const firstEvent = shortEvents[0];
       const eventStartTime = new Date(firstEvent.start);
       const hour = eventStartTime.getHours();
       
-      // Wait for the DOM to be fully rendered
       setTimeout(() => {
         const hourElement = calendarBodyRef.current.querySelector(`[data-time="${hour + 1}"]`);
         if (hourElement) {

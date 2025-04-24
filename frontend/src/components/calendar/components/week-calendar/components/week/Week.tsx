@@ -17,29 +17,20 @@ const Week: FC<IWeekProps> = ({ events, weekDays }) => {
       {weekDays.map((day) => {
         const nextDay = shmoment(day.date).add('days', 1).result();
 
-        // getting all events from the current day we will render
         const dayEvents = events?.filter((event) => {
-          const eventStartDate = new Date(event.start);
-          const eventEndDate = new Date(event.end);
           
-          return eventStartDate.getTime() > day.date.getTime() &&
-            eventEndDate.getTime() < nextDay.getTime()
+          return event.start >= day.date.getTime() &&
+          event.end < nextDay.getTime()
         });
 
         const prevDayEvents = events.filter((event) => {
-          const eventStartDate = new Date(event.start);
-          const eventEndDate = new Date(event.end);
-
-          return day.date.getTime() <= eventEndDate.getTime() &&
-            day.date.getTime() > eventStartDate.getTime();
+          return day.date.getTime() <= event.end &&
+            day.date.getTime() > event.start;
         });
 
         const nextDayEvents = events.filter((event) => {
-          const eventStartDate = new Date(event.start);
-          const eventEndDate = new Date(event.end);
-
-          return nextDay.getTime() > eventStartDate.getTime() &&
-            nextDay.getTime() <= eventEndDate.getTime();
+          return nextDay.getTime() > event.start &&
+            nextDay.getTime() <= event.end;
         });
 
         return (

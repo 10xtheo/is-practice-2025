@@ -41,6 +41,7 @@ const Calendar: FC<ICalendarProps> = ({ onMenuToggle }) => {
   return (
     <>
       <Header
+        onProfileClick={() => {window.location.href = '/profile'}}
         onClickArrow={functions.onClickArrow}
         displayedDate={state.displayedDate}
         onChangeOption={functions.setMode}

@@ -145,7 +145,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       max_repeats_count: data.max_repeats_count,
       type: data.type,
       priority: data.priority,
-      color: data.color
+      color: data.color,
+      category_id: data.category_id
     };
     
     try {      

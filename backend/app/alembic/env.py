@@ -18,6 +18,9 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
+import sys
+sys.path = ['', '..'] + sys.path[1:] 
+
 from app.models import SQLModel  # noqa
 from app.core.config import settings # noqa
 
