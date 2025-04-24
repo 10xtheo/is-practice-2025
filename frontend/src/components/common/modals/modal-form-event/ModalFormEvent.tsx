@@ -39,7 +39,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     // rules: createEventSchema @TODO добавить валидацию
   });
 
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(defaultEventValues.repeat_step !== 0);
   const [intervalType, setIntervalType] = useState('day');
   const isValid = Object.keys(errors).length === 0;
   
@@ -162,7 +162,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   useClickOutside(modalRef, closeModal);
   
   return (
-    <div className="overlay">
+    <div className="overlay" style={{ zIndex: 1002 }}>
       <div className={styles.modal} ref={modalRef}>
         <div className={styles.modal__content}>
           <button
@@ -287,7 +287,13 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 <input
                   type="checkbox"
                   checked={isRecurring}
-                  onChange={() => setIsRecurring(v => !v)}
+                  onChange={() => setIsRecurring(v => {
+                    if (v) {
+                      setValue('repeat_step', 0);
+                      setValue('max_repeats_count', 0);
+                    }
+                    return !v
+                  })}
                 />
                 <span className={styles.modal__form__checkbox__title}>Повторяющееся?</span>
               </label>
@@ -300,7 +306,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                   type="number"
                   min="1"
                   onChange={onChangeRepeatStepValue}
-                  defaultValue={1}
+                  defaultValue={defaultEventValues.repeat_step}
                   style={{ width: 80 }}
                 />
                 <select value={intervalType} onChange={onChangeIntervalType}>

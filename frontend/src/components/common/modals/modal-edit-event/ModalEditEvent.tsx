@@ -22,15 +22,17 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
     endDate,
     type: eventData.type,
     color: eventData.color,
-    category_id: eventData.category_id
+    category_id: eventData.category_id,
+    ...eventData
   });
-
+  console.log('defaultEventValues', defaultEventValues);
+  
   const onUpdateEvent = (event: TPartialEvent) => updateEvent({ eventId: eventId, event });
 
   return (
     <ModalFormEvent
-      textSendButton="Edit"
-      textSendingBtn="Editing"
+      textSendButton="Изменить"
+      textSendingBtn="Изменение..."
       defaultEventValues={defaultEventValues}
       handlerSubmit={onUpdateEvent}
       closeModal={closeModalEdit}

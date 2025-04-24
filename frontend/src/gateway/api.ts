@@ -10,8 +10,8 @@ let initialEvents: IEvent[] = [
     description: 'Weekly sync',
     start: Date.now() - 1000 * 60 * 60 * 2,
     end: Date.now() + 1000 * 60 * 60 * 2,
-    repeat_step: 1,
-    is_private: false,
+    repeat_step: 23,
+    is_private: true,
     creator_id: '1',
     is_finished: false,
     max_repeats_count: 1,
@@ -135,11 +135,12 @@ class HttpEvents {
           if (!options.body) throw new Error('Event data is required');
           const eventId = options.url.split('/')[1];
           const eventIndex = this.events.findIndex(e => e.id === eventId);
+
           if (eventIndex !== -1) {
-            this.events[eventIndex] = { 
-              ...this.events[eventIndex], 
-              ...options.body 
-            };
+            this.events = [...this.events.slice(0, eventIndex), 
+              {...options.body, id: this.events[eventIndex].id} as IEvent,
+              ...this.events.slice(eventIndex + 1)];
+
             return this.events[eventIndex] as IDtoRequest;
           }
           throw new Error('Event not found');
@@ -224,10 +225,9 @@ class HttpCalendars {
           const calendarId = options.url.split('/')[1];
           const calendarIndex = this.calendars.findIndex(c => c.id === calendarId);
           if (calendarIndex !== -1) {
-            this.calendars[calendarIndex] = { 
-              ...this.calendars[calendarIndex], 
-              ...options.body 
-            };
+            this.calendars = [...this.calendars.slice(0, calendarIndex), 
+              {...options.body, id: this.calendars[calendarIndex].id} as ICalendar,
+              ...this.calendars.slice(calendarIndex + 1)];
             return this.calendars[calendarIndex] as IDtoRequest;
           }
           throw new Error('Calendar not found');
