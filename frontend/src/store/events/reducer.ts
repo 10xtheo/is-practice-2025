@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { IEventsState } from './types'
 import { getEvents, createEvent, updateEvent, deleteEvent } from './actions'
-import Calendar from 'components/calendar/Calendar'
 
 const initialState: IEventsState = {
   events: []

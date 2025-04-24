@@ -7,11 +7,12 @@ import './common.scss';
 import Profile from 'components/Profile/Profile';
 
 const App: FC = () => {
-  const { getEvents, getCalendars } = useActions();
+  const { getEvents, getCalendars, getUsers } = useActions();
 
   useEffect(() => {
     getEvents();
     getCalendars();
+    getUsers();
   }, []);
   
   return (

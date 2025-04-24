@@ -1,6 +1,7 @@
-import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars } from "./types";
+import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars, RequestsOptionsUsers } from "./types";
 import { EventPriority, EventType, IEvent, IEventCreate } from "../types/event";
 import { ICalendar, ICalendarCreate } from "../types/calendar";
+import { IUser, IUserCreate } from "../types/user";
 
 // Stub data for events
 let initialEvents: IEvent[] = [
@@ -101,6 +102,7 @@ let initialEvents: IEvent[] = [
     category_id: "2"
   }
 ];
+
 
 class HttpEvents {
   private events: IEvent[];
@@ -257,5 +259,68 @@ class HttpCalendars {
   put = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });
 }
 
+// Stub data for users
+let initialUsers: IUser[] = [
+  {
+    id: '1',
+    full_name: 'John Doe',
+    position: 'Developer',
+    department: 'IT',
+  },
+  {
+    id: '2',
+    full_name: 'Jane Smith',
+    position: 'Designer',
+    department: 'Design',
+  },
+  {
+    id: '3',
+    full_name: 'Bob Johnson',
+    position: 'Manager',
+    department: 'HR',
+  },
+  {
+    id: '4',
+    full_name: 'Alice Brown',
+    position: 'QA',
+    department: 'QA',
+  },
+  {
+    id: '5',
+    full_name: 'Charlie Wilson',
+    position: 'Manager',
+    department: 'HR',
+  }
+];
+
+class HttpUsers {
+  private users: IUser[];
+
+  constructor() {
+    this.users = [...initialUsers];
+  }
+
+  private makeRequest = async <IDtoRequest>(options: RequestsOptionsUsers): Promise<IDtoRequest> => {
+    try {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      switch (options.method) {
+        case METHODS.GET:          
+          return this.users as IDtoRequest;
+        
+        default:
+          throw new Error('Method not supported');
+      }
+    } catch (err) {
+      alert(err.message);
+      throw err;
+    }
+  }
+
+  get = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.GET });
+}
+
 export const requestEvents = new HttpEvents();
 export const requestCalendars = new HttpCalendars();
+export const requestUsers = new HttpUsers();
