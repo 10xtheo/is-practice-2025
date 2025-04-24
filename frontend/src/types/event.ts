@@ -1,3 +1,5 @@
+import { IUser } from "./user";
+
 export interface IEvent {
   id: string; // UUID
   title: string;
@@ -13,6 +15,7 @@ export interface IEvent {
   type: EventType;
   priority: EventPriority;
   category_id: string; // Календарь @TODO фильтрация по календарю
+  participants: IUser[];
 }
 
 export type TPartialEvent = Partial<IEvent>;
@@ -29,6 +32,7 @@ export interface IEventCreate {
   type: EventType;
   priority: EventPriority;
   category_id: string; // Календарь @TODO фильтрация по календарю
+  participants: string[];
 }
 
 export enum EventType {

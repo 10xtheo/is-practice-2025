@@ -7,12 +7,14 @@ interface IUserMultiSelectorProps {
   onChange: (users: IUser[]) => void;
   placeholder?: string;
   className?: string;
+  defaultSelectedUsers?: string[];
 }
 
 const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   onChange,
   placeholder = 'Выберите участников...',
-  className = ''
+  className = '',
+  defaultSelectedUsers = []
 }) => {
   const { users } = useTypedSelector(({ users }) => users);
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +25,10 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   );
   // @TODO прокидывать текущего юзера
   
+  if (defaultSelectedUsers.length > 0 && (window["selectedUsers"] === undefined || window["selectedUsers"].length === 0)) {
+    window["selectedUsers"] = users.filter(user => defaultSelectedUsers.includes(user.id));
+  }
+
   const selectedUsers = window["selectedUsers"] || []
   
   const handleUserToggle = (user: IUser) => {

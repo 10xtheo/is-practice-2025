@@ -31,6 +31,8 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
     try {            
       await handlerSubmit(newCalendar);
       closeModal();
+      window["selectedUsers"] = [];
+
     } catch (error) {
       console.error('Error creating event:', error);
     }

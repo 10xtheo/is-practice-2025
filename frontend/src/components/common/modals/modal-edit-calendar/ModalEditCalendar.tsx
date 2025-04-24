@@ -27,10 +27,12 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
       }
     });
     closeModalEditCalendar();
+    window["selectedUsers"] = [];
   };
 
   const handleClose = () => {
     closeModalEditCalendar();
+    window["selectedUsers"] = [];
   };
 
   return (

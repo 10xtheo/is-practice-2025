@@ -3,6 +3,41 @@ import { EventPriority, EventType, IEvent, IEventCreate } from "../types/event";
 import { ICalendar, ICalendarCreate } from "../types/calendar";
 import { IUser, IUserCreate } from "../types/user";
 
+
+// Stub data for users
+let initialUsers: IUser[] = [
+  {
+    id: '1',
+    full_name: 'John Doe',
+    position: 'Developer',
+    department: 'IT',
+  },
+  {
+    id: '2',
+    full_name: 'Jane Smith',
+    position: 'Designer',
+    department: 'Design',
+  },
+  {
+    id: '3',
+    full_name: 'Bob Johnson',
+    position: 'Manager',
+    department: 'HR',
+  },
+  {
+    id: '4',
+    full_name: 'Alice Brown',
+    position: 'QA',
+    department: 'QA',
+  },
+  {
+    id: '5',
+    full_name: 'Charlie Wilson',
+    position: 'Manager',
+    department: 'HR',
+  }
+];
+
 // Stub data for events
 let initialEvents: IEvent[] = [
   {
@@ -19,7 +54,12 @@ let initialEvents: IEvent[] = [
     color: '#2196F3',
     type: EventType.MEETING,
     priority: EventPriority.LOW,
-    category_id: '1'
+    category_id: '1',
+    participants: [
+      initialUsers[0],
+      initialUsers[1],
+      initialUsers[2]
+    ]
   },
   {
     id: '2',
@@ -35,7 +75,10 @@ let initialEvents: IEvent[] = [
     color: '#4CAF50',
     type: EventType.HOLIDAY,
     priority: EventPriority.MEDIUM,
-    category_id: '3'
+    category_id: '3',
+    participants: [
+      initialUsers[0],
+    ]
   },
   {
     id: '3',
@@ -51,7 +94,11 @@ let initialEvents: IEvent[] = [
     color: '#F44336',
     type: EventType.TASK,
     priority: EventPriority.HIGH,
-    category_id: '2'
+    category_id: '2',
+    participants: [
+      initialUsers[0],
+      initialUsers[4],
+    ]
   },
   {
     id: '4',
@@ -67,7 +114,10 @@ let initialEvents: IEvent[] = [
     color: '#FFC107',
     type: EventType.TASK,
     priority: EventPriority.LOW,
-    category_id: '2'
+    category_id: '2',
+    participants: [
+      initialUsers[3],
+    ]
   },
   {
     id: '5',
@@ -83,7 +133,8 @@ let initialEvents: IEvent[] = [
     color: '#FFC0CB',
     type: EventType.MEETING,
     priority: EventPriority.HIGH,
-    category_id: '1'
+    category_id: '1',
+    participants: []
   },
   {
     id: "12345",
@@ -99,7 +150,14 @@ let initialEvents: IEvent[] = [
     type: EventType.REMINDER,
     priority: EventPriority.MEDIUM,
     color: "rgb(142, 36, 170)",
-    category_id: "2"
+    category_id: "2",
+    participants: [
+      initialUsers[0],
+      initialUsers[1],
+      initialUsers[2],
+      initialUsers[3],
+      initialUsers[4],
+    ]
   }
 ];
 
@@ -127,6 +185,9 @@ class HttpEvents {
             id: Date.now().toString(), 
             ...options.body,
             creator_id: '1',
+            participants: options.body.participants.map(participant_id => {
+              return {id: participant_id, full_name: '', position: '', department: ''}
+            }),
             is_finished: false
           };
           this.events = [...this.events, newEvent];
@@ -265,39 +326,6 @@ class HttpCalendars {
   put = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });
 }
 
-// Stub data for users
-let initialUsers: IUser[] = [
-  {
-    id: '1',
-    full_name: 'John Doe',
-    position: 'Developer',
-    department: 'IT',
-  },
-  {
-    id: '2',
-    full_name: 'Jane Smith',
-    position: 'Designer',
-    department: 'Design',
-  },
-  {
-    id: '3',
-    full_name: 'Bob Johnson',
-    position: 'Manager',
-    department: 'HR',
-  },
-  {
-    id: '4',
-    full_name: 'Alice Brown',
-    position: 'QA',
-    department: 'QA',
-  },
-  {
-    id: '5',
-    full_name: 'Charlie Wilson',
-    position: 'Manager',
-    department: 'HR',
-  }
-];
 
 class HttpUsers {
   private users: IUser[];

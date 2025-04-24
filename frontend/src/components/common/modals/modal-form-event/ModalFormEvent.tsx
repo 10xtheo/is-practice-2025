@@ -8,6 +8,7 @@ import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'componen
 import cn from 'classnames';
 
 import styles from './modal-form-event.module.scss';
+import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
 
 interface IModalFormEventProps {
   textSendButton: string;
@@ -33,6 +34,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>();
   const { calendars } = useTypedSelector(({ calendars }) => calendars);
+  const { users } = useTypedSelector(({ users }) => users);
   
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
@@ -148,12 +150,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       type: data.type,
       priority: data.priority,
       color: data.color,
-      category_id: data.category_id
+      category_id: data.category_id,
+      participants: users.filter(user => data.participants.includes(user.id))
     };
     
     try {      
       await handlerSubmit(newEvent);
       closeModal();
+      window["selectedUsers"] = [];
     } catch (error) {
       console.error('Error creating event:', error);
     }
@@ -262,6 +266,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 placeholder="Календарь"
                 error={errors.category_id}
                 fullWidth
+              />
+            </div>
+            <div className={cn(styles.modal__form__group)}>
+              <UserMultiSelector
+                defaultSelectedUsers={defaultEventValues.participants}
+                onChange={(users) => {
+                  setValue('participants', users.map(user => user.id))
+                }}
               />
             </div>
             <div className={cn(styles.modal__form__group)}>
