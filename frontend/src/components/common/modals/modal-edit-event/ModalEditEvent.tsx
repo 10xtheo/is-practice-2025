@@ -25,7 +25,6 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
     category_id: eventData.category_id,
     ...eventData
   });
-  console.log('defaultEventValues', defaultEventValues);
   
   const onUpdateEvent = (event: TPartialEvent) => updateEvent({ eventId: eventId, event });
 

@@ -1,7 +1,7 @@
 import { validationMethodsWithDates, validationMethodsWithoutParams, validationMethodsWithParams } from "utils/validations";
 
 export interface IValidatorData {
-  [k: string]: string | number | boolean | Date;
+  [k: string]: string | number | boolean | Date | string[];
 }
 
 export interface IRules {

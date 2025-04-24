@@ -14,7 +14,7 @@ const App: FC = () => {
     getCalendars();
     getUsers();
   }, []);
-  
+  window["selectedUsers"] = []
   return (
     <Layout>
       {window.location.href.includes('/profile') ? (

@@ -4,17 +4,15 @@ import './ModalCreateCalendar.scss';
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValuesCalendar } from '../types';
 import { useForm } from 'hooks/useForm';
+import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
 
 interface ModalCreateCalendarProps {
   isOpen: boolean;
   closeModal: () => void;
-  handlerSubmit: (calendarData: TPartialCalendar) => void;
+  handlerSubmit: (calendarData: ICalendarCreate) => void;
 }
 
 const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal, handlerSubmit }) => {
-  const [title, setTitle] = useState('');
-  const [color, setColor] = useState('#FF5733');
-
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValuesCalendar>({
     defaultValues: {
       title: '',
@@ -27,9 +25,10 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
     const newCalendar: ICalendarCreate = {
       title: data.title,
       color: data.color,
+      participants: data.participants as string[],
     };
     
-    try {      
+    try {            
       await handlerSubmit(newCalendar);
       closeModal();
     } catch (error) {
@@ -46,7 +45,7 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
   const onChangeColor = (color: string) => {
     setValue('color', color);
   }
-
+  
   return (
     <div className="modal-overlay" onClick={closeModal}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -69,6 +68,14 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
               id="color"
               value={values.color}
               onChange={(e) => onChangeColor(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="title">Участники календаря</label>
+            <UserMultiSelector
+              onChange={(users) => {
+                setValue('participants', users.map(user => user.id))
+              }}
             />
           </div>
           <div className="modal-actions">

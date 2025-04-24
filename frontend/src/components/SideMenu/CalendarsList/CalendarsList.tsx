@@ -1,5 +1,5 @@
 import React, { FC, useState, MouseEvent } from 'react';
-import { ICalendar, TPartialCalendar } from 'types/calendar';
+import { ICalendar, ICalendarCreate } from 'types/calendar';
 import { useTypedSelector } from 'hooks/useTypedSelector';
 import { useActions, usePopup } from 'hooks/index';
 import ModalCreateCalendar from 'components/common/modals/modal-create-calendar/ModalCreateCalendar';
@@ -12,7 +12,7 @@ interface CalendarsListProps {
 const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
   const { calendars, selectedCalendarIds } = useTypedSelector(({ calendars }) => calendars);
   const { createCalendar, setSelectedCalendars } = useActions();
   const { openPopup } = usePopup();
@@ -38,8 +38,7 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
     });
   };
 
-  const onCreateCalendar = (calendar: TPartialCalendar) => createCalendar(calendar);
-
+  const onCreateCalendar = (calendar: ICalendarCreate) => createCalendar(calendar);  
 
   return (
     <div className="calendars-list">

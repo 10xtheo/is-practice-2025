@@ -122,7 +122,6 @@ class HttpEvents {
         
         case METHODS.POST:
           if (!options.body) throw new Error('Event data is required');
-          console.log('options.body', options.body);
 
           const newEvent: IEvent = { 
             id: Date.now().toString(), 
@@ -178,19 +177,22 @@ export const initialCalendars: ICalendar[] = [
     id: '1',
     title: 'Work Calendar',
     owner_id: 'user1',
-    color: '#FF5733'
+    color: '#FF5733',
+    participants: []
   },
   {
     id: '2',
     title: 'Personal Calendar',
     owner_id: 'user1',
-    color: '#33FF57'
+    color: '#33FF57',
+    participants: []
   },
   {
     id: '3',
     title: 'Family Calendar',
     owner_id: 'user1',
-    color: '#3357FF'
+    color: '#3357FF',
+    participants: []
   }
 ];
 
@@ -207,16 +209,19 @@ class HttpCalendars {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       switch (options.method) {
-        case METHODS.GET:          
+        case METHODS.GET:              
           return this.calendars as IDtoRequest;
         
         case METHODS.POST:
           if (!options.body) throw new Error('Calendar data is required');
-          console.log('options.body', options.body);
+
           const newCalendar: ICalendar = { 
             id: Date.now().toString(), 
             ...options.body,
-            owner_id: 'user1'
+            owner_id: 'user1',
+            participants: options.body.participants.map(participant_id => {
+              return {id: participant_id, full_name: '', position: '', department: ''}
+            })
           };
           this.calendars = [...this.calendars, newCalendar];
           
@@ -224,6 +229,7 @@ class HttpCalendars {
         
         case METHODS.PUT:
           if (!options.body) throw new Error('Calendar data is required');
+          
           const calendarId = options.url.split('/')[1];
           const calendarIndex = this.calendars.findIndex(c => c.id === calendarId);
           if (calendarIndex !== -1) {
