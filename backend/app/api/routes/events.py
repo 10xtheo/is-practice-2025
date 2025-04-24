@@ -219,6 +219,11 @@ def delete_event(
         raise HTTPException(status_code=404, detail="Event not found")
     if not current_user.is_superuser and (event.creator_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    # Delete related event participants
+    for participant in event.participants:
+        session.delete(participant)
+
     session.delete(event)
     session.commit()
     return Message(message="Event deleted successfully")
