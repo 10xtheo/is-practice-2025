@@ -120,6 +120,8 @@ class HttpEvents {
         
         case METHODS.POST:
           if (!options.body) throw new Error('Event data is required');
+          console.log('options.body', options.body);
+
           const newEvent: IEvent = { 
             id: Date.now().toString(), 
             ...options.body,
@@ -207,6 +209,7 @@ class HttpCalendars {
         
         case METHODS.POST:
           if (!options.body) throw new Error('Calendar data is required');
+          console.log('options.body', options.body);
           const newCalendar: ICalendar = { 
             id: Date.now().toString(), 
             ...options.body,

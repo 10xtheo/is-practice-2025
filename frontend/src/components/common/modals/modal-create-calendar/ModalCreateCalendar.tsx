@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { TPartialCalendar } from 'types/calendar';
+import { ICalendarCreate, TPartialCalendar } from 'types/calendar';
 import './ModalCreateCalendar.scss';
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValuesCalendar } from '../types';

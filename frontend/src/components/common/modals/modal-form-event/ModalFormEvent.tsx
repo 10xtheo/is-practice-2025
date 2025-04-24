@@ -50,10 +50,13 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     setValue('repeat_step', hours);
   };
 
-  const onChangeIntervalType = (e) => {
+  const onChangeIntervalType = (e) => {    
     const newType = e.target.value;
     setIntervalType(newType);
-    const value = parseInt(document.getElementById('repeat_step_input').textContent, 10) || 0;
+    
+    // @ts-ignore
+    const value = parseInt(document.getElementById('repeat_step_input').value, 10) || 0;
+    
     const interval = EVENT_REPEAT_INTERVALS.find(i => i.value === newType);
     const hours = value * (interval ? interval.hours : 24);
     setValue('repeat_step', hours);
@@ -140,8 +143,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       end: data.end,
       repeat_step: data.repeat_step,
       is_private: data.is_private,
-      creator_id: data.creator_id,
-      is_finished: false,
+      is_finished: false, // @TODO надо ли?
       max_repeats_count: data.max_repeats_count,
       type: data.type,
       priority: data.priority,

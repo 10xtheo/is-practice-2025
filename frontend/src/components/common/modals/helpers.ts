@@ -12,7 +12,6 @@ export const getMapEventValues = ({
   is_private = false,
   repeat_step = 0,
   max_repeats_count = 0,
-  creator_id = '',
   color = colors[0],
   category_id,
 }: IMapEventValues): IModalValues => {
@@ -29,7 +28,6 @@ export const getMapEventValues = ({
     is_private,
     repeat_step,
     max_repeats_count,
-    creator_id,
     color,
     category_id
   }
