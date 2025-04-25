@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser , SessionDep
-from app.models import Event, EventCreate, EventPublic, EventsPublic, EventUpdate, Message, EventParticipant, EventPermission, EventParticipantsPublic, CategoryParticipant, CategoryPermission, EventCategoryLink, User
+from app.models import Event, EventCreate, EventPublic, EventsPublic, EventUpdate, Message, EventParticipant, EventPermission, EventParticipantsPublic, CategoryParticipant, CategoryPermission, EventCategoryLink, User, Category
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -172,10 +172,36 @@ def create_event(
     """
     Create new event.
     """
-    event = Event.model_validate(event_in, update={"creator_id": current_user.id})
+    # Проверяем существование категории, если она указана
+    if event_in.category_id:
+        category = session.get(Category, event_in.category_id)
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+        
+        # Проверяем права доступа к категории
+        is_owner = category.owner_id == current_user.id
+        is_participant = session.exec(
+            select(CategoryParticipant).where(
+                CategoryParticipant.category_id == category.id,
+                CategoryParticipant.user_id == current_user.id
+            )
+        ).first() is not None
+
+        if not current_user.is_superuser and not (is_owner or is_participant):
+            raise HTTPException(status_code=403, detail="Not enough permissions to use this category")
+
+    # Создаем событие без category_id
+    event_data = event_in.model_dump(exclude={"category_id"})
+    event = Event.model_validate(event_data, update={"creator_id": current_user.id})
     session.add(event)
     session.commit()
     session.refresh(event)
+
+    # Если указана категория, создаем связь
+    if event_in.category_id:
+        link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
+        session.add(link)
+        session.commit()
 
     # Create a new EventParticipant
     event_participant = EventParticipant(user_id=current_user.id, event_id=event.id, is_creator=True, is_listener=True)
@@ -200,11 +226,48 @@ def update_event(
         raise HTTPException(status_code=404, detail="Event not found")
     if not current_user.is_superuser and (event.creator_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    update_dict = event_in.model_dump(exclude_unset=True)
+
+    # Проверяем существование категории, если она указана
+    if event_in.category_id:
+        category = session.get(Category, event_in.category_id)
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+        
+        # Проверяем права доступа к категории
+        is_owner = category.owner_id == current_user.id
+        is_participant = session.exec(
+            select(CategoryParticipant).where(
+                CategoryParticipant.category_id == category.id,
+                CategoryParticipant.user_id == current_user.id
+            )
+        ).first() is not None
+
+        if not current_user.is_superuser and not (is_owner or is_participant):
+            raise HTTPException(status_code=403, detail="Not enough permissions to use this category")
+
+    # Обновляем событие без category_id
+    update_dict = event_in.model_dump(exclude={"category_id"}, exclude_unset=True)
     event.sqlmodel_update(update_dict)
     session.add(event)
     session.commit()
     session.refresh(event)
+
+    # Если указана категория, обновляем связь
+    if event_in.category_id is not None:
+        # Удаляем существующие связи
+        existing_links = session.exec(
+            select(EventCategoryLink).where(EventCategoryLink.event_id == event.id)
+        ).all()
+        for link in existing_links:
+            session.delete(link)
+        
+        # Создаем новую связь
+        if event_in.category_id:
+            link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
+            session.add(link)
+        
+        session.commit()
+
     return event
 
 @router.delete("/{id}")
