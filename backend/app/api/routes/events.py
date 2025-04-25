@@ -172,40 +172,64 @@ def create_event(
     """
     Create new event.
     """
-    # Проверяем существование категории, если она указана
-    if event_in.category_id:
-        category = session.get(Category, event_in.category_id)
-        if not category:
-            raise HTTPException(status_code=404, detail="Category not found")
-        
-        # Проверяем права доступа к категории
-        is_owner = category.owner_id == current_user.id
-        is_participant = session.exec(
-            select(CategoryParticipant).where(
-                CategoryParticipant.category_id == category.id,
-                CategoryParticipant.user_id == current_user.id
-            )
-        ).first() is not None
+    # Проверяем существование категории
+    category = session.get(Category, event_in.category_id)
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # Проверяем права доступа к категории
+    is_owner = category.owner_id == current_user.id
+    is_participant = session.exec(
+        select(CategoryParticipant).where(
+            CategoryParticipant.category_id == category.id,
+            CategoryParticipant.user_id == current_user.id
+        )
+    ).first() is not None
 
-        if not current_user.is_superuser and not (is_owner or is_participant):
-            raise HTTPException(status_code=403, detail="Not enough permissions to use this category")
+    if not current_user.is_superuser and not (is_owner or is_participant):
+        raise HTTPException(status_code=403, detail="Not enough permissions to use this category")
 
-    # Создаем событие без category_id
-    event_data = event_in.model_dump(exclude={"category_id"})
+    # Создаем событие без category_id и participants
+    event_data = event_in.model_dump(exclude={"category_id", "participants"})
     event = Event.model_validate(event_data, update={"creator_id": current_user.id})
     session.add(event)
     session.commit()
     session.refresh(event)
 
-    # Если указана категория, создаем связь
-    if event_in.category_id:
-        link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
-        session.add(link)
-        session.commit()
+    # Создаем связь с категорией
+    link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
+    session.add(link)
 
-    # Create a new EventParticipant
-    event_participant = EventParticipant(user_id=current_user.id, event_id=event.id, is_creator=True, is_listener=True)
+    # Create a new EventParticipant for the creator
+    event_participant = EventParticipant(
+        user_id=current_user.id, 
+        event_id=event.id, 
+        is_creator=True, 
+        is_listener=True
+    )
     session.add(event_participant)
+
+    # Добавляем участников, если они указаны
+    if event_in.participants:
+        for participant in event_in.participants:
+            # Проверяем, не является ли пользователь создателем события
+            if participant.user_id == current_user.id:
+                continue
+
+            # Проверяем существование пользователя
+            user = session.get(User, participant.user_id)
+            if not user:
+                raise HTTPException(status_code=404, detail=f"User with ID {participant.user_id} not found")
+
+            # Создаем участника события
+            event_participant = EventParticipant(
+                event_id=event.id,
+                user_id=participant.user_id,
+                is_creator=participant.is_creator,
+                is_listener=participant.is_listener,
+                permissions=participant.permissions
+            )
+            session.add(event_participant)
 
     session.commit()
     return event
