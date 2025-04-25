@@ -293,3 +293,11 @@ class EventParticipantPublic(EventParticipantCreate):
 class EventParticipantsPublic(SQLModel):
     data: list[EventParticipantPublic]
     count: int
+
+
+class Notification(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID
+    event_id: uuid.UUID
+    send_at: datetime
+    sent: bool = False

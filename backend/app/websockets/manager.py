@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 from fastapi import WebSocket
 
@@ -16,10 +17,11 @@ class ConnectionManager:
         if user_id in self.user_to_connection:
             self.user_to_connection.pop(user_id)
 
-    async def send_personal_message(self, message: str, user_id: str):
+    async def send_personal_message(self, json_data: dict, user_id: str):
         """Send a personal message to a user based on their user_id."""
         websocket = self.user_to_connection.get(user_id)
         if websocket:
+            message = json.dumps(json_data)  # Convert dictionary to JSON string
             await websocket.send_text(message)
         else:
             print(f"No connection found for user {user_id}")
