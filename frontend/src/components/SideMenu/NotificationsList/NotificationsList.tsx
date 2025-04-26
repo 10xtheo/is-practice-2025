@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import './NotificationsList.scss';
 
 interface Notification {
@@ -13,9 +13,20 @@ interface NotificationsListProps {
 
 const NotificationsList: FC<NotificationsListProps> = ({ notifications }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 1000); // Animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
 
   return (
-    <div className="notifications-list">
+    <div className={`notifications-list ${isAnimating ? 'notifications-list--animate' : ''}`}>
       <div className="notifications-list__header">
         <span>Уведомления</span>
         <div className="notifications-list__controls">
