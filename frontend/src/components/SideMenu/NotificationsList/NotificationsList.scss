@@ -69,6 +69,8 @@
     justify-content: space-between;
     align-items: flex-start;
     position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 
     &:last-child {
       margin-bottom: 0;
@@ -76,10 +78,15 @@
 
     &:hover {
       background-color: #f8f8f8;
+      transform: translateY(-1px);
 
       .notifications-list__hide-btn {
         opacity: 1;
       }
+    }
+
+    &:active {
+      transform: translateY(0);
     }
   }
 

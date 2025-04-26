@@ -2,6 +2,7 @@ export interface Notification {
   id: string;
   message: string;
   timestamp: string;
+  eventId: string;
 }
 
 const STORAGE_KEY = 'notifications';

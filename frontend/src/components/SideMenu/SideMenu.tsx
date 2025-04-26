@@ -87,6 +87,7 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChang
         id: Date.now().toString(),
         message: data.message,
         timestamp: new Date().toLocaleTimeString(),
+        eventId: data.event_id
       };
       const updatedNotifications = addNotification(newNotification);
       setNotifications(updatedNotifications);

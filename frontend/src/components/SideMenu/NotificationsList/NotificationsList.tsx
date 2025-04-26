@@ -1,6 +1,8 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState } from 'react';
 import './NotificationsList.scss';
 import { Notification, removeNotification } from 'utils/notifications';
+import { useModal } from 'hooks/useModal';
+import { useTypedSelector } from 'hooks/useTypedSelector';
 
 interface NotificationsListProps {
   notifications: Notification[];
@@ -9,25 +11,23 @@ interface NotificationsListProps {
 
 const NotificationsList: FC<NotificationsListProps> = ({ notifications, onNotificationsChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (notifications.length > 0) {
-      setIsAnimating(true);
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [notifications]);
+  const { openModalEdit } = useModal();
+  const { events } = useTypedSelector(({ events }) => events);
 
   const handleHideNotification = (id: string) => {
     const updatedNotifications = removeNotification(id);
     onNotificationsChange(updatedNotifications);
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    const eventData = events.find(event => event.id === notification.eventId);
+    if (eventData) {
+      openModalEdit({ eventData, eventId: notification.eventId });
+    }
+  };
+
   return (
-    <div className={`notifications-list ${isAnimating ? 'notifications-list--animate' : ''}`}>
+    <div className="notifications-list">
       <div className="notifications-list__header">
         <span>Уведомления</span>
         <div className="notifications-list__controls">
@@ -45,6 +45,7 @@ const NotificationsList: FC<NotificationsListProps> = ({ notifications, onNotifi
             <div 
               key={notification.id} 
               className="notifications-list__item"
+              onClick={() => handleNotificationClick(notification)}
             >
               <div className="notifications-list__content">
                 <div className="notifications-list__message">{notification.message}</div>
@@ -52,7 +53,10 @@ const NotificationsList: FC<NotificationsListProps> = ({ notifications, onNotifi
               </div>
               <button 
                 className="notifications-list__hide-btn"
-                onClick={() => handleHideNotification(notification.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleHideNotification(notification.id);
+                }}
                 title="Скрыть уведомление"
               >
                 <i className="fas fa-times"></i>
