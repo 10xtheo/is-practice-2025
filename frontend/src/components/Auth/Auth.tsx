@@ -12,6 +12,7 @@ interface AuthFormData {
 
 const Auth: FC = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<AuthFormData>({
     username: '',
     password: '',
@@ -26,29 +27,32 @@ const Auth: FC = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const url = isLogin ? `${backendUrl}/login/access-token` : `${backendUrl}/users/signup`;
     const loginData = {
       username: formData.email,
       password: formData.password,
     }
     const registerData = {
-      username: formData.email,
+      email: formData.email,
       password: formData.password,
-      // department: formData.department,
-      // position: formData.position, @TODO сказать феде чтоб добавил
+      department: formData.department,
+      position: formData.position,
     }
 
     try {      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': isLogin ? 'application/x-www-form-urlencoded' : 'application/json',
         },
-        body: new URLSearchParams(isLogin ? loginData : registerData),
+        body: isLogin ? new URLSearchParams(loginData) : JSON.stringify(registerData),
       });
 
       if (response.ok) {
@@ -57,12 +61,16 @@ const Auth: FC = () => {
         localStorage.setItem('token', data.access_token);
         window.location.href = '/';
       } else {
-        const error = await response.json();
-        alert(error.message || 'Авторизация не удалась. Попробуйте еще раз');
+        const errorData = await response.json();
+        if (typeof errorData.detail === 'string') {
+          setError(errorData.detail);
+        } else {
+          setError(errorData.detail.map((item: Record<string, unknown>) => item.msg).join('\n'));
+        }
       }
     } catch (error) {
       console.error('Auth error:', error);
-      alert('Авторизация не удалась. Попробуйте еще раз');
+      setError('Произошла ошибка при подключении к серверу');
     }
   };
 
@@ -75,12 +83,12 @@ const Auth: FC = () => {
             <label className="auth__label" htmlFor="email">Почта</label>
             <input
               className="auth__input"
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
             />
           </div>
           <div className="auth__form-group">
@@ -129,11 +137,20 @@ const Auth: FC = () => {
           </button>
         </form>
 
+        {error && (
+          <div className="auth__error">
+            {error}
+          </div>
+        )}
+
         <p className="auth__switch-form">
           {isLogin ? "У вас нет аккаунта? " : "У вас уже есть аккаунт? "}
           <button
             className="auth__switch-btn"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError(null);
+            }}
           >
             {isLogin ? 'Зарегистрироваться' : 'Войти'}
           </button>
