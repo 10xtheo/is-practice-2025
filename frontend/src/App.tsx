@@ -29,12 +29,7 @@ const App: FC = () => {
     return null;
   }
 
-  if (isAuthenticated) {
-    // уведомления
-    useWebSocket(`ws://${backendHost}:${backendPort}/ws/echo?token=${localStorage.getItem('token')}`);
-
-    window["selectedUsers"] = []
-  }
+  window["selectedUsers"] = []
 
   return (
     <Layout isAuth={isAuthenticated}>

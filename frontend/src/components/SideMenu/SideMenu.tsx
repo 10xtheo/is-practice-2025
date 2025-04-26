@@ -1,9 +1,10 @@
-import React, { FC } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import './SideMenu.scss';
 import Month from '../calendar/components/year-calendar/components/month/Month';
 import { IMonthDay, IWeekDay, IMonth } from 'types/date';
 import { getCalendarDaysOfMonth, getWeekDaysNames, createMonth, createDate } from 'utils/date';
 import CalendarsList from './CalendarsList/CalendarsList';
+import NotificationsList from './NotificationsList/NotificationsList';
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -11,7 +12,14 @@ interface SideMenuProps {
   onSelectedCalendarsChange: (selectedIds: string[]) => void;
 }
 
+interface Notification {
+  id: string;
+  message: string;
+  timestamp: string;
+}
+
 const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChange }) => {  
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const currentDate = new Date();
   const currentMonthObj = createMonth({ date: currentDate });
   const selectedDay = createDate({ date: currentDate });
@@ -30,6 +38,24 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChang
     firstWeekDayNumber: 1,
     locale: 'en'
   });
+
+  useEffect(() => {
+    const ws = new WebSocket(`ws://localhost:8000/ws/echo?token=${localStorage.getItem('token')}`);
+    
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const newNotification: Notification = {
+        id: Date.now().toString(),
+        message: data.message,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      setNotifications(prev => [newNotification, ...prev]);
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
   
   return (
     <div className={`side-menu ${isOpen ? 'side-menu--open' : ''}`}>
@@ -44,6 +70,7 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChang
             onChangeState={() => {}}
           />
         </div>
+        <NotificationsList notifications={notifications} />
         <CalendarsList onSelectedCalendarsChange={onSelectedCalendarsChange} />
         <button className="side-menu__close-btn" onClick={onClose}>
           <i className="fas fa-times"></i>
