@@ -1,5 +1,5 @@
 import { IMapEventValues, IModalValues } from "./types";
-import { EEventTypes, EEventPriority } from "types/event";
+import { EventType, EventPriority } from "types/event";
 import { colors } from "../form-elements/color-picker/colors";
 
 export const getMapEventValues = ({
@@ -7,14 +7,14 @@ export const getMapEventValues = ({
   description,
   startDate,
   endDate,
-  type = EEventTypes.EVENT,
-  priority = EEventPriority.MEDIUM,
+  type = EventType.TASK,
+  priority = EventPriority.MEDIUM,
   is_private = false,
   repeat_step = 0,
   max_repeats_count = 0,
-  creator_id = '',
   color = colors[0],
   category_id,
+  participants = []
 }: IMapEventValues): IModalValues => {
   const start = startDate instanceof Date ? startDate : new Date(startDate);
   const end = endDate instanceof Date ? endDate : new Date(endDate);
@@ -29,8 +29,8 @@ export const getMapEventValues = ({
     is_private,
     repeat_step,
     max_repeats_count,
-    creator_id,
     color,
-    category_id
+    category_id,
+    participants
   }
 }

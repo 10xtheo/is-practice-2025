@@ -7,9 +7,11 @@ export const useModal = () => {
     openModalCreate,
     openModalDayInfo,
     openModalEdit,
+    openModalEditCalendar,
     closeModalCreate,
     closeModalDayInfo,
-    closeModalEdit
+    closeModalEdit,
+    closeModalEditCalendar
   } = useActions();
 
   return {
@@ -17,8 +19,10 @@ export const useModal = () => {
     openModalCreate,
     openModalDayInfo,
     openModalEdit,
+    openModalEditCalendar,
     closeModalCreate,
     closeModalDayInfo,
-    closeModalEdit
+    closeModalEdit,
+    closeModalEditCalendar
   };
 }

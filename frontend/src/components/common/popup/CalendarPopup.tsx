@@ -6,15 +6,15 @@ import styles from './popup.module.scss';
 interface IPopupProps {
   x: number;
   y: number;
-  eventId: string;
+  calendarId: string;
 }
 
-const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
+const Popup: FC<IPopupProps> = ({ x, y, calendarId }) => {
   const popupRef = useRef<HTMLDivElement>(null);
-  const { events } = useTypedSelector(({ events }) => events);
-  const { deleteEvent, getEvents, getCalendars } = useActions();
+  const { calendars } = useTypedSelector(({ calendars }) => calendars);
+  const { deleteCalendar } = useActions();
   const { closePopup } = usePopup();
-  const { openModalEdit } = useModal();
+  const { openModalEditCalendar } = useModal();
   const { width: windowWidth, height: windowHeight } = useWindowSize();
 
   const getPopupStyle = () => {
@@ -48,13 +48,13 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
   useClickOutside(popupRef, handleClosePopup);
 
   const onDelete = async () => {
-    await deleteEvent(eventId);
+    await deleteCalendar(calendarId);
     closePopup();
   }
 
   const handleOpenEditEventModal = () => {
-    const eventData = events.find(event => event.id === eventId);
-    openModalEdit({ eventData, eventId: eventId });
+    const calendarData = calendars.find((calendar) => calendar.id === calendarId);
+    openModalEditCalendar({ calendarData, calendarId });
     closePopup();
   }
 
