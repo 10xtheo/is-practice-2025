@@ -67,13 +67,14 @@ const Auth: FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <h2>{isLogin ? 'Вход' : 'Регистрация'}</h2>
+    <div className="auth__container">
+      <div className="auth__box">
+        <h2 className="auth__h2">{isLogin ? 'Вход' : 'Регистрация'}</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Почта</label>
+          <div className="auth__form-group">
+            <label className="auth__label" htmlFor="email">Почта</label>
             <input
+              className="auth__input"
             type="email"
             id="email"
             name="email"
@@ -82,9 +83,10 @@ const Auth: FC = () => {
             required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Пароль</label>
+          <div className="auth__form-group">
+            <label className="auth__label" htmlFor="password">Пароль</label>
             <input
+              className="auth__input"
               type="password"
               id="password"
               name="password"
@@ -95,9 +97,10 @@ const Auth: FC = () => {
           </div>
 
           {!isLogin && (
-            <div className="form-group">
-              <label htmlFor="department">Отдел</label>
+            <div className="auth__form-group">
+              <label className="auth__label" htmlFor="department">Отдел</label>
               <input
+                className="auth__input"
                 type="text"
                 id="department"
                 name="department"
@@ -108,9 +111,10 @@ const Auth: FC = () => {
             </div>
           )}
           {!isLogin && (
-            <div className="form-group">
-              <label htmlFor="position">Должность</label>
+            <div className="auth__form-group">
+              <label className="auth__label" htmlFor="position">Должность</label>
               <input
+                className="auth__input"
                 type="text"
                 id="position"
                 name="position"
@@ -120,15 +124,15 @@ const Auth: FC = () => {
               />
             </div>
           )}
-          <button type="submit" className="submit-btn">
+          <button type="submit" className="auth__submit-btn">
             {isLogin ? 'Войти' : 'Зарегистрироваться'}
           </button>
         </form>
 
-        <p className="switch-form">
+        <p className="auth__switch-form">
           {isLogin ? "У вас нет аккаунта? " : "У вас уже есть аккаунт? "}
           <button
-            className="switch-btn"
+            className="auth__switch-btn"
             onClick={() => setIsLogin(!isLogin)}
           >
             {isLogin ? 'Зарегистрироваться' : 'Войти'}
