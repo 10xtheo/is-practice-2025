@@ -1,17 +1,13 @@
 import React, { FC, useState, useEffect } from 'react';
 import './NotificationsList.scss';
-
-interface Notification {
-  id: string;
-  message: string;
-  timestamp: string;
-}
+import { Notification, removeNotification } from 'utils/notifications';
 
 interface NotificationsListProps {
   notifications: Notification[];
+  onNotificationsChange: (notifications: Notification[]) => void;
 }
 
-const NotificationsList: FC<NotificationsListProps> = ({ notifications }) => {
+const NotificationsList: FC<NotificationsListProps> = ({ notifications, onNotificationsChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -20,10 +16,15 @@ const NotificationsList: FC<NotificationsListProps> = ({ notifications }) => {
       setIsAnimating(true);
       const timer = setTimeout(() => {
         setIsAnimating(false);
-      }, 1000); // Animation duration
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [notifications]);
+
+  const handleHideNotification = (id: string) => {
+    const updatedNotifications = removeNotification(id);
+    onNotificationsChange(updatedNotifications);
+  };
 
   return (
     <div className={`notifications-list ${isAnimating ? 'notifications-list--animate' : ''}`}>
@@ -45,8 +46,17 @@ const NotificationsList: FC<NotificationsListProps> = ({ notifications }) => {
               key={notification.id} 
               className="notifications-list__item"
             >
-              <div className="notifications-list__message">{notification.message}</div>
-              <div className="notifications-list__timestamp">{notification.timestamp}</div>
+              <div className="notifications-list__content">
+                <div className="notifications-list__message">{notification.message}</div>
+                <div className="notifications-list__timestamp">{notification.timestamp}</div>
+              </div>
+              <button 
+                className="notifications-list__hide-btn"
+                onClick={() => handleHideNotification(notification.id)}
+                title="Скрыть уведомление"
+              >
+                <i className="fas fa-times"></i>
+              </button>
             </div>
           ))}
         </div>

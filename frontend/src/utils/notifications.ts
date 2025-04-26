@@ -19,6 +19,13 @@ export const addNotification = (notification: Notification): Notification[] => {
   return updatedNotifications;
 };
 
+export const removeNotification = (id: string): Notification[] => {
+  const notifications = getStoredNotifications();
+  const updatedNotifications = notifications.filter(notification => notification.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotifications));
+  return updatedNotifications;
+};
+
 export const clearNotifications = (): void => {
   localStorage.removeItem(STORAGE_KEY);
 }; 

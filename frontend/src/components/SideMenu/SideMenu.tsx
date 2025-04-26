@@ -103,6 +103,10 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChang
     };
   }, []);
 
+  const handleNotificationsChange = (updatedNotifications: Notification[]) => {
+    setNotifications(updatedNotifications);
+  };
+
   return (
     <div className={`side-menu ${isOpen ? 'side-menu--open' : ''}`}>
       <div className="side-menu__content">
@@ -116,7 +120,10 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChang
             onChangeState={() => {}}
           />
         </div>
-        <NotificationsList notifications={notifications} />
+        <NotificationsList 
+          notifications={notifications} 
+          onNotificationsChange={handleNotificationsChange}
+        />
         <CalendarsList onSelectedCalendarsChange={onSelectedCalendarsChange} />
         <button className="side-menu__close-btn" onClick={onClose}>
           <i className="fas fa-times"></i>

@@ -65,6 +65,10 @@
     background-color: #fff;
     margin-bottom: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
 
     &:last-child {
       margin-bottom: 0;
@@ -72,7 +76,15 @@
 
     &:hover {
       background-color: #f8f8f8;
+
+      .notifications-list__hide-btn {
+        opacity: 1;
+      }
     }
+  }
+
+  &__content {
+    flex: 1;
   }
 
   &__message {
@@ -84,6 +96,22 @@
   &__timestamp {
     color: #666;
     font-size: 12px;
+  }
+
+  &__hide-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #666;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    margin-left: 8px;
+
+    &:hover {
+      color: #ff4444;
+    }
   }
 }
 
