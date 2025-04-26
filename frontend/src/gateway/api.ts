@@ -41,7 +41,7 @@ let initialUsers: IUser[] = [
 // Stub data for events
 let initialEvents: IEvent[] = [
   {
-    id: '1',
+    id: '96c2a1a3-41d4-494c-a0a4-4480d10ec204',
     title: 'Team Meeting',
     description: 'Weekly sync',
     start: Date.now() - 1000 * 60 * 60 * 2,
@@ -62,7 +62,7 @@ let initialEvents: IEvent[] = [
     ]
   },
   {
-    id: '2',
+    id: '8b6f0168-08c3-41c5-a59d-b58c4ea33ab6',
     title: 'Lunch Break',
     description: 'Team lunch',
     start: Date.now() + 1000 * 60 * 60 * 2,

@@ -5,6 +5,7 @@ import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValues } from 'components/common/modals/types';
 import { TPartialEvent, EventType, EventPriority } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
+import { getEventTypeOptions, getEventPriorityOptions } from '../helpers';
 import cn from 'classnames';
 
 import styles from './modal-form-event.module.scss';
@@ -231,10 +232,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 name="type"
                 value={values.type}
                 onChange={onChangeType}
-                options={Object.entries(EventType).map(([key, value]) => ({
-                  value: key,
-                  label: value
-                }))}
+                options={getEventTypeOptions()}
                 placeholder="Тип события"
                 error={errors.type}
                 fullWidth
@@ -245,10 +243,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 name="priority"
                 value={values.priority}
                 onChange={onChangePriority}
-                options={Object.entries(EventPriority).map(([key, value]) => ({
-                  value: key,
-                  label: value
-                }))}
+                options={getEventPriorityOptions()}
                 placeholder="Приоритет"
                 error={errors.priority}
                 fullWidth
