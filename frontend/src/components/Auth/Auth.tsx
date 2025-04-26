@@ -57,9 +57,13 @@ const Auth: FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-
-        localStorage.setItem('token', data.access_token);
-        window.location.href = '/';
+        
+        if (isLogin) {
+          localStorage.setItem('token', data.access_token);
+          window.location.href = '/';
+        } else {
+          window.location.href = '/auth';
+        }
       } else {
         const errorData = await response.json();
         if (typeof errorData.detail === 'string') {
