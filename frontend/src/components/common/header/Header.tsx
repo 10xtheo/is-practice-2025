@@ -75,7 +75,7 @@ const Header: FC<IHeaderProps> = ({
       <div className={styles.search}>
         <input
           type="text"
-          placeholder="Search events..."
+          placeholder="Что/кого ищем?"
           value={searchQuery}
           onChange={handleSearchChange}
           className={styles.search__input}

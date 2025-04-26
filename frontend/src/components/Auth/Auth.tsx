@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react';
+import { backendUrl } from '../../App';
 import './Auth.scss';
 
 interface AuthFormData {
@@ -29,22 +30,31 @@ const Auth: FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = isLogin ? '<LOGIN_URL>' : '<REGISTER_URL>';
-    
-    try {
+    const url = isLogin ? `${backendUrl}/login/access-token` : `${backendUrl}/users/signup`;
+    const loginData = {
+      username: formData.email,
+      password: formData.password,
+    }
+    const registerData = {
+      username: formData.email,
+      password: formData.password,
+      // department: formData.department,
+      // position: formData.position, @TODO сказать феде чтоб добавил
+    }
+
+    try {      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify(formData),
+        body: new URLSearchParams(isLogin ? loginData : registerData),
       });
 
       if (response.ok) {
         const data = await response.json();
-        // Store token in localStorage
-        localStorage.setItem('token', data.token);
-        // Redirect to main page
+
+        localStorage.setItem('token', data.access_token);
         window.location.href = '/';
       } else {
         const error = await response.json();

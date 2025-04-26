@@ -8,6 +8,10 @@ import Auth from './components/Auth/Auth';
 import './common.scss';
 import Profile from 'components/Profile/Profile';
 
+const backendHost = 'localhost';
+const backendPort = 8000;
+export const backendUrl = `http://${backendHost}:${backendPort}/api/v1`;
+
 const App: FC = () => {
   const { getEvents, getCalendars, getUsers } = useActions();
 
@@ -17,16 +21,19 @@ const App: FC = () => {
     getUsers();
   }, []);
 
-  useWebSocket('ws://localhost:8000/ws/echo?token=<token>');
 
-  window["selectedUsers"] = []
-
-  // Check if user is authenticated
   const isAuthenticated = !!localStorage.getItem('token');
 
   if (!isAuthenticated && !window.location.href.includes('/auth')) {
     window.location.href = '/auth';
     return null;
+  }
+
+  if (isAuthenticated) {
+    // уведомления
+    useWebSocket(`ws://${backendHost}:${backendPort}/ws/echo?token=${localStorage.getItem('token')}`);
+
+    window["selectedUsers"] = []
   }
 
   return (
