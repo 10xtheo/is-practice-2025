@@ -5,6 +5,7 @@ import { IMonthDay, IWeekDay, IMonth } from 'types/date';
 import { getCalendarDaysOfMonth, getWeekDaysNames, createMonth, createDate } from 'utils/date';
 import CalendarsList from './CalendarsList/CalendarsList';
 import NotificationsList from './NotificationsList/NotificationsList';
+import { Notification, getStoredNotifications, addNotification } from 'utils/notifications';
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -12,14 +13,8 @@ interface SideMenuProps {
   onSelectedCalendarsChange: (selectedIds: string[]) => void;
 }
 
-interface Notification {
-  id: string;
-  message: string;
-  timestamp: string;
-}
-
 const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChange }) => {  
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>(getStoredNotifications());
   const currentDate = new Date();
   const currentMonthObj = createMonth({ date: currentDate });
   const selectedDay = createDate({ date: currentDate });
@@ -49,7 +44,8 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChang
         message: data.message,
         timestamp: new Date().toLocaleTimeString()
       };
-      setNotifications(prev => [newNotification, ...prev]);
+      const updatedNotifications = addNotification(newNotification);
+      setNotifications(updatedNotifications);
     };
 
     return () => {
