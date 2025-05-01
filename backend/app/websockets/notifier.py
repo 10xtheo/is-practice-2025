@@ -20,7 +20,6 @@ async def send_scheduled_notifications_loop():
         for user_id, json_data in notifications:
             try:
                 await manager.send_personal_message(json_data, UUID(str(user_id)))
-                print(f"Notification sent to {user_id}")
             except Exception as e:
                 print(f"Failed to send notification to {user_id}: {e}")
         clean_old_notifications(db)
