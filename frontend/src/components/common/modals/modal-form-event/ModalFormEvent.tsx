@@ -3,11 +3,13 @@ import { useClickOutside, useForm, useTypedSelector } from 'hooks/index';
 import { checkDateIsEqual, getDateTime, getDifferenceInTimeFromTwoTimes, getDifferenceOfTwoDates, getDifferenceOfTwoTimestamps, shmoment } from 'utils/date';
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValues } from 'components/common/modals/types';
-import { TPartialEvent, EEventTypes, EEventPriority } from 'types/event';
+import { TPartialEvent, EventType, EventPriority } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
+import { getEventTypeOptions, getEventPriorityOptions } from '../helpers';
 import cn from 'classnames';
 
 import styles from './modal-form-event.module.scss';
+import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
 
 interface IModalFormEventProps {
   textSendButton: string;
@@ -33,13 +35,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>();
   const { calendars } = useTypedSelector(({ calendars }) => calendars);
+  const { users } = useTypedSelector(({ users }) => users);
   
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
     // rules: createEventSchema @TODO добавить валидацию
   });
 
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(defaultEventValues.repeat_step !== 0);
   const [intervalType, setIntervalType] = useState('day');
   const isValid = Object.keys(errors).length === 0;
   
@@ -50,10 +53,13 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     setValue('repeat_step', hours);
   };
 
-  const onChangeIntervalType = (e) => {
+  const onChangeIntervalType = (e) => {    
     const newType = e.target.value;
     setIntervalType(newType);
-    const value = parseInt(document.getElementById('repeat_step_input').textContent, 10) || 0;
+    
+    // @ts-ignore
+    const value = parseInt(document.getElementById('repeat_step_input').value, 10) || 0;
+    
     const interval = EVENT_REPEAT_INTERVALS.find(i => i.value === newType);
     const hours = value * (interval ? interval.hours : 24);
     setValue('repeat_step', hours);
@@ -110,11 +116,11 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   }
 
   const onChangeType = (value: string) => {
-    setValue('type', value as EEventTypes);
+    setValue('type', value as EventType);
   }
 
   const onChangePriority = (value: string) => {
-    setValue('priority', value as EEventPriority);
+    setValue('priority', value as EventPriority);
   }
 
   const onChangeColor = (color: string) => {
@@ -124,11 +130,11 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const onChangeCategoryValue = (category_id: string) => {
 
     const calendar = calendars.find(i => i.id === category_id);
-    if (category_id) {
+    if (calendar) {
       setValue('category_id', category_id);
     } else {
       // @TODO добавить фичу чтобы автоматом создавалась категория если новая
-      console.log('нет такой категории:', category_id);
+      alert(`нет такой категории: ${category_id}`);
     }
   };
 
@@ -140,18 +146,19 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       end: data.end,
       repeat_step: data.repeat_step,
       is_private: data.is_private,
-      creator_id: data.creator_id,
-      is_finished: false,
+      is_finished: false, // @TODO надо ли?
       max_repeats_count: data.max_repeats_count,
       type: data.type,
       priority: data.priority,
       color: data.color,
-      category_id: data.category_id
+      category_id: data.category_id,
+      participants: users.filter(user => data.participants.includes(user.id))
     };
     
     try {      
       await handlerSubmit(newEvent);
       closeModal();
+      window["selectedUsers"] = [];
     } catch (error) {
       console.error('Error creating event:', error);
     }
@@ -160,7 +167,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   useClickOutside(modalRef, closeModal);
   
   return (
-    <div className="overlay">
+    <div className="overlay" style={{ zIndex: 1002 }}>
       <div className={styles.modal} ref={modalRef}>
         <div className={styles.modal__content}>
           <button
@@ -225,10 +232,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 name="type"
                 value={values.type}
                 onChange={onChangeType}
-                options={Object.entries(EEventTypes).map(([key, value]) => ({
-                  value: key,
-                  label: value
-                }))}
+                options={getEventTypeOptions()}
                 placeholder="Тип события"
                 error={errors.type}
                 fullWidth
@@ -239,10 +243,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 name="priority"
                 value={values.priority}
                 onChange={onChangePriority}
-                options={Object.entries(EEventPriority).map(([key, value]) => ({
-                  value: key,
-                  label: value
-                }))}
+                options={getEventPriorityOptions()}
                 placeholder="Приоритет"
                 error={errors.priority}
                 fullWidth
@@ -260,6 +261,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 placeholder="Календарь"
                 error={errors.category_id}
                 fullWidth
+              />
+            </div>
+            <div className={cn(styles.modal__form__group)}>
+              <UserMultiSelector
+                defaultSelectedUsers={defaultEventValues.participants}
+                onChange={(users) => {
+                  setValue('participants', users.map(user => user.id))
+                }}
               />
             </div>
             <div className={cn(styles.modal__form__group)}>
@@ -285,7 +294,13 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 <input
                   type="checkbox"
                   checked={isRecurring}
-                  onChange={() => setIsRecurring(v => !v)}
+                  onChange={() => setIsRecurring(v => {
+                    if (v) {
+                      setValue('repeat_step', 0);
+                      setValue('max_repeats_count', 0);
+                    }
+                    return !v
+                  })}
                 />
                 <span className={styles.modal__form__checkbox__title}>Повторяющееся?</span>
               </label>
@@ -296,9 +311,9 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 <input
                   id="repeat_step_input"
                   type="number"
-                  min="1"
+                  min={defaultEventValues.repeat_step === 0 ? 0 : 1}
                   onChange={onChangeRepeatStepValue}
-                  defaultValue={1}
+                  defaultValue={defaultEventValues.repeat_step}
                   style={{ width: 80 }}
                 />
                 <select value={intervalType} onChange={onChangeIntervalType}>

@@ -5,28 +5,30 @@ import { useActions } from 'hooks/useActions';
 
 interface LayoutProps {
   children: React.ReactNode;
+  isAuth?: boolean;
 }
 
 interface ChildProps {
   onMenuToggle?: () => void;
 }
 
-const Layout: FC<LayoutProps> = ({ children }) => {
+const Layout: FC<LayoutProps> = ({ children, isAuth = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const { setSelectedCalendars } = useActions();
 
   const handleMenuToggle = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
+  
   const handleSelectedCalendarsChange = (selectedIds: string[]) => {
     setSelectedCalendars(selectedIds);
   };
+  const isAuthPage = window.location.pathname === '/auth';
 
   return (
-    <div className={`layout ${isMenuOpen ? 'layout--menu-open' : ''}`}>
+    <div className={`layout ${isAuth && isMenuOpen && !isAuthPage ? 'layout--menu-open' : ''}`}>
       <SideMenu 
-        isOpen={isMenuOpen} 
+        isOpen={isAuth && isMenuOpen && !isAuthPage} 
         onClose={() => setIsMenuOpen(false)} 
         onSelectedCalendarsChange={handleSelectedCalendarsChange}
       />

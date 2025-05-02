@@ -1,8 +1,23 @@
+import { IUser } from "./user";
+
 export interface ICalendar {
   id: string;
   title: string;
   owner_id: string;
   color: string;
+  participants: IUser[];
 } 
 
-export interface ICalendarCreate extends Omit<ICalendar, 'id'> {} 
+export type TPartialCalendar = Partial<ICalendar>
+
+export interface ICalendarCreate {
+  title: string;
+  color: string;
+  participants: string[];
+}
+
+export enum CategoryPermission {
+  VIEW = "view",
+  EDIT = "edit",
+  MANAGE = "manage"
+}

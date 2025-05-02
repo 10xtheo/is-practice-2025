@@ -1,10 +1,11 @@
 import uuid
 from typing import Any, List
-
-from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy import or_, and_, func
+from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
-from app.api.deps import CurrentUser , SessionDep
+from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.utils import check_category_permissions
 from app.models import (
     Category,
     CategoryCreate,
@@ -14,14 +15,15 @@ from app.models import (
     Message,
     Event,
     EventCategoryLink,
-    CategoryParticipant
+    CategoryParticipant,
+    CategoryPermission
 )
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
 @router.get("/", response_model=CategoriesPublic)
 def read_categories(
-    session: SessionDep, current_user: CurrentUser , skip: int = 0, limit: int = 100
+    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     """
     Retrieve categories.
@@ -54,7 +56,7 @@ def read_categories(
     return CategoriesPublic(data=categories, count=count)
 
 @router.get("/{id}", response_model=CategoryPublic)
-def read_category(session: SessionDep, current_user: CurrentUser , id: uuid.UUID) -> Any:
+def read_category(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
     """
     Get category by ID.
     """
@@ -62,23 +64,14 @@ def read_category(session: SessionDep, current_user: CurrentUser , id: uuid.UUID
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    # Check if the user is the owner or a participant
-    is_owner = category.owner_id == current_user.id
-    is_participant = session.exec(
-        select(CategoryParticipant).where(
-            CategoryParticipant.category_id == category.id,
-            CategoryParticipant.user_id == current_user.id
-        )
-    ).first() is not None
-
-    if not current_user.is_superuser and not (is_owner or is_participant):
+    if not check_category_permissions(session, current_user, category.id, CategoryPermission.VIEW):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
     return category
 
 @router.post("/", response_model=CategoryPublic)
 def create_category(
-    *, session: SessionDep, current_user: CurrentUser , category_in: CategoryCreate, event_ids: List[uuid.UUID] = []
+    *, session: SessionDep, current_user: CurrentUser, category_in: CategoryCreate, event_ids: List[uuid.UUID] = []
 ) -> Any:
     """
     Create new category and link it to events.
@@ -96,18 +89,23 @@ def create_category(
         link = EventCategoryLink(event_id=event_id, category_id=category.id)
         session.add(link)
 
-    # Create a new CategoryParticipant
-    category_participant = CategoryParticipant(user_id=current_user.id, category_id=category.id, is_creator=True)
+    # Create a new CategoryParticipant for the creator with MANAGE permissions
+    category_participant = CategoryParticipant(
+        user_id=current_user.id,
+        category_id=category.id,
+        is_creator=True,
+        permissions=CategoryPermission.MANAGE
+    )
     session.add(category_participant)
 
-    session.commit()  # Commit the links to the database
+    session.commit()
     return category
 
 @router.put("/{id}", response_model=CategoryPublic)
 def update_category(
     *,
     session: SessionDep,
-    current_user: CurrentUser ,
+    current_user: CurrentUser,
     id: uuid.UUID,
     category_in: CategoryUpdate,
     event_ids: List[uuid.UUID] = []
@@ -118,8 +116,9 @@ def update_category(
     category = session.get(Category, id)
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
-    if not current_user.is_superuser and (category.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    if not check_category_permissions(session, current_user, category.id, CategoryPermission.MANAGE):
+        raise HTTPException(status_code=403, detail="Not enough permissions to update this category")
 
     # Update category fields
     update_dict = category_in.model_dump(exclude_unset=True)
@@ -144,18 +143,23 @@ def update_category(
     session.refresh(category)
     return category
 
-@router.delete("/{id}")
+@router.delete("/{id}", response_model=Message)
 def delete_category(
-    session: SessionDep, current_user: CurrentUser , id: uuid.UUID
-) -> Message:
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID
+) -> Any:
     """
     Delete a category.
     """
     category = session.get(Category, id)
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
-    if not current_user.is_superuser and (category.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+
+    if not check_category_permissions(session, current_user, category.id, CategoryPermission.MANAGE):
+        raise HTTPException(status_code=403, detail="Not enough permissions to delete this category")
+
     session.delete(category)
     session.commit()
     return Message(message="Category deleted successfully")
