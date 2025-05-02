@@ -2,7 +2,7 @@ import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars, RequestsOptio
 import { EventPriority, EventType, IEvent, IEventCreate } from "../types/event";
 import { ICalendar, ICalendarCreate } from "../types/calendar";
 import { IUser, IUserCreate } from "../types/user";
-
+import { backendUrl } from "../App";
 
 // Stub data for users
 let initialUsers: IUser[] = [
@@ -163,61 +163,36 @@ let initialEvents: IEvent[] = [
 
 
 class HttpEvents {
-  private events: IEvent[];
-
-  constructor() {
-    this.events = [...initialEvents];
-  }
-
   private makeRequest = async <IDtoRequest>(options: RequestsOptionsEvents): Promise<IDtoRequest> => {
     try {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      switch (options.method) {
-        case METHODS.GET:
-          return this.events as IDtoRequest;
-        
-        case METHODS.POST:
-          if (!options.body) throw new Error('Event data is required');
-
-          const newEvent: IEvent = { 
-            id: Date.now().toString(), 
-            ...options.body,
-            creator_id: '1',
-            is_finished: false
-          };
-          this.events = [...this.events, newEvent];
-          return newEvent as IDtoRequest;
-        
-        case METHODS.PUT:
-          if (!options.body) throw new Error('Event data is required');
-          const eventId = options.url.split('/')[1];
-          const eventIndex = this.events.findIndex(e => e.id === eventId);
-
-          if (eventIndex !== -1) {
-            this.events = [...this.events.slice(0, eventIndex), 
-              {...options.body, id: this.events[eventIndex].id} as IEvent,
-              ...this.events.slice(eventIndex + 1)];
-
-            return this.events[eventIndex] as IDtoRequest;
-          }
-          throw new Error('Event not found');
-        
-        case METHODS.DELETE:
-          const deleteId = options.url.split('/')[1];
-          const deleteIndex = this.events.findIndex(e => e.id === deleteId);
-          if (deleteIndex !== -1) {            
-            this.events = [...this.events.slice(0, deleteIndex), ...this.events.slice(deleteIndex + 1)];
-            return {} as IDtoRequest;
-          }
-          throw new Error('Event not found');
-        
-        default:
-          throw new Error('Method not supported');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
       }
+
+      const headers: HeadersInit = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await fetch(`${backendUrl}/events${options.url}`, {
+        method: options.method,
+        headers,
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to fetch events');
+      }
+
+      if (options.method === METHODS.DELETE) {
+        return {} as IDtoRequest;
+      }
+
+      return await response.json();
     } catch (err) {
-      alert(err.message);
+      console.error('Events API error:', err);
       throw err;
     }
   }
