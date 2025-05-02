@@ -4,14 +4,19 @@ from sqlalchemy import or_, and_, func
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
-from app.api.deps import CurrentUser , SessionDep
-from app.models import Event, EventCreate, EventPublic, EventsPublic, EventUpdate, Message, EventParticipant, EventPermission, EventParticipantsPublic, CategoryParticipant, CategoryPermission, EventCategoryLink, User
+from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.utils import check_category_permissions, check_event_permissions
+from app.models import (
+    Event, EventCreate, EventPublic, EventsPublic, EventUpdate, Message,
+    EventParticipant, EventPermission, EventParticipantsPublic,
+    CategoryParticipant, CategoryPermission, EventCategoryLink, User, Category
+)
 
 router = APIRouter(prefix="/events", tags=["events"])
 
 @router.get("/", response_model=EventsPublic)
 def read_events(
-    session: SessionDep, current_user: CurrentUser , skip: int = 0, limit: int = 100
+    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     """
     Retrieve events.
@@ -22,20 +27,29 @@ def read_events(
         statement = select(Event).offset(skip).limit(limit)
         events = session.exec(statement).all()
     else:
-        # Count events where the user is either the creator or a participant
+        # Получаем категории, к которым у пользователя есть доступ
+        accessible_categories = session.exec(
+            select(Category.id).join(CategoryParticipant).where(
+                or_(
+                    Category.owner_id == current_user.id,
+                    CategoryParticipant.user_id == current_user.id
+                )
+            )
+        ).all()
+
+        # Получаем события из доступных категорий
         count_statement = (
             select(func.count())
             .select_from(Event)
-            .join(EventParticipant)
-            .where((Event.creator_id == current_user.id) | (EventParticipant.user_id == current_user.id))
+            .join(EventCategoryLink)
+            .where(EventCategoryLink.category_id.in_(accessible_categories))
         )
         count = session.exec(count_statement).one()
 
-        # Select events where the user is either the creator or a participant
         statement = (
             select(Event)
-            .join(EventParticipant)
-            .where((Event.creator_id == current_user.id) | (EventParticipant.user_id == current_user.id))
+            .join(EventCategoryLink)
+            .where(EventCategoryLink.category_id.in_(accessible_categories))
             .offset(skip)
             .limit(limit)
         )
@@ -43,7 +57,6 @@ def read_events(
 
     return EventsPublic(data=events, count=count)
 
-@router.get("/permissions-and-participants")
 def get_events_with_permissions(
     session: SessionDep,
     current_user: CurrentUser,
@@ -141,9 +154,8 @@ def get_events_with_permissions(
 
     return result
 
-
 @router.get("/{id}", response_model=EventPublic)
-def read_event(session: SessionDep, current_user: CurrentUser , id: uuid.UUID) -> Any:
+def read_event(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
     """
     Get event by ID.
     """
@@ -151,46 +163,95 @@ def read_event(session: SessionDep, current_user: CurrentUser , id: uuid.UUID) -
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-    # Check if the user is the creator or a participant
-    is_creator = event.creator_id == current_user.id
-    is_participant = session.exec(
-        select(EventParticipant).where(
-            EventParticipant.event_id == event.id,
-            EventParticipant.user_id == current_user.id
-        )
-    ).first() is not None
-
-    if not current_user.is_superuser and not (is_creator or is_participant):
+    if not check_event_permissions(session, current_user, event, EventPermission.VIEW):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
     return event
 
 @router.post("/", response_model=EventPublic)
 def create_event(
-    *, session: SessionDep, current_user: CurrentUser , event_in: EventCreate
+    *, session: SessionDep, current_user: CurrentUser, event_in: EventCreate
 ) -> Any:
     """
     Create new event.
     """
-    event = Event.model_validate(event_in, update={"creator_id": current_user.id})
-    session.add(event)
-    session.commit()
-    session.refresh(event)
+    # Проверяем корректность времени
+    if event_in.start >= event_in.end:
+        raise HTTPException(
+            status_code=400,
+            detail="Event start time must be before end time"
+        )
 
-    # Create a new EventParticipant
-    event_participant = EventParticipant(user_id=current_user.id, event_id=event.id, is_creator=True, is_listener=True)
-    session.add(event_participant)
+    # Проверяем права на создание события в категории
+    if not check_category_permissions(session, current_user, event_in.category_id, CategoryPermission.EDIT):
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permissions to create events in this category"
+        )
 
-    session.commit()
-    return event
+    try:
+        # Создаем событие без category_id и participants
+        event_data = event_in.model_dump(exclude={"category_id", "participants"})
+        event = Event.model_validate(event_data, update={"creator_id": current_user.id})
+        session.add(event)
+        session.flush()
+
+        # Создаем связь с категорией
+        link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
+        session.add(link)
+
+        # Add creator as participant with ORGANIZE permissions
+        creator_participant = EventParticipant(
+            event_id=event.id,
+            user_id=current_user.id,
+            is_creator=True,
+            is_listener=True,
+            permissions=EventPermission.ORGANIZE
+        )
+        session.add(creator_participant)
+
+        # Добавляем участников, если они указаны
+        if event_in.participants:
+            for participant in event_in.participants:
+                if participant.user_id == current_user.id:
+                    continue
+
+                # Проверяем существование пользователя
+                user = session.get(User, participant.user_id)
+                if not user:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"User with ID {participant.user_id} not found"
+                    )
+
+                # Создаем участника события
+                event_participant = EventParticipant(
+                    event_id=event.id,
+                    user_id=participant.user_id,
+                    is_creator=participant.is_creator,
+                    is_listener=participant.is_listener,
+                    permissions=participant.permissions
+                )
+                session.add(event_participant)
+
+        session.commit()
+        session.refresh(event)
+        return event
+
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to create event: {str(e)}"
+        )
 
 @router.put("/{id}", response_model=EventPublic)
 def update_event(
     *,
     session: SessionDep,
-    current_user: CurrentUser ,
+    current_user: CurrentUser,
     id: uuid.UUID,
-    event_in: EventUpdate,
+    event_in: EventUpdate
 ) -> Any:
     """
     Update an event.
@@ -198,31 +259,59 @@ def update_event(
     event = session.get(Event, id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
-    if not current_user.is_superuser and (event.creator_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    update_dict = event_in.model_dump(exclude_unset=True)
-    event.sqlmodel_update(update_dict)
+
+    # Проверяем права на обновление события
+    if not check_event_permissions(session, current_user, event, EventPermission.ORGANIZE):
+        raise HTTPException(status_code=403, detail="Not enough permissions to update this event")
+
+    # Если пытаемся изменить категорию, проверяем права на новую категорию
+    if event_in.category_id and event_in.category_id != event.categories[0].id:
+        if not check_category_permissions(session, current_user, event_in.category_id, CategoryPermission.EDIT):
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions to move event to this category"
+            )
+
+    # Обновляем данные события
+    event_data = event_in.model_dump(exclude_unset=True)
+    for field, value in event_data.items():
+        setattr(event, field, value)
+
+    # Если изменилась категория, обновляем связь
+    if event_in.category_id and event_in.category_id != event.categories[0].id:
+        # Удаляем старую связь
+        old_link = session.exec(
+            select(EventCategoryLink).where(EventCategoryLink.event_id == event.id)
+        ).first()
+        if old_link:
+            session.delete(old_link)
+        
+        # Создаем новую связь
+        new_link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
+        session.add(new_link)
+
     session.add(event)
     session.commit()
     session.refresh(event)
     return event
 
-@router.delete("/{id}")
+@router.delete("/{id}", response_model=Message)
 def delete_event(
-    session: SessionDep, current_user: CurrentUser , id: uuid.UUID
-) -> Message:
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID
+) -> Any:
     """
     Delete an event.
     """
     event = session.get(Event, id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
-    if not current_user.is_superuser and (event.creator_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
 
-    # Delete related event participants
-    for participant in event.participants:
-        session.delete(participant)
+    # Проверяем права на удаление события
+    if not check_event_permissions(session, current_user, event, EventPermission.ORGANIZE):
+        raise HTTPException(status_code=403, detail="Not enough permissions to delete this event")
 
     session.delete(event)
     session.commit()

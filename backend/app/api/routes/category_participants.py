@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from sqlmodel import select, func
-from typing import List
+from typing import List, Any
 import uuid
 
 from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.utils import check_category_permissions
 from app.models import (
     CategoryParticipant,
     CategoryParticipantCreate,
@@ -15,30 +16,26 @@ from app.models import (
     EventPermission,
     Message,
     Category,
-    User
+    User,
+    CategoryPermission
 )
 
 router = APIRouter(prefix="/categories/{category_id}/participants", tags=["Category Participants"])
 
 @router.get("/", response_model=CategoryParticipantsPublic)
 def read_category_participants(
-    session: SessionDep, 
-    current_user: CurrentUser, 
+    session: SessionDep,
+    current_user: CurrentUser,
     category_id: uuid.UUID,
-    skip: int = 0, 
+    skip: int = 0,
     limit: int = 100
 ):
     """
     Get all participants for a category
     """
     # Verify category exists and user has access
-    category = session.get(Category, category_id)
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    # Only owner or superuser can see participants
-    if not current_user.is_superuser and category.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+    if not check_category_permissions(session, current_user, category_id, CategoryPermission.VIEW):
+        raise HTTPException(status_code=403, detail="Not enough permissions to view participants")
 
     # Get count and participants
     count_statement = select(func.count()).where(CategoryParticipant.category_id == category_id)
@@ -58,7 +55,7 @@ def read_category_participants(
 def add_category_participant(
     *,
     session: SessionDep,
-    current_user: CurrentUser ,
+    current_user: CurrentUser,
     category_id: uuid.UUID,
     participant_in: CategoryParticipantCreate
 ):
@@ -66,18 +63,13 @@ def add_category_participant(
     Add a participant to a category (without adding to category's events).
     """
     # Verify category exists and user has manage permissions
-    category = session.get(Category, category_id)
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    # Check if current user is owner or superuser
-    if not current_user.is_superuser and category.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+    if not check_category_permissions(session, current_user, category_id, CategoryPermission.MANAGE):
+        raise HTTPException(status_code=403, detail="Not enough permissions to add participants")
 
     # Verify target user exists
     user = session.get(User, participant_in.user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User  not found")
+        raise HTTPException(status_code=404, detail="User not found")
 
     # Check if participant already exists
     existing = session.exec(
@@ -87,7 +79,7 @@ def add_category_participant(
     ).first()
     
     if existing:
-        raise HTTPException(status_code=400, detail="User  is already a participant")
+        raise HTTPException(status_code=400, detail="User is already a participant")
 
     # Create the new category participant
     participant = CategoryParticipant(
@@ -105,25 +97,26 @@ def add_category_participant(
 def update_category_participant(
     *,
     session: SessionDep,
-    current_user: CurrentUser ,
+    current_user: CurrentUser,
     category_id: uuid.UUID,
-    user_id: uuid.UUID,  # Change participant_id to user_id
+    user_id: uuid.UUID,
     participant_in: CategoryParticipantUpdate
 ):
     """
     Update a category participant's permissions based on user_id
     """
-    # Verify category exists
-    category = session.get(Category, category_id)
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    # Check permissions - only owner/superuser can modify participants
-    if not current_user.is_superuser and category.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+    # Verify category exists and user has manage permissions
+    if not check_category_permissions(session, current_user, category_id, CategoryPermission.MANAGE):
+        raise HTTPException(status_code=403, detail="Not enough permissions to update participants")
 
-    # Fetch the participant based on user_id instead of participant_id
-    participant = session.query(CategoryParticipant).filter_by(user_id=user_id, category_id=category_id).first()
+    # Fetch the participant based on user_id
+    participant = session.exec(
+        select(CategoryParticipant).where(
+            CategoryParticipant.category_id == category_id,
+            CategoryParticipant.user_id == user_id
+        )
+    ).first()
+    
     if not participant:
         raise HTTPException(status_code=404, detail="Participant not found")
 
@@ -137,33 +130,34 @@ def update_category_participant(
     
     return participant
 
-@router.delete("/{user_id}")
+@router.delete("/{user_id}", response_model=Message)
 def remove_category_participant(
+    *,
     session: SessionDep,
-    current_user: CurrentUser  ,
+    current_user: CurrentUser,
     category_id: uuid.UUID,
-    user_id: uuid.UUID,
-) -> Message:
+    user_id: uuid.UUID
+) -> Any:
     """
     Remove a participant from a category based on user_id (without removing them from category's events).
     """
-    # Verify category exists
-    category = session.get(Category, category_id)
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    # Check permissions
-    if not current_user.is_superuser and category.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+    # Verify category exists and user has manage permissions
+    if not check_category_permissions(session, current_user, category_id, CategoryPermission.MANAGE):
+        raise HTTPException(status_code=403, detail="Not enough permissions to remove participants")
 
     # Fetch the participant based on user_id
-    participant = session.query(CategoryParticipant).filter_by(user_id=user_id, category_id=category_id).first()
+    participant = session.exec(
+        select(CategoryParticipant).where(
+            CategoryParticipant.category_id == category_id,
+            CategoryParticipant.user_id == user_id
+        )
+    ).first()
+    
     if not participant:
         raise HTTPException(status_code=404, detail="Participant not found")
 
     # Delete the participant from the category
     session.delete(participant)
-
-    session.commit()  # Commit the changes to the database
+    session.commit()
 
     return Message(message="Participant removed successfully from category")

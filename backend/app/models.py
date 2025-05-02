@@ -226,7 +226,8 @@ class EventBase(SQLModel):
     max_repeats_count: int = Field(default=0, ge=0)
 
 class EventCreate(EventBase):
-    pass
+    category_id: uuid.UUID = Field(foreign_key="category.id")
+    participants: list["EventParticipantCreate"] | None = Field(default=None)
 
 class EventUpdate(SQLModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
@@ -239,6 +240,7 @@ class EventUpdate(SQLModel):
     priority: EventPriority | None = None
     is_finished: bool | None = None
     max_repeats_count: int | None = Field(default=None, ge=0)
+    category_id: uuid.UUID | None = Field(default=None, foreign_key="category.id")
 
 class Event(EventBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
