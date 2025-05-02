@@ -20,5 +20,5 @@ yarn run build
 yarn run start
 ```
 
-Победа, по дефолту всё запускается на localhost:3000
+Победа, по дефолту всё запускается на localhost:5173
 <br>Изменить порт можно в webpack.config.js

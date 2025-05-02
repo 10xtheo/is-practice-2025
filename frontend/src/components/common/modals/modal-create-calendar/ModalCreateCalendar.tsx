@@ -1,47 +1,65 @@
 import React, { FC, useState } from 'react';
-import { ICalendar } from 'types/calendar';
-import apiCalendars from 'gateway/calendars';
+import { ICalendarCreate, TPartialCalendar } from 'types/calendar';
 import './ModalCreateCalendar.scss';
+import { TSubmitHandler } from 'hooks/useForm/types';
+import { IModalValuesCalendar } from '../types';
+import { useForm } from 'hooks/useForm';
+import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
 
 interface ModalCreateCalendarProps {
   isOpen: boolean;
-  onClose: () => void;
-  onCalendarCreated: (calendar: ICalendar) => void;
+  closeModal: () => void;
+  handlerSubmit: (calendarData: ICalendarCreate) => void;
 }
 
-const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, onClose, onCalendarCreated }) => {
-  const [title, setTitle] = useState('');
-  const [color, setColor] = useState('#FF5733');
+const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal, handlerSubmit }) => {
+  const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValuesCalendar>({
+    defaultValues: {
+      title: '',
+      color: '#FF5733',
+    },
+    // rules: createEventSchema @TODO добавить валидацию
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const newCalendar = await apiCalendars.createCalendar({
-        title,
-        color,
-        owner_id: 'user1' // This should come from auth context in real app
-      });
-      onCalendarCreated(newCalendar);
-      onClose();
+  const onSubmit: TSubmitHandler<IModalValuesCalendar> = async (data) => {
+    const newCalendar: ICalendarCreate = {
+      title: data.title,
+      color: data.color,
+      participants: data.participants as string[],
+    };
+    
+    try {            
+      await handlerSubmit(newCalendar);
+      closeModal();
+      window["selectedUsers"] = [];
+
     } catch (error) {
-      console.error('Failed to create calendar:', error);
+      console.error('Error creating event:', error);
     }
   };
 
   if (!isOpen) return null;
 
+  const onChangeTitle = (title: string) => {
+    setValue('title', title);
+  }
+
+  const onChangeColor = (color: string) => {
+    setValue('color', color);
+  }
+  
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={closeModal}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <h2>Создать новый календарь</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
             <label htmlFor="title">Название</label>
             <input
               type="text"
               id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={values.title}
+              onChange={(e) => onChangeTitle(e.target.value)}
               required
             />
           </div>
@@ -50,12 +68,20 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, onClose, on
             <input
               type="color"
               id="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
+              value={values.color}
+              onChange={(e) => onChangeColor(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="title">Участники календаря</label>
+            <UserMultiSelector
+              onChange={(users) => {
+                setValue('participants', users.map(user => user.id))
+              }}
             />
           </div>
           <div className="modal-actions">
-            <button type="button" onClick={onClose}>Отмена</button>
+            <button type="button" onClick={closeModal}>Отмена</button>
             <button type="submit">Создать</button>
           </div>
         </form>

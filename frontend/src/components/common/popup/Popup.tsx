@@ -12,7 +12,7 @@ interface IPopupProps {
 const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const { events } = useTypedSelector(({ events }) => events);
-  const { deleteEvent } = useActions();
+  const { deleteEvent, getEvents, getCalendars } = useActions();
   const { closePopup } = usePopup();
   const { openModalEdit } = useModal();
   const { width: windowWidth, height: windowHeight } = useWindowSize();
@@ -38,7 +38,8 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
 
     return {
       left,
-      top
+      top,
+      zIndex: 1001
     }
   } 
 
@@ -46,8 +47,8 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
 
   useClickOutside(popupRef, handleClosePopup);
 
-  const onDelete = () => {
-    deleteEvent(eventId);
+  const onDelete = async () => {
+    await deleteEvent(eventId);
     closePopup();
   }
 
@@ -65,24 +66,24 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
       >
         <button
           className={styles.btn__action}
-          onClick={onDelete}
-        >
-          <span className="delete-event-btn__icon">
-            <i className="fas fa-trash"></i>
-          </span>
-          <span className={styles.btn__action__text}>
-            Delete
-          </span>
-        </button>
-        <button
-          className={styles.btn__action}
           onClick={handleOpenEditEventModal}
         >
           <span className="delete-event-btn__icon">
             <i className="fas fa-edit"></i>
           </span>
           <span className={styles.btn__action__text}>
-            Edit
+            Изменить
+          </span>
+        </button>
+        <button
+          className={styles.btn__action}
+          onClick={onDelete}
+        >
+          <span className="delete-event-btn__icon">
+            <i className="fas fa-trash"></i>
+          </span>
+          <span className={styles.btn__action__text}>
+            Удалить
           </span>
         </button>
       </div>

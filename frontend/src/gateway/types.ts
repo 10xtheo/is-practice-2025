@@ -46,6 +46,10 @@ interface PatchRequestOptionsCalendars extends BaseRequestOptions<METHODS.PATCH>
 
 export type RequestsOptionsCalendars = GetRequestOptions | PostRequestOptionsCalendars | DeleteRequestOptions | PutRequestOptionsCalendars | PatchRequestOptionsCalendars;
 
+export type RequestsOptionsUsers = GetRequestOptions;
+
+
+
 export interface RequestArgs {
   method: METHODS;
   options: RequestsOptionsEvents | RequestsOptionsCalendars;

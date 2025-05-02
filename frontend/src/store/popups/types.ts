@@ -6,5 +6,6 @@ export interface IPopupState {
 export interface IPopupOptions {
   x: number;
   y: number;
-  eventId: string; 
+  eventId?: string;
+  calendarId?: string;
 }

@@ -30,9 +30,6 @@ export const createEventSchema: IRules = {
   is_private: {
     isRequired: false
   },
-  creator_id: {
-    isRequired: false // @TODO: добавить потом
-  },
   type: {
     isRequired: true
   },

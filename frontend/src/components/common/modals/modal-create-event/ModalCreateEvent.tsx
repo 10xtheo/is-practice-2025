@@ -18,6 +18,7 @@ const ModalCreateEvent: FC<IModalCreateEventOptions> = ({
     startDate: selectedDate,
     endDate,
     category_id: '',
+    participants: []
   });
 
   return (
@@ -25,7 +26,10 @@ const ModalCreateEvent: FC<IModalCreateEventOptions> = ({
       textSendButton="Создать событие"
       textSendingBtn="Создание.."
       defaultEventValues={defaultEventValues}
-      closeModal={closeModalCreate}
+      closeModal={() => {
+        closeModalCreate();
+        window["selectedUsers"] = [];
+      }}
       handlerSubmit={createEvent}
     />
   )

@@ -57,8 +57,8 @@
     ```bash
     yarn run start
     ```
-Фронтенд будет доступен по адресу: http://localhost:3000.
-Чтобы изменить порт, отредактируйте webpack.config.js.
+Фронтенд будет доступен по адресу: http://localhost:5173.
+Чтобы изменить порт, отредактируйте frontend/webpack.config.js.
 
 ## ⚙ Установка и запуск бэкенда
 1. **Установка PostgreSQL (для Ubuntu/Debian)**
