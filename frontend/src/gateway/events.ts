@@ -1,7 +1,7 @@
-import { IEvent, IEventCreate, TPartialEvent } from "types/event";
+import { IEvent, IEventCreate, IServerEvent, TPartialEvent } from "types/event";
 import { requestEvents } from "./api";
 
-const getEvents = () => requestEvents.get<{data: IEvent[], count: number}>('');
+const getEvents = () => requestEvents.get<{data: IServerEvent[], count: number}>('');
 
 const createEvent = (eventData: IEventCreate) => requestEvents.post<IEvent>('', eventData);
 

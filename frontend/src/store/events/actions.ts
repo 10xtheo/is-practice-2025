@@ -7,7 +7,16 @@ export const getEvents = createAsyncThunk<IEvent[]>(
   async (_, thunkAPI) => {
     try {
       const events = await apiEvents.getEvents();
-      return events?.data;
+      return events?.data.map((event) => {
+        const frontendEvent: IEvent = {
+          ...event,
+          start: new Date(event.start).getTime(),
+          end: new Date(event.end).getTime(),
+          category_id: '1' // @TODO подождать фикса от пацанов
+        }
+
+        return frontendEvent;
+      });
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }

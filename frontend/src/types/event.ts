@@ -1,5 +1,23 @@
 import { IUser } from "./user";
 
+export interface IServerEvent {
+  id: string; // UUID
+  title: string;
+  description: string;
+  start: string; // ISO 8601
+  end: string; // ISO 8601
+  repeat_step: number;
+  is_private: boolean;
+  creator_id: string; // UUID
+  is_finished: boolean;
+  max_repeats_count: number;
+  color: string;
+  type: EventType;
+  priority: EventPriority;
+  category_id: string; // Календарь @TODO фильтрация по календарю
+  participants: IUser[];
+}
+
 export interface IEvent {
   id: string; // UUID
   title: string;
