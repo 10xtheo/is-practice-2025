@@ -12,7 +12,8 @@ export const getEvents = createAsyncThunk<IEvent[]>(
           ...event,
           start: new Date(event.start).getTime(),
           end: new Date(event.end).getTime(),
-          category_id: '1' // @TODO подождать фикса от пацанов
+          category_id: new Date(event.start).getTime() % 3 === 0 ? 'd0746ad4-75bd-441b-a064-9fc97ddee5f9' : 'b7f6dadb-822e-46e0-9cdd-873029e8159b' 
+          // @TODO подождать фикса от пацанов
         }
                 
         return frontendEvent;

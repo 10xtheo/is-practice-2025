@@ -240,63 +240,37 @@ export const initialCalendars: ICalendar[] = [
 ];
 
 class HttpCalendars {
-  private calendars: ICalendar[];
-
-  constructor() {
-    this.calendars = [...initialCalendars];
-  }
-
   private makeRequest = async <IDtoRequest>(options: RequestsOptionsCalendars): Promise<IDtoRequest> => {
     try {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      switch (options.method) {
-        case METHODS.GET:              
-          return this.calendars as IDtoRequest;
-        
-        case METHODS.POST:
-          if (!options.body) throw new Error('Calendar data is required');
-
-          const newCalendar: ICalendar = { 
-            id: Date.now().toString(), 
-            ...options.body,
-            owner_id: 'user1',
-            participants: options.body.participants.map(participant_id => {
-              return {id: participant_id, full_name: '', position: '', department: ''}
-            })
-          };
-          this.calendars = [...this.calendars, newCalendar];
-          
-          return newCalendar as IDtoRequest;
-        
-        case METHODS.PUT:
-          if (!options.body) throw new Error('Calendar data is required');
-          
-          const calendarId = options.url.split('/')[1];
-          const calendarIndex = this.calendars.findIndex(c => c.id === calendarId);
-          if (calendarIndex !== -1) {
-            this.calendars = [...this.calendars.slice(0, calendarIndex), 
-              {...options.body, id: this.calendars[calendarIndex].id} as ICalendar,
-              ...this.calendars.slice(calendarIndex + 1)];
-            return this.calendars[calendarIndex] as IDtoRequest;
-          }
-          throw new Error('Calendar not found');
-        
-        case METHODS.DELETE:
-          const deleteId = options.url.split('/')[1];
-          const deleteIndex = this.calendars.findIndex(c => c.id === deleteId);
-          if (deleteIndex !== -1) {
-            this.calendars = [...this.calendars.slice(0, deleteIndex), ...this.calendars.slice(deleteIndex + 1)];
-            return {} as IDtoRequest;
-          }
-          throw new Error('Calendar not found');
-        
-        default:
-          throw new Error('Method not supported');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
       }
+
+      const headers: HeadersInit = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await fetch(`${backendUrl}/categories${options.url}`, {
+        method: options.method,
+        headers,
+        // @ts-ignore
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to fetch calendars');
+      }
+
+      if (options.method === METHODS.DELETE) {
+        return {} as IDtoRequest;
+      }
+
+      return await response.json();
     } catch (err) {
-      alert(err.message);
+      console.error('Calendars API error:', err);
       throw err;
     }
   }
