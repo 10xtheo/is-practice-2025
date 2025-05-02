@@ -1,8 +1,9 @@
 import uuid
-from typing import Any, List
-from sqlalchemy import or_, and_, func
+from typing import Any, List, Optional
+from sqlalchemy import or_, and_, func, case
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
+from datetime import datetime, timedelta, timezone
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.utils import check_category_permissions, check_event_permissions
@@ -14,20 +15,140 @@ from app.models import (
 
 router = APIRouter(prefix="/events", tags=["events"])
 
+def normalize_datetime(dt: datetime) -> datetime:
+    """
+    Convert datetime to UTC if it has timezone info, otherwise assume it's UTC.
+    """
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+def get_event_occurrences_in_range(event: Event, start_date: datetime, end_date: datetime) -> bool:
+    """
+    Check if an event or any of its recurrences falls within the given time range.
+    Returns True if the event or any of its recurrences is within the range.
+    """
+    # Normalize all datetimes to UTC
+    start_date = normalize_datetime(start_date)
+    end_date = normalize_datetime(end_date)
+    event_start = normalize_datetime(event.start)
+    event_end = normalize_datetime(event.end)
+    
+    # If event has no repeat step, just check if it's within the range
+    if event.repeat_step == 0:
+        return event_start <= end_date and event_end >= start_date
+    
+    # Calculate the duration of the event
+    event_duration = event_end - event_start
+    
+    # Calculate how many days we need to check
+    days_to_check = (end_date - event_start).days
+    
+    # Check each occurrence
+    current_start = event_start
+    repeats_checked = 0
+    
+    while current_start <= end_date:
+        current_end = current_start + event_duration
+        
+        # Check if this occurrence overlaps with our range
+        if current_start <= end_date and current_end >= start_date:
+            return True
+            
+        # Move to next occurrence
+        current_start += timedelta(days=event.repeat_step)
+        repeats_checked += 1
+        
+        # Stop if we've reached max repeats
+        if event.max_repeats_count > 0 and repeats_checked >= event.max_repeats_count:
+            break
+    
+    return False
+
 @router.get("/", response_model=EventsPublic)
 def read_events(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    user_id: Optional[uuid.UUID] = None
 ) -> Any:
     """
-    Retrieve events.
+    Retrieve events with optional time range filtering and optional user filtering.
+    Takes into account recurring events and their repetitions.
+    If only start_date is provided, returns all events starting from that date.
     """
+    # Normalize start_date if provided
+    if start_date is not None:
+        start_date = normalize_datetime(start_date)
+    
+    # Normalize end_date if provided
+    if end_date is not None:
+        end_date = normalize_datetime(end_date)
+        # Verify time range validity if both dates are provided
+        if start_date is not None and start_date >= end_date:
+            raise HTTPException(
+                status_code=400,
+                detail="Start date must be before end date"
+            )
+
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Event)
-        count = session.exec(count_statement).one()
-        statement = select(Event).offset(skip).limit(limit)
+        # Base query for superuser
+        base_query = select(Event)
+        count_query = select(func.count()).select_from(Event)
+        
+        # Add user filter if provided
+        if user_id is not None:
+            base_query = base_query.join(EventParticipant).where(EventParticipant.user_id == user_id)
+            count_query = count_query.join(EventParticipant).where(EventParticipant.user_id == user_id)
+        
+        # Add time range filters if provided
+        if start_date is not None:
+            if end_date is not None:
+                # Both dates provided - check for events in range
+                base_query = base_query.where(
+                    or_(
+                        and_(Event.start <= end_date, Event.end >= start_date),
+                        and_(Event.repeat_step > 0, Event.start <= end_date)
+                    )
+                )
+                count_query = count_query.where(
+                    or_(
+                        and_(Event.start <= end_date, Event.end >= start_date),
+                        and_(Event.repeat_step > 0, Event.start <= end_date)
+                    )
+                )
+            else:
+                # Only start_date provided - get all events from start_date
+                base_query = base_query.where(
+                    or_(
+                        Event.start >= start_date,
+                        and_(Event.repeat_step > 0, Event.start <= start_date)
+                    )
+                )
+                count_query = count_query.where(
+                    or_(
+                        Event.start >= start_date,
+                        and_(Event.repeat_step > 0, Event.start <= start_date)
+                    )
+                )
+            
+        count = session.exec(count_query).one()
+        statement = base_query.offset(skip).limit(limit)
         events = session.exec(statement).all()
+        
+        # Filter events based on their occurrences
+        if start_date is not None:
+            if end_date is not None:
+                events = [event for event in events if get_event_occurrences_in_range(event, start_date, end_date)]
+            else:
+                # For start_date only, check if event or any of its recurrences starts after start_date
+                events = [event for event in events if get_event_occurrences_in_range(event, start_date, datetime.max.replace(tzinfo=timezone.utc))]
+            count = len(events)
     else:
-        # Получаем категории, к которым у пользователя есть доступ
+        # Get categories user has access to
         accessible_categories = session.exec(
             select(Category.id).join(CategoryParticipant).where(
                 or_(
@@ -37,23 +158,67 @@ def read_events(
             )
         ).all()
 
-        # Получаем события из доступных категорий
-        count_statement = (
+        # Base query for regular user
+        base_query = (
+            select(Event)
+            .join(EventCategoryLink)
+            .where(EventCategoryLink.category_id.in_(accessible_categories))
+        )
+        count_query = (
             select(func.count())
             .select_from(Event)
             .join(EventCategoryLink)
             .where(EventCategoryLink.category_id.in_(accessible_categories))
         )
-        count = session.exec(count_statement).one()
-
-        statement = (
-            select(Event)
-            .join(EventCategoryLink)
-            .where(EventCategoryLink.category_id.in_(accessible_categories))
-            .offset(skip)
-            .limit(limit)
-        )
+        
+        # Add user filter if provided
+        if user_id is not None:
+            base_query = base_query.join(EventParticipant).where(EventParticipant.user_id == user_id)
+            count_query = count_query.join(EventParticipant).where(EventParticipant.user_id == user_id)
+        
+        # Add time range filters if provided
+        if start_date is not None:
+            if end_date is not None:
+                # Both dates provided - check for events in range
+                base_query = base_query.where(
+                    or_(
+                        and_(Event.start <= end_date, Event.end >= start_date),
+                        and_(Event.repeat_step > 0, Event.start <= end_date)
+                    )
+                )
+                count_query = count_query.where(
+                    or_(
+                        and_(Event.start <= end_date, Event.end >= start_date),
+                        and_(Event.repeat_step > 0, Event.start <= end_date)
+                    )
+                )
+            else:
+                # Only start_date provided - get all events from start_date
+                base_query = base_query.where(
+                    or_(
+                        Event.start >= start_date,
+                        and_(Event.repeat_step > 0, Event.start <= start_date)
+                    )
+                )
+                count_query = count_query.where(
+                    or_(
+                        Event.start >= start_date,
+                        and_(Event.repeat_step > 0, Event.start <= start_date)
+                    )
+                )
+            
+        count = session.exec(count_query).one()
+        statement = base_query.offset(skip).limit(limit)
         events = session.exec(statement).all()
+        
+        # Filter events based on their occurrences
+        if start_date is not None:
+            if end_date is not None:
+                events = [event for event in events if get_event_occurrences_in_range(event, start_date, end_date)]
+            else:
+                # For start_date only, check if event or any of its recurrences starts after start_date
+                events = [event for event in events if get_event_occurrences_in_range(event, start_date, datetime.max.replace(tzinfo=timezone.utc))]
+            count = len(events)
 
     return EventsPublic(data=events, count=count)
 
@@ -61,7 +226,28 @@ def read_events(
 def get_events_with_permissions(
     session: SessionDep,
     current_user: CurrentUser,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None
 ):
+    """
+    Get events with permissions and participants information.
+    If start_date is provided, returns events starting from that date.
+    If both start_date and end_date are provided, returns events within that range.
+    """
+    # Normalize start_date if provided
+    if start_date is not None:
+        start_date = normalize_datetime(start_date)
+    
+    # Normalize end_date if provided
+    if end_date is not None:
+        end_date = normalize_datetime(end_date)
+        # Verify time range validity if both dates are provided
+        if start_date is not None and start_date >= end_date:
+            raise HTTPException(
+                status_code=400,
+                detail="Start date must be before end date"
+            )
+
     # 1. Categories where user - is a participant
     category_participants = session.exec(
         select(CategoryParticipant).where(CategoryParticipant.user_id == current_user.id)
@@ -79,7 +265,7 @@ def get_events_with_permissions(
 
     event_ids_from_categories = set(event_to_categories.keys())
 
-    # 3. Add events, where user is non creator but participant (even if it has no categores)
+    # 3. Add events, where user is non creator but participant (even if it has no categories)
     user_participations = session.exec(
         select(EventParticipant).where(EventParticipant.user_id == current_user.id)
     ).all()
@@ -92,10 +278,29 @@ def get_events_with_permissions(
     if not all_event_ids:
         return []
 
-    # 4. Load events, participant and relations with catetgories
-    events = session.exec(
-        select(Event).where(Event.id.in_(all_event_ids))
-    ).all()
+    # 4. Load events, participant and relations with categories
+    base_query = select(Event).where(Event.id.in_(all_event_ids))
+    
+    # Add time range filters if provided
+    if start_date is not None:
+        if end_date is not None:
+            # Both dates provided - check for events in range
+            base_query = base_query.where(
+                or_(
+                    and_(Event.start <= end_date, Event.end >= start_date),
+                    and_(Event.repeat_step > 0, Event.start <= end_date)
+                )
+            )
+        else:
+            # Only start_date provided - get all events from start_date
+            base_query = base_query.where(
+                or_(
+                    Event.start >= start_date,
+                    and_(Event.repeat_step > 0, Event.start <= start_date)
+                )
+            )
+    
+    events = session.exec(base_query).all()
 
     # Preload of relations: EventParticipant + EventCategoryLink + User
     all_event_participants = session.exec(
@@ -116,6 +321,15 @@ def get_events_with_permissions(
         participant = next((p for p in user_participations if p.event_id == event.id), None)
         if event.is_private and not participant:
             continue
+
+        # Filter events based on their occurrences if time range is provided
+        if start_date is not None:
+            if end_date is not None:
+                if not get_event_occurrences_in_range(event, start_date, end_date):
+                    continue
+            else:
+                if not get_event_occurrences_in_range(event, start_date, datetime.max.replace(tzinfo=timezone.utc)):
+                    continue
 
         permissions = participant.permissions if participant else EventPermission.VIEW
 
