@@ -178,6 +178,7 @@ class HttpEvents {
       const response = await fetch(`${backendUrl}/events${options.url}`, {
         method: options.method,
         headers,
+        // @ts-ignore
         body: options.body ? JSON.stringify(options.body) : undefined
       });
 

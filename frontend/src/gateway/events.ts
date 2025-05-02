@@ -1,7 +1,7 @@
 import { IEvent, IEventCreate, IServerEvent, TPartialEvent } from "types/event";
 import { requestEvents } from "./api";
 
-const getEvents = () => requestEvents.get<{data: IServerEvent[], count: number}>('');
+const getEvents = () => requestEvents.get<IServerEvent[]>('/permissions-and-participants');
 
 const createEvent = (eventData: IEventCreate) => requestEvents.post<IEvent>('', eventData);
 
