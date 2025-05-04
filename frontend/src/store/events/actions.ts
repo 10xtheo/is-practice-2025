@@ -22,6 +22,7 @@ export const getEvents = createAsyncThunk<IEvent[]>(
           priority: event.priority,
           participants: event.eventparticipants.map((participant) => ({
             id: participant.user.id,
+            email: '',
             full_name: participant.user.full_name,
             position: participant.user.position,
             department: participant.user.department

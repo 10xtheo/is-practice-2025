@@ -1,5 +1,5 @@
-import { ICalendar, ICalendarCreate } from "types/calendar";
-import { IEvent, IEventCreate, IServerEventCreate } from "../types/event";
+import { ICalendar } from "types/calendar";
+import { IEvent, IServerEventCreate } from "../types/event";
 
 export enum METHODS {
   GET = 'GET',

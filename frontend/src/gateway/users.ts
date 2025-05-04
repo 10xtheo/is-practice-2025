@@ -1,8 +1,8 @@
 import { IUser } from "types/user";
 import { requestUsers } from "./api";
 
-const getUsers = () => requestUsers.get<IUser[]>('');
+const getMe = () => requestUsers.get<IUser>('/me');
 
 export default {
-  getUsers
+  getMe
 } 

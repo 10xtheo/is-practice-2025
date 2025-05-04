@@ -1,8 +1,7 @@
 import React, { FC, useEffect } from 'react';
 import Calendar from './components/calendar/Calendar';
 import Layout from './components/Layout/Layout';
-import { useActions } from './hooks';
-import { useWebSocket } from './hooks/useWebSocket';
+import { useActions, useTypedSelector } from './hooks';
 import Auth from './components/Auth/Auth';
 
 import './common.scss';
@@ -13,12 +12,13 @@ const backendPort = 8000;
 export const backendUrl = `http://${backendHost}:${backendPort}/api/v1`;
 
 const App: FC = () => {
-  const { getEvents, getCalendars, getUsers } = useActions();
+  const { getEvents, getCalendars, getMe } = useActions();
+  const { user } = useTypedSelector(({ users }) => users);
 
   useEffect(() => {
     getEvents();
     getCalendars();
-    getUsers();
+    getMe();
   }, []);
 
 
@@ -34,7 +34,7 @@ const App: FC = () => {
   return (
     <Layout isAuth={isAuthenticated}>
       {window.location.href.includes('/profile') ? (
-        <Profile />
+        <Profile currentUser={user}/>
       ) : window.location.href.includes('/auth') ? (
         <Auth />
       ) : (

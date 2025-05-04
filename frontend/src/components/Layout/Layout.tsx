@@ -24,11 +24,12 @@ const Layout: FC<LayoutProps> = ({ children, isAuth = false }) => {
     setSelectedCalendars(selectedIds);
   };
   const isAuthPage = window.location.pathname === '/auth';
+  const isProfilePage = window.location.pathname === '/profile';
 
   return (
     <div className={`layout ${isAuth && isMenuOpen && !isAuthPage ? 'layout--menu-open' : ''}`}>
       <SideMenu 
-        isOpen={isAuth && isMenuOpen && !isAuthPage} 
+        isOpen={isAuth && isMenuOpen && !isAuthPage && !isProfilePage} 
         onClose={() => setIsMenuOpen(false)} 
         onSelectedCalendarsChange={handleSelectedCalendarsChange}
       />

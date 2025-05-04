@@ -2,12 +2,12 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import apiUsers from 'gateway/users';
 import { IUser } from 'types/user';
 
-export const getUsers = createAsyncThunk<IUser[]>(
-  'users/get-users',
+export const getMe = createAsyncThunk<IUser>(
+  'users/get-me',
   async (_, thunkAPI) => {
     try {
-      const users = await apiUsers.getUsers();
-      return users;
+      const user = await apiUsers.getMe();      
+      return user;
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }

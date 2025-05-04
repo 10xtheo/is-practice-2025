@@ -2,6 +2,7 @@ import { EventPermission } from "./event";
 
 export interface IUser {
   id: string;
+  email: string;
   full_name: string;
   position: string;
   department: string;
