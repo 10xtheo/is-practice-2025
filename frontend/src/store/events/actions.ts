@@ -9,11 +9,26 @@ export const getEvents = createAsyncThunk<IEvent[]>(
       const events = await apiEvents.getEvents();
       return events?.map((event) => {
         const frontendEvent: IEvent = {
-          ...event,
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          repeat_step: event.repeat_step,
+          is_private: event.is_private,
+          creator_id: event.creator_id,
+          is_finished: event.is_finished,
+          max_repeats_count: event.max_repeats_count,
+          color: `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`,
+          type: event.type,
+          priority: event.priority,
+          participants: event.eventparticipants.map((participant) => ({
+            id: participant.user.id,
+            full_name: participant.user.full_name,
+            position: participant.user.position,
+            department: participant.user.department
+          })),
+          category_id: event.eventcategories[0].category_id,
           start: new Date(event.start).getTime(),
           end: new Date(event.end).getTime(),
-          category_id: new Date(event.start).getTime() % 3 === 0 ? 'd0746ad4-75bd-441b-a064-9fc97ddee5f9' : 'b7f6dadb-822e-46e0-9cdd-873029e8159b' 
-          // @TODO подождать фикса от пацанов
         }
                 
         return frontendEvent;

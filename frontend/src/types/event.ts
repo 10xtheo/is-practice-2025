@@ -1,38 +1,42 @@
-import { IUser } from "./user";
+import { IServerExtendedUserParticipant, IServerUserParticipant, IUser } from "./user";
 
 export interface IServerEvent {
-  id: string; // UUID
+  id: string;
   title: string;
   description: string;
-  start: string; // ISO 8601
-  end: string; // ISO 8601
+  start: string;
+  end: string;
   repeat_step: number;
   is_private: boolean;
-  creator_id: string; // UUID
+  creator_id: string;
   is_finished: boolean;
   max_repeats_count: number;
   color: string;
   type: EventType;
   priority: EventPriority;
-  category_id: string; // Календарь @TODO фильтрация по календарю
-  participants: IUser[];
+  eventcategories: IServerEventCategory[];
+  eventparticipants: IServerExtendedUserParticipant[];
+}
+
+export interface IServerEventCategory {
+  category_id: string;
 }
 
 export interface IEvent {
-  id: string; // UUID
+  id: string;
   title: string;
   description: string;
   start: number; // timestamp
   end: number; // timestamp
   repeat_step: number;
   is_private: boolean;
-  creator_id: string; // UUID
+  creator_id: string;
   is_finished: boolean;
   max_repeats_count: number;
   color: string;
   type: EventType;
   priority: EventPriority;
-  category_id: string; // Календарь @TODO фильтрация по календарю
+  category_id: string;
   participants: IUser[];
 }
 
@@ -49,8 +53,22 @@ export interface IEventCreate {
   color: string;
   type: EventType;
   priority: EventPriority;
-  category_id: string; // Календарь @TODO фильтрация по календарю
+  category_id: string;
   participants: IUser[];
+}
+
+export interface IServerEventCreate {
+  title: string;
+  description: string;
+  start: Date;
+  end: Date;
+  repeat_step: number;
+  is_private: boolean;
+  max_repeats_count: number;
+  type: EventType;
+  priority: EventPriority;
+  category_id: string; // @TODO много категорий
+  participants: IServerUserParticipant[];
 }
 
 export enum EventType {
