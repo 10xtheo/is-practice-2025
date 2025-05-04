@@ -276,6 +276,8 @@ def update_event(
     # Обновляем данные события
     event_data = event_in.model_dump(exclude_unset=True)
     for field, value in event_data.items():
+        if (field == "category_id"):
+            continue # @TODO это потрогал фронтендер, поэтому лучше проверить норм ли сделал
         setattr(event, field, value)
 
     # Если изменилась категория, обновляем связь

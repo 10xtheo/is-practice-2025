@@ -240,9 +240,7 @@ class EventUpdate(SQLModel):
     priority: EventPriority | None = None
     is_finished: bool | None = None
     max_repeats_count: int | None = Field(default=None, ge=0)
-    
-    # category_id: uuid.UUID | None = Field(default=None, foreign_key="category.id") 
-    # @TODO на всякий случай проверить, тк это закомментил фронтендер :-)
+    category_id: uuid.UUID | None = None # @TODO это потрогал фронтендер, поэтому лучше проверить норм ли сделал
 
 class Event(EventBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
