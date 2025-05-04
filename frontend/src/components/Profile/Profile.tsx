@@ -1,4 +1,5 @@
-import React, { FC } from 'react';
+import React, { FC, useState, useEffect } from 'react';
+import { useActions } from '../../hooks';
 import './Profile.scss';
 import { IUser } from 'types/user';
 
@@ -7,6 +8,46 @@ interface ProfileProps {
 }
 
 const Profile: FC<ProfileProps> = ({currentUser}) => {
+  const [editedUser, setEditedUser] = useState<IUser | undefined>(currentUser);
+  const { patchUser } = useActions();
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    setEditedUser(currentUser);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (editedUser && currentUser) {
+      const hasChanges = 
+        editedUser.full_name !== currentUser.full_name ||
+        editedUser.email !== currentUser.email;
+      setHasChanges(hasChanges);
+    }
+  }, [editedUser, currentUser]);
+
+  const handleInputChange = (field: keyof IUser, value: string) => {
+    if (editedUser) {
+      setEditedUser({
+        ...editedUser,
+        [field]: value
+      });
+    }
+  };
+
+  const handleSave = async () => {
+    if (editedUser && currentUser) {
+      await patchUser({
+        userData: {
+          full_name: editedUser.full_name,
+          email: editedUser.email
+        }
+      });
+      setIsEditing(false);
+      setHasChanges(false);
+    }
+  };
+
   let userInitials = currentUser?.full_name.split(' ')[0][0]
   if (currentUser?.full_name.split(' ').length > 1) {
     userInitials += currentUser?.full_name.split(' ')[1][0]
@@ -30,11 +71,27 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
           <div className="profile__info">
             <div className="profile__field">
               <span className="profile__label">ФИО:</span>
-              <span className="profile__value">{currentUser?.full_name}</span>
+              {isEditing ? (
+                <input
+                  className="profile__input"
+                  value={editedUser?.full_name || ''}
+                  onChange={(e) => handleInputChange('full_name', e.target.value)}
+                />
+              ) : (
+                <span className="profile__value">{currentUser?.full_name}</span>
+              )}
             </div>
             <div className="profile__field">
               <span className="profile__label">Email:</span>
-              <span className="profile__value">{currentUser?.email}</span>
+              {isEditing ? (
+                <input
+                  className="profile__input"
+                  value={editedUser?.email || ''}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                />
+              ) : (
+                <span className="profile__value">{currentUser?.email}</span>
+              )}
             </div>
             <div className="profile__field">
               <span className="profile__label">Отдел:</span>
@@ -45,6 +102,36 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
               <span className="profile__value">{currentUser?.position}</span>
             </div>
           </div>
+        </div>
+        <div className="profile__actions">
+          {!isEditing ? (
+            <button 
+              className="profile__edit-button"
+              onClick={() => setIsEditing(true)}
+            >
+              Редактировать
+            </button>
+          ) : (
+            <div className="profile__edit-actions">
+              <button 
+                className="profile__cancel-button"
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditedUser(currentUser);
+                  setHasChanges(false);
+                }}
+              >
+                Отмена
+              </button>
+              <button 
+                className={`profile__save-button ${!hasChanges ? 'profile__save-button--disabled' : ''}`}
+                onClick={handleSave}
+                disabled={!hasChanges}
+              >
+                Сохранить
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

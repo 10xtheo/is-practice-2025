@@ -28,3 +28,8 @@ export interface IUserCreate {
   position: string;
   department: string;
 }
+
+export interface IUserUpdate {
+  full_name: string;
+  email: string;
+}

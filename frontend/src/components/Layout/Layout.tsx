@@ -27,7 +27,7 @@ const Layout: FC<LayoutProps> = ({ children, isAuth = false }) => {
   const isProfilePage = window.location.pathname === '/profile';
 
   return (
-    <div className={`layout ${isAuth && isMenuOpen && !isAuthPage ? 'layout--menu-open' : ''}`}>
+    <div className={`layout ${isAuth && isMenuOpen && !isAuthPage && !isProfilePage ? 'layout--menu-open' : ''}`}>
       <SideMenu 
         isOpen={isAuth && isMenuOpen && !isAuthPage && !isProfilePage} 
         onClose={() => setIsMenuOpen(false)} 

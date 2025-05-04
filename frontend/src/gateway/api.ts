@@ -1,6 +1,7 @@
 import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars, RequestsOptionsUsers } from "./types";
 import { EventPermission, IEvent, IEventCreate } from "../types/event";
 import { ICalendar, ICalendarCreate } from "../types/calendar";
+import { IUser, IUserUpdate } from "../types/user";
 import { backendUrl } from "../App";
 
 
@@ -135,6 +136,7 @@ class HttpUsers {
         throw new Error(errorData.detail || 'Failed to fetch users');
       }
 
+      // @ts-ignore
       if (options.method === METHODS.DELETE) {
         return {} as IDtoRequest;
       }
@@ -147,6 +149,7 @@ class HttpUsers {
   }
 
   get = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.GET });
+  patch = async <IDto>(url: string, body: IUserUpdate) => this.makeRequest<IDto>({ url, method: METHODS.PATCH, body });
 }
 
 export const requestEvents = new HttpEvents();

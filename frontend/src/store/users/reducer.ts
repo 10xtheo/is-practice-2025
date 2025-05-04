@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { IUsersState } from './types'
-import { getMe } from './actions'
-import { IUser } from "types/user";
+import { getMe, patchUser } from './actions'
 
 const initialState: IUsersState = {
   user: undefined
@@ -14,6 +13,11 @@ export const usersSlice = createSlice({
     builder
       .addCase(getMe.fulfilled, (state, { payload }) => {
         state.user = payload
+      })
+      .addCase(patchUser.fulfilled, (state, { payload }) => {
+        if (state.user && state.user.id === payload.updatedUser.id) {
+          state.user = payload.updatedUser;
+        }
       })
   },
   reducers: {}

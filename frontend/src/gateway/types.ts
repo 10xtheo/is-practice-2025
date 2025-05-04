@@ -1,5 +1,6 @@
 import { ICalendar } from "types/calendar";
-import { IEvent, IServerEventCreate } from "../types/event";
+import { IEvent, IServerEventCreate } from "types/event";
+import { IUserUpdate } from "types/user";
 
 export enum METHODS {
   GET = 'GET',
@@ -49,7 +50,12 @@ interface PatchRequestOptionsCalendars extends BaseRequestOptions<METHODS.PATCH>
 
 export type RequestsOptionsCalendars = GetRequestOptions | PostRequestOptionsCalendars | DeleteRequestOptions | PutRequestOptionsCalendars | PatchRequestOptionsCalendars;
 
-export type RequestsOptionsUsers = GetRequestOptions;
+interface PatchRequestOptionsUsers extends BaseRequestOptions<METHODS.PATCH> {
+  body?: IUserUpdate;
+}
+
+
+export type RequestsOptionsUsers = GetRequestOptions | PatchRequestOptionsUsers;
 
 
 
