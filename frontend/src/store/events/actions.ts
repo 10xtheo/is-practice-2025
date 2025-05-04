@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import apiEvents from 'gateway/events';
 import { IEvent, IEventCreate, TPartialEvent } from 'types/event';
-
+import { pickRandomColor } from 'utils/helpers/pickRandomColor';
 export const getEvents = createAsyncThunk<IEvent[]>(
   'events/get-events',
   async (_, thunkAPI) => {
@@ -17,7 +17,7 @@ export const getEvents = createAsyncThunk<IEvent[]>(
           creator_id: event.creator_id,
           is_finished: event.is_finished,
           max_repeats_count: event.max_repeats_count,
-          color: `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`,
+          color: pickRandomColor(),
           type: event.type,
           priority: event.priority,
           participants: event.eventparticipants.map((participant) => ({

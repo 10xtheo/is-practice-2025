@@ -123,9 +123,9 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     setValue('priority', value as EventPriority);
   }
 
-  const onChangeColor = (color: string) => {
-    setValue('color', color);
-  }
+  // const onChangeColor = (color: string) => {
+  //   setValue('color', color);
+  // }
 
   const onChangeCategoryValue = (category_id: string) => {
 
@@ -150,7 +150,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       max_repeats_count: data.max_repeats_count,
       type: data.type,
       priority: data.priority,
-      color: data.color,
+      // color: data.color,
       category_id: data.category_id,
       participants: users.filter(user => data.participants.includes(user.id))
     };
@@ -165,7 +165,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   };
   
   useClickOutside(modalRef, closeModal);
-  
+
   return (
     <div className="overlay" style={{ zIndex: 1002 }}>
       <div className={styles.modal} ref={modalRef}>
@@ -271,12 +271,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 }}
               />
             </div>
-            <div className={cn(styles.modal__form__group)}>
+            {values.color !== 'rgb(255, 255, 255)' && (<div className={cn(styles.modal__form__group)}>
               <ColorPicker
                 selectedColor={values.color}
-                onChangeColor={onChangeColor}
+                // onChangeColor={onChangeColor}
+                onChangeColor={() => {}}
               />
-            </div>
+            </div>)}
+            
             <div className={cn(styles.modal__form__checkbox__container, styles.modal__form__group)}>
               <label htmlFor="is_private">
                 <input

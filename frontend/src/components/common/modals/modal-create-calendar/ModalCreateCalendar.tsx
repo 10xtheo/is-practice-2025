@@ -16,7 +16,7 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValuesCalendar>({
     defaultValues: {
       title: '',
-      color: '#FF5733',
+      // color: '#FF5733',
     },
     // rules: createEventSchema @TODO добавить валидацию
   });
@@ -24,7 +24,6 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
   const onSubmit: TSubmitHandler<IModalValuesCalendar> = async (data) => {
     const newCalendar: ICalendarCreate = {
       title: data.title,
-      color: data.color,
       participants: data.participants as string[],
     };
     
@@ -32,9 +31,10 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
       await handlerSubmit(newCalendar);
       closeModal();
       window["selectedUsers"] = [];
+      window.location.reload();
 
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error('Error creating calendar:', error);
     }
   };
 
@@ -63,7 +63,7 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
               required
             />
           </div>
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="color">Цвет</label>
             <input
               type="color"
@@ -71,7 +71,7 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
               value={values.color}
               onChange={(e) => onChangeColor(e.target.value)}
             />
-          </div>
+          </div> */}
           <div className="form-group">
             <label htmlFor="title">Участники календаря</label>
             <UserMultiSelector
