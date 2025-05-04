@@ -5,6 +5,9 @@ import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValuesCalendar } from '../types';
 import { useForm } from 'hooks/useForm';
 import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
+import { getCalendars } from 'store/calendars/actions';
+import { useDispatch } from 'react-redux';
+import { store } from 'store/store';
 
 interface ModalCreateCalendarProps {
   isOpen: boolean;
@@ -13,6 +16,7 @@ interface ModalCreateCalendarProps {
 }
 
 const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal, handlerSubmit }) => {
+  const dispatch = useDispatch<typeof store.dispatch>();
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValuesCalendar>({
     defaultValues: {
       title: '',
@@ -31,8 +35,7 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
       await handlerSubmit(newCalendar);
       closeModal();
       window["selectedUsers"] = [];
-      window.location.reload();
-
+      await dispatch(getCalendars());
     } catch (error) {
       console.error('Error creating calendar:', error);
     }

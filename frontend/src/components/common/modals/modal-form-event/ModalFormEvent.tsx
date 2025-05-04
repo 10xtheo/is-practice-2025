@@ -7,9 +7,12 @@ import { TPartialEvent, EventType, EventPriority } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
 import { getEventTypeOptions, getEventPriorityOptions } from '../helpers';
 import cn from 'classnames';
+import { useDispatch } from 'react-redux';
+import { store } from 'store/store';
 
 import styles from './modal-form-event.module.scss';
 import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
+import { getEvents } from 'store/events/actions';
 
 interface IModalFormEventProps {
   textSendButton: string;
@@ -33,6 +36,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   defaultEventValues,
   handlerSubmit
 }) => {
+  const dispatch = useDispatch<typeof store.dispatch>();
   const modalRef = useRef<HTMLDivElement>();
   const { calendars } = useTypedSelector(({ calendars }) => calendars);
   const { users } = useTypedSelector(({ users }) => users);
@@ -159,6 +163,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       await handlerSubmit(newEvent);
       closeModal();
       window["selectedUsers"] = [];
+      await dispatch(getEvents());
     } catch (error) {
       console.error('Error creating event:', error);
     }
