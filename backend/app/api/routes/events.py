@@ -57,6 +57,7 @@ def read_events(
 
     return EventsPublic(data=events, count=count)
 
+@router.get("/permissions-and-participants")
 def get_events_with_permissions(
     session: SessionDep,
     current_user: CurrentUser,
