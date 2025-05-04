@@ -7,9 +7,12 @@ import { TPartialEvent, EventType, EventPriority } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
 import { getEventTypeOptions, getEventPriorityOptions } from '../helpers';
 import cn from 'classnames';
+import { useDispatch } from 'react-redux';
+import { store } from 'store/store';
 
 import styles from './modal-form-event.module.scss';
 import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
+import { getEvents } from 'store/events/actions';
 
 interface IModalFormEventProps {
   textSendButton: string;
@@ -33,6 +36,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   defaultEventValues,
   handlerSubmit
 }) => {
+  const dispatch = useDispatch<typeof store.dispatch>();
   const modalRef = useRef<HTMLDivElement>();
   const { calendars } = useTypedSelector(({ calendars }) => calendars);
   const { users } = useTypedSelector(({ users }) => users);
@@ -123,9 +127,9 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     setValue('priority', value as EventPriority);
   }
 
-  const onChangeColor = (color: string) => {
-    setValue('color', color);
-  }
+  // const onChangeColor = (color: string) => {
+  //   setValue('color', color);
+  // }
 
   const onChangeCategoryValue = (category_id: string) => {
 
@@ -150,7 +154,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       max_repeats_count: data.max_repeats_count,
       type: data.type,
       priority: data.priority,
-      color: data.color,
+      // color: data.color,
       category_id: data.category_id,
       participants: users.filter(user => data.participants.includes(user.id))
     };
@@ -159,13 +163,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       await handlerSubmit(newEvent);
       closeModal();
       window["selectedUsers"] = [];
+      await dispatch(getEvents());
     } catch (error) {
       console.error('Error creating event:', error);
     }
   };
   
   useClickOutside(modalRef, closeModal);
-  
+
   return (
     <div className="overlay" style={{ zIndex: 1002 }}>
       <div className={styles.modal} ref={modalRef}>
@@ -271,12 +276,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 }}
               />
             </div>
-            <div className={cn(styles.modal__form__group)}>
+            {values.color !== 'rgb(255, 255, 255)' && (<div className={cn(styles.modal__form__group)}>
               <ColorPicker
                 selectedColor={values.color}
-                onChangeColor={onChangeColor}
+                // onChangeColor={onChangeColor}
+                onChangeColor={() => {}}
               />
-            </div>
+            </div>)}
+            
             <div className={cn(styles.modal__form__checkbox__container, styles.modal__form__group)}>
               <label htmlFor="is_private">
                 <input

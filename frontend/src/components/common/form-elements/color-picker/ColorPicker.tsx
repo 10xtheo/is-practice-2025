@@ -31,7 +31,7 @@ const ColorPicker: FC<IColorPickerProps> = ({
           className={styles.color__picker__selected__color}
           style={{ background: selectedColor }}
         />
-        <i className={cn("fas fa-chevron-down", styles.color__picker__icon__down)}></i>
+        {/* <i className={cn("fas fa-chevron-down", styles.color__picker__icon__down)}></i> */}
       </div>
       {isOpen && (
         <ul className={styles.color__picker__list}>

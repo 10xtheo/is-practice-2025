@@ -12,7 +12,7 @@ export type TPartialCalendar = Partial<ICalendar>
 
 export interface ICalendarCreate {
   title: string;
-  color: string;
+  // color: string;
   participants: string[];
 }
 

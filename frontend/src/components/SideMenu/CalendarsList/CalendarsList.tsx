@@ -4,6 +4,8 @@ import { useTypedSelector } from 'hooks/useTypedSelector';
 import { useActions, usePopup } from 'hooks/index';
 import ModalCreateCalendar from 'components/common/modals/modal-create-calendar/ModalCreateCalendar';
 import './CalendarsList.scss';
+import { getCalendars } from 'store/calendars/actions';
+import { getEvents } from 'store/events/actions';
 
 interface CalendarsListProps {
   onSelectedCalendarsChange: (selectedIds: string[]) => void;
@@ -38,7 +40,11 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
     });
   };
 
-  const onCreateCalendar = (calendar: ICalendarCreate) => createCalendar(calendar);  
+  const onCreateCalendar = (calendar: ICalendarCreate) => {
+    createCalendar(calendar);
+    // getCalendars();
+    // getEvents();
+  };  
 
   return (
     <div className="calendars-list">

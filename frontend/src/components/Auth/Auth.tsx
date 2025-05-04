@@ -6,6 +6,7 @@ interface AuthFormData {
   username: string;
   password: string;
   email?: string;
+  full_name?: string;
   department?: string;
   position?: string;
 }
@@ -17,6 +18,7 @@ const Auth: FC = () => {
     username: '',
     password: '',
     email: '',
+    full_name: '',
     department: '',
     position: '',
   });
@@ -41,6 +43,7 @@ const Auth: FC = () => {
     }
     const registerData = {
       email: formData.email,
+      full_name: formData.full_name,
       password: formData.password,
       department: formData.department,
       position: formData.position,
@@ -107,6 +110,21 @@ const Auth: FC = () => {
               required
             />
           </div>
+
+          {!isLogin && (
+            <div className="auth__form-group">
+              <label className="auth__label" htmlFor="full_name">ФИО</label>
+              <input
+                className="auth__input"
+                type="text"
+                id="full_name"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          )}
 
           {!isLogin && (
             <div className="auth__form-group">

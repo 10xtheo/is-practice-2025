@@ -30,7 +30,7 @@ export const getMapEventValues = ({
   is_private = false,
   repeat_step = 0,
   max_repeats_count = 0,
-  color = colors[0],
+  color = 'rgb(255, 255, 255)',
   category_id,
   participants = []
 }: IMapEventValues): IModalValues => {

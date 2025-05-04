@@ -33,5 +33,5 @@ export interface IMapEventValues {
 
 export interface IModalValuesCalendar extends IValidatorData {
   title: string;
-  color: string;
+  // color: string;
 }

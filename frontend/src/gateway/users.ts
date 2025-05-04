@@ -1,8 +1,10 @@
-import { IUser } from "types/user";
+import { IUser, IUserUpdate } from "types/user";
 import { requestUsers } from "./api";
 
-const getUsers = () => requestUsers.get<IUser[]>('');
+const getMe = () => requestUsers.get<IUser>('/me');
+const patchUser = (userData: IUserUpdate) => requestUsers.patch<IUser>(`/me`, userData);
 
 export default {
-  getUsers
+  getMe,
+  patchUser
 } 
