@@ -106,12 +106,23 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
         </div>
         <div className="profile__actions">
           {!isEditing ? (
-            <button 
-              className="profile__edit-button"
-              onClick={() => setIsEditing(true)}
-            >
-              Редактировать
-            </button>
+            <>
+              <button 
+                className="profile__edit-button"
+                onClick={() => setIsEditing(true)}
+              >
+                Редактировать
+              </button>
+              <button 
+                className="profile__logout-button"
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  window.location.href = '/auth';
+                }}
+              >
+                Выйти
+              </button>
+            </>
           ) : (
             <div className="profile__edit-actions">
               <button 
