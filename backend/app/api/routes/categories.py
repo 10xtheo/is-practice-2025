@@ -16,7 +16,8 @@ from app.models import (
     Event,
     EventCategoryLink,
     CategoryParticipant,
-    CategoryPermission
+    CategoryPermission,
+    User
 )
 
 router = APIRouter(prefix="/categories", tags=["categories"])
@@ -36,18 +37,29 @@ def read_categories(
     else:
         # Count categories where the user is either the owner or a participant
         count_statement = (
-            select(func.count())
+            select(func.count(func.distinct(Category.id)))
             .select_from(Category)
-            .join(CategoryParticipant)
-            .where((Category.owner_id == current_user.id) | (CategoryParticipant.user_id == current_user.id))
+            .outerjoin(CategoryParticipant)
+            .where(
+                or_(
+                    Category.owner_id == current_user.id,
+                    CategoryParticipant.user_id == current_user.id
+                )
+            )
         )
         count = session.exec(count_statement).one()
 
         # Select categories where the user is either the owner or a participant
         statement = (
             select(Category)
-            .join(CategoryParticipant)
-            .where((Category.owner_id == current_user.id) | (CategoryParticipant.user_id == current_user.id))
+            .distinct()
+            .outerjoin(CategoryParticipant)
+            .where(
+                or_(
+                    Category.owner_id == current_user.id,
+                    CategoryParticipant.user_id == current_user.id
+                )
+            )
             .offset(skip)
             .limit(limit)
         )
@@ -76,30 +88,63 @@ def create_category(
     """
     Create new category and link it to events.
     """
-    category = Category.model_validate(category_in, update={"owner_id": current_user.id})
-    session.add(category)
-    session.commit()
-    session.refresh(category)
+    try:
+        # Создаем категорию без participants
+        category_data = category_in.model_dump(exclude={"participants"})
+        category = Category.model_validate(category_data, update={"owner_id": current_user.id})
+        session.add(category)
+        session.flush()
 
-    # Link events to the category
-    for event_id in event_ids:
-        event = session.get(Event, event_id)
-        if not event:
-            raise HTTPException(status_code=404, detail=f"Event with ID {event_id} not found")
-        link = EventCategoryLink(event_id=event_id, category_id=category.id)
-        session.add(link)
+        # Link events to the category
+        for event_id in event_ids:
+            event = session.get(Event, event_id)
+            if not event:
+                raise HTTPException(status_code=404, detail=f"Event with ID {event_id} not found")
+            link = EventCategoryLink(event_id=event_id, category_id=category.id)
+            session.add(link)
 
-    # Create a new CategoryParticipant for the creator with MANAGE permissions
-    category_participant = CategoryParticipant(
-        user_id=current_user.id,
-        category_id=category.id,
-        is_creator=True,
-        permissions=CategoryPermission.MANAGE
-    )
-    session.add(category_participant)
+        # Create a new CategoryParticipant for the creator with MANAGE permissions
+        creator_participant = CategoryParticipant(
+            user_id=current_user.id,
+            category_id=category.id,
+            is_creator=True,
+            permissions=CategoryPermission.MANAGE
+        )
+        session.add(creator_participant)
 
-    session.commit()
-    return category
+        # Добавляем участников, если они указаны
+        if category_in.participants:
+            for participant in category_in.participants:
+                if participant.user_id == current_user.id:
+                    continue
+
+                # Проверяем существование пользователя
+                user = session.get(User, participant.user_id)
+                if not user:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"User with ID {participant.user_id} not found"
+                    )
+
+                # Создаем участника категории
+                category_participant = CategoryParticipant(
+                    category_id=category.id,
+                    user_id=participant.user_id,
+                    is_creator=participant.is_creator,
+                    permissions=participant.permissions
+                )
+                session.add(category_participant)
+
+        session.commit()
+        session.refresh(category)
+        return category
+
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to create category: {str(e)}"
+        )
 
 @router.put("/{id}", response_model=CategoryPublic)
 def update_category(
