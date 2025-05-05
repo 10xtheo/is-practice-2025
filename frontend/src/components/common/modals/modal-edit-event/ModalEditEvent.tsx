@@ -31,7 +31,7 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
   });
   
   const onUpdateEvent = (event: TPartialEvent) => {
-    updateEvent({ eventId: eventId, event })
+    updateEvent({ eventId, event })
   };
 
   return (

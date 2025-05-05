@@ -85,6 +85,8 @@ export const updateEvent = createAsyncThunk<
   'events/update-event',
   async ({ eventId, event }, thunkAPI) => {
     try {
+      console.log('upd', event);
+      
       const updatedEvent = await apiEvents.updateEvent(eventId, event);
       return { eventId, updatedEvent }
     } catch (error) {
