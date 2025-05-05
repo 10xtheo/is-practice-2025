@@ -8,6 +8,7 @@ import {
 } from "hooks/index";
 import LongEvent from "components/common/long-event/LongEvent";
 import ShortEvent from "components/common/short-event/ShortEvent";
+import EventChat from 'components/common/EventChat';
 
 import styles from "./modal-day-info.module.scss";
 
@@ -40,59 +41,71 @@ const ModalDayInfo: FC<IModalDayInfoProps> = ({
   
   useClickOutside(modalRef, handleCloseModal);
 
+  // Получаем eventId для чата (например, первый event дня)
+  const eventId = dayEvents[0]?.id;
+  // Получаем токен из localStorage (или из стора, если есть)
+  const token = localStorage.getItem('token') || '';
+
   return (
     <div className="overlay">
       <div
         className={styles.modal}
         ref={modalRef}
+        style={{ display: 'flex', flexDirection: 'row', minWidth: 510 }}
       >
-        <button
-          className={styles.modal__close}
-          onClick={handleCloseModal}
-        >
-          <i className="fas fa-times"></i>
-        </button>
-        <div className={styles.modal__label}>
-          <div className={styles.modal__label__name}>{selectedDay.dayShort}</div>
-          <div className={styles.modal__label__number}>{selectedDay.dayNumber}</div>
-        </div>
+        <div style={{ flex: 1, minWidth: 210 }}>
+          <button
+            className={styles.modal__close}
+            onClick={handleCloseModal}
+          >
+            <i className="fas fa-times"></i>
+          </button>
+          <div className={styles.modal__label}>
+            <div className={styles.modal__label__name}>{selectedDay.dayShort}</div>
+            <div className={styles.modal__label__number}>{selectedDay.dayNumber}</div>
+          </div>
 
-        <div
-          className={styles.modal__content}
-          style={modalContentStyle}
-        >
-          {dayEvents.length === 0 && (
-            <div className={styles.modal__empty__events}>На этот день ничего не запланировано! 🥳</div>
-          )}
-          {daySortedLongEvents.map((event, indx) => {
-            const { isMovingToNext, isMovingFromPrev } = getStyledForLongEvent([selectedDay], selectedDay, event);
-            const top = indx * 24;
-            
-            return (
-              <LongEvent
-                key={event.id}
-                event={event}
-                width={102}
-                top={top}
-                color={event.color}
-                isShowEvent={true}
-                isMovingToNext={isMovingToNext}
-                isMovingFromPrev={isMovingFromPrev}
-              />
-            )
-          })}
-          {daySortedShortEvents.map((event, indx) => {
-            const top = (daySortedLongEvents.length + indx) * 24;
-
-            return (
-              <ShortEvent
-                key={event.id}
-                event={event}
-                top={top}
-              />
-            )
-          })}
+          <div
+            className={styles.modal__content}
+            style={modalContentStyle}
+          >
+            {dayEvents.length === 0 && (
+              <div className={styles.modal__empty__events}>На этот день ничего не запланировано! 🥳</div>
+            )}
+            {daySortedLongEvents.map((event, indx) => {
+              const { isMovingToNext, isMovingFromPrev } = getStyledForLongEvent([selectedDay], selectedDay, event);
+              const top = indx * 24;
+              return (
+                <LongEvent
+                  key={event.id}
+                  event={event}
+                  width={102}
+                  top={top}
+                  color={event.color}
+                  isShowEvent={true}
+                  isMovingToNext={isMovingToNext}
+                  isMovingFromPrev={isMovingFromPrev}
+                />
+              )
+            })}
+            {daySortedShortEvents.map((event, indx) => {
+              const top = (daySortedLongEvents.length + indx) * 24;
+              return (
+                <ShortEvent
+                  key={event.id}
+                  event={event}
+                  top={top}
+                />
+              )
+            })}
+          </div>
         </div>
+        {/* Чат справа */}
+        {eventId && token && (
+          <div style={{ marginLeft: 16 }}>
+            <EventChat eventId={eventId} token={token} />
+          </div>
+        )}
       </div>
     </div>
   )
