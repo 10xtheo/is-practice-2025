@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -303,3 +303,8 @@ class Notification(SQLModel, table=True):
     event_id: uuid.UUID
     send_at: datetime
     sent: bool = False
+
+class BasicSearchResponse(SQLModel):
+    users: List[str]
+    events: List[str]
+    categories: List[str]
