@@ -305,6 +305,6 @@ class Notification(SQLModel, table=True):
     sent: bool = False
 
 class BasicSearchResponse(SQLModel):
-    users: List[str]
-    events: List[str]
-    categories: List[str]
+    users: List[UserPublic]
+    events: List[EventPublic]
+    categories: List[CategoryPublic]
