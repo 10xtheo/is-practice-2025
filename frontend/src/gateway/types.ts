@@ -35,7 +35,14 @@ export type RequestsOptionsEvents = GetRequestOptions | PostRequestOptionsEvents
 
 interface PostRequestOptionsCalendars extends BaseRequestOptions<METHODS.POST> {
   body: {
-    category_in: Pick<ICalendar, 'title'>;
+    category_in: {
+      title: string,
+      participants: {
+        user_id: string,
+        is_creator: boolean,
+        permissions: string
+      }[]
+    }
     event_ids: string[];
   }
 }

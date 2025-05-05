@@ -1,7 +1,10 @@
 import { ICalendar, TPartialCalendar, ICalendarCreate } from "types/calendar";
+import { IServerUserCategoryParticipant } from "types/user";
 import { requestCalendars } from "./api";
 
 const getCalendars = () => requestCalendars.get<{data: ICalendar[], count: number}>('');
+
+const getParticipants = (calendarId: string) => requestCalendars.get<{data: IServerUserCategoryParticipant[], count: number}>(`/${calendarId}/participants`);
 
 const createCalendar = (calendarData: ICalendarCreate) => requestCalendars.post<ICalendar>('', calendarData);
 
@@ -13,6 +16,7 @@ const patchCalendar = (calendarId: string, calendarData: TPartialCalendar) => re
 
 export default {
   getCalendars,
+  getParticipants,
   createCalendar,
   updateCalendar,
   deleteCalendar,

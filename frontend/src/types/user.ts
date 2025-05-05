@@ -1,4 +1,5 @@
 import { EventPermission } from "./event";
+import { CategoryPermission } from "./calendar";
 
 export interface IUser {
   id: string;
@@ -13,6 +14,13 @@ export interface IServerUserParticipant {
   is_creator: boolean;
   is_listener: boolean;
   permissions: EventPermission;
+}
+
+export interface IServerUserCategoryParticipant {
+  user_id: string;
+  is_creator: boolean;
+  is_listener: boolean;
+  permissions: CategoryPermission;
 }
 
 export interface IServerExtendedUserParticipant {

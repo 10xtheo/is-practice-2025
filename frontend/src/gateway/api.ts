@@ -1,6 +1,6 @@
 import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars, RequestsOptionsUsers } from "./types";
 import { EventPermission, IEvent, IEventCreate } from "../types/event";
-import { ICalendar, ICalendarCreate } from "../types/calendar";
+import { CategoryPermission, ICalendar, ICalendarCreate } from "../types/calendar";
 import { IUser, IUserUpdate } from "../types/user";
 import { backendUrl } from "../App";
 
@@ -105,7 +105,13 @@ class HttpCalendars {
   }
 
   get = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.GET });
-  post = async <IDto>(url: string, body: ICalendarCreate) => this.makeRequest<IDto>({ url, method: METHODS.POST, body: { category_in: { title: body.title }, event_ids: [] } });
+  post = async <IDto>(url: string, body: ICalendarCreate) => this.makeRequest<IDto>({ url, method: METHODS.POST, body: 
+    { category_in: 
+      { title: body.title, participants: 
+        body.participants.map(p => ({user_id: p, is_creator: false, permissions: CategoryPermission.VIEW})) 
+      }, event_ids: [] 
+    } 
+  });
   delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });
   patch = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PATCH, body });
   put = async <IDto>(url: string, body: Partial<ICalendar>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });

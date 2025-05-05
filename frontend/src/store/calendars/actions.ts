@@ -1,7 +1,9 @@
 import { createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import { ICalendar, ICalendarCreate } from 'types/calendar';
+import apiUsers from 'gateway/users';
 import apiCalendars from 'gateway/calendars';
 import { pickRandomColor } from 'utils/helpers/pickRandomColor';
+
 export const setSelectedCalendars = createAction<string[]>('calendars/setSelectedCalendars');
 
 export const getCalendars = createAsyncThunk<ICalendar[], void, { rejectValue: string }>(
@@ -9,10 +11,23 @@ export const getCalendars = createAsyncThunk<ICalendar[], void, { rejectValue: s
   async (_, { rejectWithValue }) => {
     try {
       const calendars = await apiCalendars.getCalendars();
-      return calendars?.data.map((calendar) => ({
+      return Promise.all(calendars?.data.map(async (calendar) => {
+        const participants = await apiCalendars.getParticipants(calendar.id)
+        const users = await apiUsers.getUsers()
+        
+        return {
           ...calendar,
           color: pickRandomColor(),
-        }));
+          participants: participants.data.map((p) => {
+            const user = users.data.find(u => u.id === p.user_id)
+            if (!user) {
+              return;
+            }
+
+            return user
+          })
+        }
+      }))
     } catch (error) {
       return rejectWithValue('Failed to fetch calendars');
     }
