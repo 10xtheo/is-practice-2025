@@ -5,7 +5,6 @@ import { TPartialEvent } from "types/event";
 import { useActions, useModal } from "hooks/index";
 import { IModalEditEventOptions } from "store/modals/types";
 
-
 const ModalEditEvent: FC<IModalEditEventOptions> = ({
   eventData,
   eventId
