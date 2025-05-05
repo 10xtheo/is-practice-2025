@@ -1,7 +1,8 @@
 import React, { FC, useState, useEffect } from 'react';
-import { useActions } from '../../hooks';
+import { useActions, useTypedSelector } from '../../hooks';
 import './Profile.scss';
 import { IUser } from 'types/user';
+
 
 interface ProfileProps {
   currentUser: IUser | undefined;
@@ -12,7 +13,7 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
   const { patchUser } = useActions();
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-
+  
   useEffect(() => {
     setEditedUser(currentUser);
   }, [currentUser]);

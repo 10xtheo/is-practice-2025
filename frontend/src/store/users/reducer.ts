@@ -1,16 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { IUsersState } from './types'
-import { getMe, patchUser } from './actions'
+import { getMe, patchUser, getUsers } from './actions'
 
 const initialState: IUsersState = {
-  user: undefined
+  user: undefined,
+  users: []
 }
 
 export const usersSlice = createSlice({
-  name: 'user',
+  name: 'users',
   initialState,
   extraReducers: (builder) => {
     builder
+      .addCase(getUsers.fulfilled, (state, { payload }) => {
+        state.users = payload
+      })
       .addCase(getMe.fulfilled, (state, { payload }) => {
         state.user = payload
       })

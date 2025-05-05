@@ -16,9 +16,12 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   className = '',
   defaultSelectedUsers = []
 }) => {
-  const { users } = useTypedSelector(({ users }) => users);
+  let { users, user } = useTypedSelector(({ users }) => users);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Скрываем текущего юзера из селектора
+  users = users.filter((u) => u.id !== user.id)
 
   // Локальное состояние для выбранных пользователей
   const [selectedUsers, setSelectedUsers] = useState<IUser[]>(() => {

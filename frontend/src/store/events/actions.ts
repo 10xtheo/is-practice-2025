@@ -2,12 +2,37 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import apiEvents from 'gateway/events';
 import { IEvent, IEventCreate, TPartialEvent } from 'types/event';
 import { pickRandomColor } from 'utils/helpers/pickRandomColor';
+
+const createRepeatedEvents = (event: IEvent): IEvent[] => {
+  if (event.repeat_step === 0 || !event.max_repeats_count) {
+    return [event];
+  }
+
+  const repeatedEvents: IEvent[] = [event];
+  const duration = event.end - event.start;
+
+  for (let i = 1; i < event.max_repeats_count; i++) {
+    const repeatOffset = event.repeat_step * 60 * 60 * 1000; // convert hours to milliseconds
+    const newStart = event.start + (repeatOffset * i);
+    const newEnd = newStart + duration;
+
+    repeatedEvents.push({
+      ...event,
+      // id: `${event.id}_repeat_${i}`,
+      start: newStart,
+      end: newEnd,
+    });
+  }
+
+  return repeatedEvents;
+};
+
 export const getEvents = createAsyncThunk<IEvent[]>(
   'events/get-events',
   async (_, thunkAPI) => {
     try {
       const events = await apiEvents.getEvents();
-      return events?.map((event) => {
+      return events?.flatMap((event) => {
         const frontendEvent: IEvent = {
           id: event.id,
           title: event.title,
@@ -32,7 +57,7 @@ export const getEvents = createAsyncThunk<IEvent[]>(
           end: new Date(event.end).getTime(),
         }
                 
-        return frontendEvent;
+        return createRepeatedEvents(frontendEvent);
       });
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
