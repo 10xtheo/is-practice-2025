@@ -9,10 +9,20 @@ export const getCalendars = createAsyncThunk<ICalendar[], void, { rejectValue: s
   async (_, { rejectWithValue }) => {
     try {
       const calendars = await apiCalendars.getCalendars();
-      return calendars?.data.map((calendar) => ({
-        ...calendar,
-        color: pickRandomColor(),
-      }));
+      const uniqueCalendars: ICalendar[] = []
+      calendars?.data.map((calendar) => {
+        const data = {
+          ...calendar,
+          color: pickRandomColor(),
+        }
+        if (uniqueCalendars.find(el => el.id === calendar.id)) {
+          return;
+        }
+
+        uniqueCalendars.push(data)
+        return data
+      });
+      return uniqueCalendars
     } catch (error) {
       return rejectWithValue('Failed to fetch calendars');
     }

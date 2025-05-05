@@ -31,7 +31,7 @@ export const getEvents = createAsyncThunk<IEvent[]>(
   'events/get-events',
   async (_, thunkAPI) => {
     try {
-      const events = await apiEvents.getEvents();
+      const events = await apiEvents.getEvents();      
       return events?.flatMap((event) => {
         const frontendEvent: IEvent = {
           id: event.id,
@@ -47,16 +47,16 @@ export const getEvents = createAsyncThunk<IEvent[]>(
           priority: event.priority,
           participants: event.eventparticipants.map((participant) => ({
             id: participant.user.id,
-            email: '',
+            email: participant.user.email,
             full_name: participant.user.full_name,
             position: participant.user.position,
             department: participant.user.department
           })),
-          category_id: event.eventcategories[0].category_id,
+          category_id: event.eventcategories.length > 0 ? event.eventcategories[0].category_id : '0',
           start: new Date(event.start).getTime(),
           end: new Date(event.end).getTime(),
         }
-                
+        
         return createRepeatedEvents(frontendEvent);
       });
     } catch (error) {
@@ -69,6 +69,8 @@ export const createEvent = createAsyncThunk<IEvent, IEventCreate>(
   'events/create-event',
   async (newEvent, thunkAPI) => {
     try {      
+      console.log('newEvent', newEvent);
+      
       return await apiEvents.createEvent(newEvent);
     } catch (error) {      
       return thunkAPI.rejectWithValue(error);

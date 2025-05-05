@@ -55,7 +55,7 @@ class HttpEvents {
     category_id: body.category_id,
     participants: body.participants.map(participant => ({
       user_id: participant.id,
-      is_creator: true,
+      is_creator: false,
       is_listener: false,
       permissions: EventPermission.ORGANIZE
     }))
@@ -78,6 +78,8 @@ class HttpCalendars {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       };
+      // @ts-ignore
+      console.log('cal options body', options.body);
 
       const response = await fetch(`${backendUrl}/categories${options.url}`, {
         method: options.method,
