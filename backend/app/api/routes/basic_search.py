@@ -2,7 +2,14 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import User, Event, Category, CategoryParticipant, EventParticipant, BasicSearchResponse
+from app.models import (
+    User, UserPublic,
+    Event, EventPublic,
+    Category, CategoryPublic,
+    CategoryParticipant,
+    EventParticipant,
+    BasicSearchResponse
+)
 
 router = APIRouter()
 
@@ -14,8 +21,8 @@ def basic_search(
 ):
     """
     Basic search on users' full names, event titles, and category titles.
-
-    Returns matching lists of strings containing the query string (case-insensitive).
+    Returns matching lists of UserPublic, EventPublic, and CategoryPublic objects 
+    containing the query string (case-insensitive).
     """
 
     # Trim the query string and check if it's empty
@@ -26,13 +33,14 @@ def basic_search(
     search_term = f"%{trimmed_query.lower()}%"
 
     # Search users by full_name
-    users_stmt = select(User.full_name).where(User.full_name.ilike(search_term))
-    user_fullnames = session.exec(users_stmt).all()
+    users_stmt = select(User).where(User.full_name.ilike(search_term))
+    user_results = session.exec(users_stmt).all()
+    public_users = [UserPublic.from_orm(user) for user in user_results]
 
     # Search categories the user is permitted to view
     if current_user.is_superuser:
-        categories_stmt = select(Category.title).where(Category.title.ilike(search_term))
-        category_titles = session.exec(categories_stmt).all()
+        categories_stmt = select(Category).where(Category.title.ilike(search_term))
+        category_results = session.exec(categories_stmt).all()
     else:
         allowed_category_ids = session.exec(
             select(Category.id).join(CategoryParticipant).where(
@@ -43,37 +51,38 @@ def basic_search(
 
         if allowed_category_ids:
             categories_stmt = (
-                select(Category.title)
+                select(Category)
                 .where(
                     Category.id.in_(allowed_category_ids),
                     Category.title.ilike(search_term)
                 )
             )
-            category_titles = session.exec(categories_stmt).all()
+            category_results = session.exec(categories_stmt).all()
         else:
-            category_titles = []
+            category_results = []
+    
+    public_categories = [CategoryPublic.from_orm(cat) for cat in category_results]
 
     # Search events the user is permitted to view
     if current_user.is_superuser:
-        events_stmt = select(Event.title).where(Event.title.ilike(search_term))
-        event_titles = session.exec(events_stmt).all()
+        events_stmt = select(Event).where(Event.title.ilike(search_term))
+        event_results = session.exec(events_stmt).all()
     else:
         # Only search events where the user is a participant
         participant_events_stmt = (
-            select(Event.title)
+            select(Event)
             .join(EventParticipant)
             .where(
                 EventParticipant.user_id == current_user.id,
                 Event.title.ilike(search_term)
             )
         )
-        event_titles = session.exec(participant_events_stmt).all()
-
-    # Remove duplicates while preserving order
-    event_titles = list(dict.fromkeys(event_titles))
+        event_results = session.exec(participant_events_stmt).all()
+    
+    public_events = [EventPublic.from_orm(event) for event in event_results]
 
     return BasicSearchResponse(
-        users=user_fullnames,
-        events=event_titles,
-        categories=category_titles,
+        users=public_users,
+        events=public_events,
+        categories=public_categories,
     )
