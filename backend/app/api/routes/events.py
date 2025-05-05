@@ -302,7 +302,7 @@ def update_event(
 def delete_event(
     *,
     session: SessionDep,
-    current_user: CurrentUser,
+    current_user: CurrentUser ,
     id: uuid.UUID
 ) -> Any:
     """
@@ -312,10 +312,21 @@ def delete_event(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-    # Проверяем права на удаление события
+    # Check permissions
     if not check_event_permissions(session, current_user, event, EventPermission.ORGANIZE):
         raise HTTPException(status_code=403, detail="Not enough permissions to delete this event")
 
+    # Delete related participants
+    participants = session.exec(
+        select(EventParticipant).where(EventParticipant.event_id == id)
+    ).all()
+    
+    for participant in participants:
+        session.delete(participant)
+
+    # Now delete the event
     session.delete(event)
     session.commit()
+    
     return Message(message="Event deleted successfully")
+

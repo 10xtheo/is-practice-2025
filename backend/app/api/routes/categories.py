@@ -105,10 +105,10 @@ def create_category(
 def update_category(
     *,
     session: SessionDep,
-    current_user: CurrentUser,
+    current_user: CurrentUser ,
     id: uuid.UUID,
     category_in: CategoryUpdate,
-    event_ids: List[uuid.UUID] = []
+    event_ids: List[uuid.UUID] = None  # Change to None to make it optional
 ) -> Any:
     """
     Update a category and its linked events.
@@ -124,30 +124,32 @@ def update_category(
     update_dict = category_in.model_dump(exclude_unset=True)
     category.sqlmodel_update(update_dict)
 
-    # Update event links
-    # Remove existing links
-    existing_links = session.exec(select(EventCategoryLink).where(EventCategoryLink.category_id == category.id)).all()
-    for link in existing_links:
-        session.delete(link)
+    # Update event links only if event_ids is provided
+    if event_ids is not None:
+        # Remove existing links
+        existing_links = session.exec(select(EventCategoryLink).where(EventCategoryLink.category_id == category.id)).all()
+        for link in existing_links:
+            session.delete(link)
 
-    # Add new links
-    for event_id in event_ids:
-        event = session.get(Event, event_id)
-        if not event:
-            raise HTTPException(status_code=404, detail=f"Event with ID {event_id} not found")
-        new_link = EventCategoryLink(event_id=event_id, category_id=category.id)
-        session.add(new_link)
+        # Add new links
+        for event_id in event_ids:
+            event = session.get(Event, event_id)
+            if not event:
+                raise HTTPException(status_code=404, detail=f"Event with ID {event_id} not found")
+            new_link = EventCategoryLink(event_id=event_id, category_id=category.id)
+            session.add(new_link)
 
     session.add(category)
     session.commit()
     session.refresh(category)
     return category
 
+
 @router.delete("/{id}", response_model=Message)
 def delete_category(
     *,
     session: SessionDep,
-    current_user: CurrentUser,
+    current_user: CurrentUser ,
     id: uuid.UUID
 ) -> Any:
     """
@@ -160,6 +162,16 @@ def delete_category(
     if not check_category_permissions(session, current_user, category.id, CategoryPermission.MANAGE):
         raise HTTPException(status_code=403, detail="Not enough permissions to delete this category")
 
+    # Delete related participants
+    participants = session.exec(
+        select(CategoryParticipant).where(CategoryParticipant.category_id == id)
+    ).all()
+    
+    for participant in participants:
+        session.delete(participant)
+
+    # Now delete the category
     session.delete(category)
     session.commit()
+    
     return Message(message="Category deleted successfully")
