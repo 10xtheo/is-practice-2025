@@ -88,6 +88,7 @@ export const updateEvent = createAsyncThunk<
       const updatedEvent = await apiEvents.updateEvent(eventId, event);
       return { eventId, updatedEvent }
     } catch (error) {
+      alert(error)
       return thunkAPI.rejectWithValue(error)
     }
   }
@@ -103,6 +104,7 @@ export const deleteEvent = createAsyncThunk<
       await apiEvents.deleteEvent(eventId);
       return { eventId };
     } catch (error) {
+      alert(error)
       return thunkAPI.rejectWithValue(error)
     }
   }

@@ -107,12 +107,12 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
         <div className="profile__actions">
           {!isEditing ? (
             <>
-              <button 
-                className="profile__edit-button"
-                onClick={() => setIsEditing(true)}
-              >
-                Редактировать
-              </button>
+            <button 
+              className="profile__edit-button"
+              onClick={() => setIsEditing(true)}
+            >
+              Редактировать
+            </button>
               <button 
                 className="profile__logout-button"
                 onClick={() => {

@@ -9,20 +9,10 @@ export const getCalendars = createAsyncThunk<ICalendar[], void, { rejectValue: s
   async (_, { rejectWithValue }) => {
     try {
       const calendars = await apiCalendars.getCalendars();
-      const uniqueCalendars: ICalendar[] = []
-      calendars?.data.map((calendar) => {
-        const data = {
+      return calendars?.data.map((calendar) => ({
           ...calendar,
           color: pickRandomColor(),
-        }
-        if (uniqueCalendars.find(el => el.id === calendar.id)) {
-          return;
-        }
-
-        uniqueCalendars.push(data)
-        return data
-      });
-      return uniqueCalendars
+        }));
     } catch (error) {
       return rejectWithValue('Failed to fetch calendars');
     }
@@ -51,6 +41,7 @@ export const updateCalendar = createAsyncThunk<
       const updatedCalendar = await apiCalendars.updateCalendar(calendarId, calendarData);
       return { calendarId, updatedCalendar }
     } catch (error) {
+      alert(error)
       return rejectWithValue('Failed to update calendar');
     }
   }
@@ -63,6 +54,7 @@ export const deleteCalendar = createAsyncThunk<{ calendarId: string }, string, {
       await apiCalendars.deleteCalendar(calendarId);
       return { calendarId };
     } catch (error) {
+      alert(error)
       return rejectWithValue('Failed to delete calendar');
     }
   }
