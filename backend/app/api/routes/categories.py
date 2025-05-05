@@ -37,18 +37,29 @@ def read_categories(
     else:
         # Count categories where the user is either the owner or a participant
         count_statement = (
-            select(func.count())
+            select(func.count(func.distinct(Category.id)))
             .select_from(Category)
-            .join(CategoryParticipant)
-            .where((Category.owner_id == current_user.id) | (CategoryParticipant.user_id == current_user.id))
+            .outerjoin(CategoryParticipant)
+            .where(
+                or_(
+                    Category.owner_id == current_user.id,
+                    CategoryParticipant.user_id == current_user.id
+                )
+            )
         )
         count = session.exec(count_statement).one()
 
         # Select categories where the user is either the owner or a participant
         statement = (
             select(Category)
-            .join(CategoryParticipant)
-            .where((Category.owner_id == current_user.id) | (CategoryParticipant.user_id == current_user.id))
+            .distinct()
+            .outerjoin(CategoryParticipant)
+            .where(
+                or_(
+                    Category.owner_id == current_user.id,
+                    CategoryParticipant.user_id == current_user.id
+                )
+            )
             .offset(skip)
             .limit(limit)
         )
