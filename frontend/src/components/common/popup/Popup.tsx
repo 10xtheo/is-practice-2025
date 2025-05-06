@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react';
+import React, { FC, useRef, MouseEvent } from 'react';
 import { useActions, useClickOutside, useModal, usePopup, useTypedSelector, useWindowSize } from 'hooks/index';
 
 import styles from './popup.module.scss';
@@ -14,7 +14,7 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
   const { events } = useTypedSelector(({ events }) => events);
   const { deleteEvent, getEvents, getCalendars } = useActions();
   const { closePopup } = usePopup();
-  const { openModalEdit } = useModal();
+  const { openModalEdit, openModalView } = useModal();
   const { width: windowWidth, height: windowHeight } = useWindowSize();
 
   const getPopupStyle = () => {
@@ -47,15 +47,27 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
 
   useClickOutside(popupRef, handleClosePopup);
 
-  const onDelete = async () => {
+  const onDelete = async (e: MouseEvent) => {
+    e.stopPropagation();
     await deleteEvent(eventId);
     closePopup();
   }
 
-  const handleOpenEditEventModal = () => {
+  const handleOpenEditEventModal = (e: MouseEvent) => {
+    e.stopPropagation();
     const eventData = events.find(event => event.id === eventId);
     openModalEdit({ eventData, eventId: eventId });
     closePopup();
+  }
+
+  const handleOpenViewEventModal = (e: MouseEvent) => {
+    e.stopPropagation();
+    openModalView({ eventId });
+    closePopup();
+  }
+
+  const handlePopupClick = (e: MouseEvent) => {
+    e.stopPropagation();
   }
 
   return (
@@ -63,7 +75,19 @@ const Popup: FC<IPopupProps> = ({ x, y, eventId }) => {
         className={styles.popup}
         ref={popupRef}
         style={getPopupStyle()}
+        onClick={handlePopupClick}
       >
+        <button
+          className={styles.btn__action}
+          onClick={handleOpenViewEventModal}
+        >
+          <span className="delete-event-btn__icon">
+            <i className="fas fa-eye"></i>
+          </span>
+          <span className={styles.btn__action__text}>
+            Просмотр
+          </span>
+        </button>
         <button
           className={styles.btn__action}
           onClick={handleOpenEditEventModal}

@@ -7,12 +7,16 @@ interface IChatMessage {
   user_id: string;
 }
 
+export interface IEventChat {
+  eventId: string;
+}
+
 function getQueryParam(name: string): string | null {
   const params = new URLSearchParams(window.location.search);
   return params.get(name);
 }
 
-const EventChatPage: React.FC = () => {
+const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
   const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [input, setInput] = useState('');
   const { users } = useTypedSelector(({ users }) => users);
@@ -20,8 +24,8 @@ const EventChatPage: React.FC = () => {
   const ws = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const eventId = getQueryParam('eventId') || '';
-  const token = getQueryParam('token') || localStorage.getItem('token') || '';
+  // const eventId = getQueryParam('eventId') || '';
+  const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
     if (!eventId || !token) return;

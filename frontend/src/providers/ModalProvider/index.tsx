@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { useModal } from "hooks/useModal";
-import { ModalCreateEvent, ModalDayInfo, ModalEditEvent } from "components/common/modals";
+import { ModalCreateEvent, ModalDayInfo, ModalEditEvent, ModalViewEvent } from "components/common/modals";
 import ModalEditCalendar from "components/common/modals/modal-edit-calendar/ModalEditCalendar";
 
 export const ModalProvider: FC = ({ children }) => {
@@ -9,10 +9,12 @@ export const ModalProvider: FC = ({ children }) => {
     isOpenModalEditEvent,
     isOpenModalDayInfoEvents,
     isOpenModalEditCalendar,
+    isOpenModalViewEvent,
     selectedDate,
     modalEditEventOptions,
     modalCreateEventOptions,
-    modalEditCalendarOptions
+    modalEditCalendarOptions,
+    modalViewEventOptions
   } = useModal();
 
   return (
@@ -28,6 +30,9 @@ export const ModalProvider: FC = ({ children }) => {
       )}
       {isOpenModalEditCalendar && (
         <ModalEditCalendar {...modalEditCalendarOptions} />
+      )}
+      {isOpenModalViewEvent && modalViewEventOptions && (
+        <ModalViewEvent eventId={modalViewEventOptions.eventId} />
       )}
       {children}
     </>

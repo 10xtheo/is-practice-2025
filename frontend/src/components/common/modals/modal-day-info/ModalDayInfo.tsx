@@ -8,7 +8,6 @@ import {
 } from "hooks/index";
 import LongEvent from "components/common/long-event/LongEvent";
 import ShortEvent from "components/common/short-event/ShortEvent";
-import EventChat from 'components/common/EventChat';
 
 import styles from "./modal-day-info.module.scss";
 
@@ -100,12 +99,6 @@ const ModalDayInfo: FC<IModalDayInfoProps> = ({
             })}
           </div>
         </div>
-        {/* Чат справа */}
-        {eventId && token && (
-          <div style={{ marginLeft: 16 }}>
-            <EventChat eventId={eventId} token={token} />
-          </div>
-        )}
       </div>
     </div>
   )

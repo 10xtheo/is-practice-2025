@@ -8,6 +8,8 @@ export const useModal = () => {
     openModalDayInfo,
     openModalEdit,
     openModalEditCalendar,
+    openModalView,
+    closeModalView,
     closeModalCreate,
     closeModalDayInfo,
     closeModalEdit,
@@ -19,10 +21,12 @@ export const useModal = () => {
     openModalCreate,
     openModalDayInfo,
     openModalEdit,
+    openModalView,
     openModalEditCalendar,
     closeModalCreate,
     closeModalDayInfo,
     closeModalEdit,
+    closeModalView,
     closeModalEditCalendar
   };
 }
