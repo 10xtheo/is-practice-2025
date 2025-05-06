@@ -2,6 +2,7 @@ import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles 
 
 from app.websockets.notifier import send_scheduled_notifications_loop
 from app.api.main import api_router
@@ -32,6 +33,9 @@ if settings.all_cors_origins:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# Mount the uploaded_files directory to serve files
+app.mount("/files", StaticFiles(directory=settings.UPLOAD_DIRECTORY), name="uploaded_files")
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

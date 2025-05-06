@@ -1,6 +1,7 @@
 import secrets
 import warnings
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, ClassVar
+import os
 
 from pydantic import (
     AnyUrl,
@@ -41,6 +42,11 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
     ] = []
+
+    # Add the upload directory setting
+    # Set path relative to this settings.py file's location to the root folder
+    BASE_DIR: ClassVar[str] = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    UPLOAD_DIRECTORY: str = os.path.join(BASE_DIR, "uploaded_files")
 
     @computed_field  # type: ignore[prop-decorator]
     @property

@@ -308,3 +308,8 @@ class BasicSearchResponse(SQLModel):
     users: List[UserPublic]
     events: List[EventPublic]
     categories: List[CategoryPublic]
+
+class UploadResponse(SQLModel):
+    filename: str
+    file_url: str
+    message: str
