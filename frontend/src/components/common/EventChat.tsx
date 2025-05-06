@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTypedSelector } from 'hooks/index';
 
-interface ChatMessage {
-  eventId: string;
+interface IChatMessage {
+  event_id: string;
   message: string;
+  user_id: string;
 }
 
 function getQueryParam(name: string): string | null {
@@ -11,8 +13,10 @@ function getQueryParam(name: string): string | null {
 }
 
 const EventChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [input, setInput] = useState('');
+  const { users } = useTypedSelector(({ users }) => users);
+  
   const ws = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -24,8 +28,10 @@ const EventChatPage: React.FC = () => {
     ws.current = new WebSocket(`ws://localhost:8000/ws/event/${eventId}?token=${token}`);
     ws.current.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data);
-        if (data.eventId && data.message) {
+        
+        const data: IChatMessage = JSON.parse(event.data);
+
+        if (data.event_id && data.message) {          
           setMessages((prev) => [...prev, data]);
         }
       } catch {}
@@ -41,12 +47,13 @@ const EventChatPage: React.FC = () => {
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (input.trim() && ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ eventId, message: input }));
+      ws.current.send(input);
       setInput('');
     }
   };
-
+  
   const goBack = () => {
     window.location.href = '/';
   };
@@ -62,7 +69,7 @@ const EventChatPage: React.FC = () => {
       <div style={{ width: '100%', height: 400, border: '1px solid #eee', display: 'flex', flexDirection: 'column', background: '#fff', marginBottom: 12 }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
           {messages.map((msg, idx) => (
-            <div key={idx} style={{ marginBottom: 6, wordBreak: 'break-word' }}>{msg.message}</div>
+            <div key={idx} style={{ marginBottom: 6, wordBreak: 'break-word' }}>{users.find(u => u.id === msg.user_id)?.full_name ?? "Аноним"}: {msg.message}</div>
           ))}
           <div ref={messagesEndRef} />
         </div>
@@ -74,7 +81,7 @@ const EventChatPage: React.FC = () => {
             placeholder="Введите сообщение..."
             style={{ flex: 1, marginRight: 8, borderRadius: 4, border: '1px solid #ccc', padding: 4 }}
           />
-          <button type="submit" style={{ borderRadius: 4, border: 'none', background: '#1976d2', color: '#fff', padding: '4px 12px' }}>Отправить</button>
+          <button type="submit" style={{ cursor: 'pointer', borderRadius: 4, border: 'none', background: '#1976d2', color: '#fff', padding: '4px 12px' }}>Отправить</button>
         </form>
       </div>
     </div>
