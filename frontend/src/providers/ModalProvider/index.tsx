@@ -29,7 +29,8 @@ export const ModalProvider: FC = ({ children }) => {
         <ModalDayInfo selectedDate={selectedDate} />
       )}
       {isOpenModalEditCalendar && (
-        <ModalEditCalendar {...modalEditCalendarOptions} />
+        <ModalEditCalendar {...modalEditCalendarOptions}
+        />
       )}
       {isOpenModalViewEvent && modalViewEventOptions && (
         <ModalViewEvent eventId={modalViewEventOptions.eventId} />

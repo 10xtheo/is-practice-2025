@@ -3,6 +3,7 @@ import { ICalendar, ICalendarCreate } from 'types/calendar';
 import apiUsers from 'gateway/users';
 import apiCalendars from 'gateway/calendars';
 import { pickRandomColor } from 'utils/helpers/pickRandomColor';
+import { IServerUserCategoryParticipant } from 'types/user';
 
 export const setSelectedCalendars = createAction<string[]>('calendars/setSelectedCalendars');
 
@@ -71,6 +72,36 @@ export const deleteCalendar = createAsyncThunk<{ calendarId: string }, string, {
     } catch (error) {
       alert(error)
       return rejectWithValue('Failed to delete calendar');
+    }
+  }
+);
+
+export const addCalendarParticipant = createAsyncThunk<
+  string,
+  { calendarId: string; participant: IServerUserCategoryParticipant }
+>(
+  'calendars/calendar-add-participant',
+  async ({ calendarId, participant }, thunkAPI) => {
+    try {
+      await apiCalendars.addParticipant(calendarId, participant);
+      return calendarId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+);
+
+export const deleteCalendarParticipant = createAsyncThunk<
+  string,
+  { calendarId: string; userId: string }
+>(
+  'calendars/calendar-del-participant',
+  async ({ calendarId, userId }, thunkAPI) => {
+    try {
+      await apiCalendars.deleteParticipant(calendarId, userId);
+      return calendarId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
     }
   }
 ); 
