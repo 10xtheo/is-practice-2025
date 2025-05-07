@@ -5,6 +5,7 @@ import { EventPermission, TPartialEvent } from "types/event";
 import { useActions, useModal } from "hooks/index";
 import { IModalEditEventOptions } from "store/modals/types";
 import { IServerUserParticipant } from "types/user";
+import { getEvents } from "store/events/actions";
 
 const ModalEditEvent: FC<IModalEditEventOptions> = ({
   eventData,
@@ -38,17 +39,14 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
     const currentParticipants = eventData.participants.map(p => p.id);
     const newParticipants = users.map(u => u.id);
 
-    console.log('curr part-s', currentParticipants);
-
     // Добавляем новых участников
     const participantsToAdd = newParticipants.filter(id => !currentParticipants.includes(id));
-    console.log('toadd part-s', participantsToAdd);
 
     for (const userId of participantsToAdd) {
       const participant: IServerUserParticipant = {
         user_id: userId,
         is_creator: false,
-        is_listener: true,
+        is_listener: false,
         permissions: EventPermission.VIEW
       };
       await addEventParticipant({ eventId, participant });
@@ -56,11 +54,8 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
 
     // Удаляем участников, которых больше нет
     const participantsToRemove = currentParticipants.filter(id => !newParticipants.includes(id));
-    console.log('torem part-s', participantsToRemove);
     
-    for (const userId of participantsToRemove) {
-      console.log('to rem', userId);
-      
+    for (const userId of participantsToRemove) {      
       await deleteEventParticipant({ eventId, userId });
     }
   };
@@ -72,9 +67,9 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
       defaultEventValues={defaultEventValues}
       handlerSubmit={onUpdateEvent}
       onParticipantsChange={handleParticipantsChange}
-      closeModal={() => {
+      closeModal={async () => {
         closeModalEdit();
-        window["selectedUsers"] = [];
+        await getEvents()
       }}
     />
   )
