@@ -26,6 +26,7 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
     category_id: eventData.category_id,
     participants: eventData.participants.map(participant => participant.id),
     priority: eventData.priority,
+    is_finished: eventData.is_finished,
     repeat_step: eventData.repeat_step,
     is_private: eventData.is_private,
     max_repeats_count: eventData.max_repeats_count,
