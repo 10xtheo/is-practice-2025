@@ -9,6 +9,7 @@ export interface IModalValues extends IValidatorData {
   type: EventType;
   priority: EventPriority;
   is_private: boolean;
+  is_finished: boolean;
   repeat_step: number;
   max_repeats_count: number;
   color: string;
@@ -24,6 +25,7 @@ export interface IMapEventValues {
   type?: EventType;
   priority?: EventPriority;
   is_private?: boolean;
+  is_finished?: boolean;
   repeat_step?: number;
   max_repeats_count?: number;
   color?: string;

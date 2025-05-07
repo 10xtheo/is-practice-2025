@@ -158,8 +158,6 @@ class HttpCalendars {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       };
-      // @ts-ignore
-      console.log('cal options body', options.body);
 
       const response = await fetch(`${backendUrl}/categories${options.url}`, {
         method: options.method,

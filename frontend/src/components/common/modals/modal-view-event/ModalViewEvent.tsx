@@ -13,6 +13,7 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
   const { closeModalView } = useModal();
   const modalRef = useRef<HTMLDivElement>(null);
   const { events } = useTypedSelector(({ events }) => events);
+  const { users } = useTypedSelector(({ users }) => users);
   const event = events.find(e => e.id === eventId);
 
   const handleCloseModal = () => closeModalView();
@@ -54,6 +55,10 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
               </div>
             )}
             <div className={styles.modal__info__item}>
+              <strong>Создатель:</strong>
+                <p>{users.find(u => u.id === event.creator_id).full_name}</p>
+            </div>
+            <div className={styles.modal__info__item}>
               <strong>Участники:</strong>
               <ul>
                 {event.participants.map(participant => (
@@ -73,4 +78,4 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
   );
 };
 
-export default ModalViewEvent; 
+export default ModalViewEvent;

@@ -71,10 +71,9 @@ export const createEvent = createAsyncThunk<IEvent, IEventCreate>(
   'events/create-event',
   async (newEvent, thunkAPI) => {
     try {      
-      console.log('newEvent', newEvent);
-      
       return await apiEvents.createEvent(newEvent);
-    } catch (error) {      
+    } catch (error) {  
+      alert(error)    
       return thunkAPI.rejectWithValue(error);
     }
   }

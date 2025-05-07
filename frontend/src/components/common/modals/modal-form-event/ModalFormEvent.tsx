@@ -116,6 +116,9 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const onToggleIsPrivate = (e: ChangeEvent<HTMLInputElement>) => {
     setValue('is_private', e.target.checked);
   }
+  const onToggleIsFinished = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue('is_finished', e.target.checked);
+  }
   const onChangeMaxRepeats = (e: ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     setValue('max_repeats_count', isNaN(value) ? 0 : value);
@@ -151,7 +154,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       end: data.end,
       repeat_step: data.repeat_step,
       is_private: data.is_private,
-      is_finished: false,
+      is_finished: data.is_finished,
       max_repeats_count: data.max_repeats_count,
       type: data.type,
       priority: data.priority,
@@ -287,7 +290,19 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 onChangeColor={() => {}}
               />
             </div>)}
-            
+
+             <div className={cn(styles.modal__form__checkbox__container, styles.modal__form__group)}>
+              <label htmlFor="is_finished">
+                <input
+                  type="checkbox"
+                  name="is_finished"
+                  id="is_finished"
+                  onChange={onToggleIsFinished}
+                  checked={values.is_finished}
+                />
+                <span className={styles.modal__form__checkbox__title}>Завершено?</span>
+              </label>
+            </div>
             <div className={cn(styles.modal__form__checkbox__container, styles.modal__form__group)}>
               <label htmlFor="is_private">
                 <input
@@ -297,7 +312,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                   onChange={onToggleIsPrivate}
                   checked={values.is_private}
                 />
-                <span className={styles.modal__form__checkbox__title}>Приватное</span>
+                <span className={styles.modal__form__checkbox__title}>Приватное?</span>
               </label>
             </div>
             <div className={cn(styles.modal__form__checkbox__container, styles.modal__form__group)}>
