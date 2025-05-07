@@ -61,7 +61,7 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
           <button className="profile__back-button" onClick={() => {window.location.href = '/'}}>
             ← В календарь
           </button>
-          <h1 className="profile__title">Profile</h1>
+          <h1 className="profile__title">Профиль</h1>
         </div>
         <div className="profile__content">
           <div className="profile__avatar">

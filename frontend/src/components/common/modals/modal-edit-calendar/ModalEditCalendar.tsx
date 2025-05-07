@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 import { ICalendar } from 'types/calendar';
 import { useActions, useModal } from 'hooks/index';
+import { useTypedSelector } from 'hooks/index';
 import './ModalEditCalendar.scss';
 import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
 
@@ -13,6 +14,7 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
   calendarData,
   calendarId
 }) => {
+  const { user } = useTypedSelector(({ users }) => users);
   const [title, setTitle] = useState(calendarData.title);
   const [color, setColor] = useState(calendarData.color);
   const { updateCalendar } = useActions();
@@ -68,7 +70,10 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
               onChange={(users) => {
                 console.log('onChange users', users);
               }}
-              defaultSelectedUsers={calendarData.participants.map(participant => participant.id)}
+              defaultSelectedUsers={calendarData.participants.map(participant => participant.id).length > 0 
+                ? calendarData.participants.map(participant => participant.id)
+                : [user.id]
+              }
             />
           </div>
           <div className="modal-edit-calendar__actions">

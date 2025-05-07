@@ -41,7 +41,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const dispatch = useDispatch<typeof store.dispatch>();
   const modalRef = useRef<HTMLDivElement>(null);
   const { calendars } = useTypedSelector(({ calendars }) => calendars);
-  const { users } = useTypedSelector(({ users }) => users);
+  const { users, user } = useTypedSelector(({ users }) => users);
   
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
@@ -271,7 +271,9 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
             </div>
             <div className={cn(styles.modal__form__group)}>
               <UserMultiSelector
-                defaultSelectedUsers={defaultEventValues.participants}
+                defaultSelectedUsers={defaultEventValues.participants.length > 0 
+                  ? defaultEventValues.participants 
+                  : [user.id]}
                 onChange={(users) => {
                   setValue('participants', users.map(user => user.id));
                   onParticipantsChange?.(users);

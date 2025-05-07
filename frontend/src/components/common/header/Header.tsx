@@ -95,9 +95,9 @@ const Header: FC<IHeaderProps> = ({
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {      
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
-        setIsDropdownVisible(false);        
+        // setIsDropdownVisible(false);        
       }
     };
 
