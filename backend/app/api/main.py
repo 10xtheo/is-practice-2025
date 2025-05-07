@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-from app.api.routes import items, login, private, users, utils, events, categories, event_participants, category_participants, basic_search
+from app.api.routes import items, login, private, users, utils, events, categories, event_participants, category_participants, basic_search, file_upload
 from app.core.config import settings
+
 
 api_router = APIRouter()
 api_router.include_router(login.router)
@@ -13,6 +14,7 @@ api_router.include_router(categories.router)
 api_router.include_router(event_participants.router)
 api_router.include_router(category_participants.router)
 api_router.include_router(basic_search.router)
+api_router.include_router(file_upload.router)
 
 if settings.ENVIRONMENT == "local":
     api_router.include_router(private.router)
