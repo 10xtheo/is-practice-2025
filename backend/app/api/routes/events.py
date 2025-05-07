@@ -1,8 +1,9 @@
 import uuid
-from typing import Any, List
+from typing import Any, List, Optional
 from sqlalchemy import or_, and_, func
 from fastapi import APIRouter, HTTPException
-from sqlmodel import func, select
+from sqlmodel import func, select, SQLModel
+from datetime import datetime, timedelta
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.utils import check_category_permissions, check_event_permissions
@@ -13,6 +14,12 @@ from app.models import (
 )
 
 router = APIRouter(prefix="/events", tags=["events"])
+
+class AvailableTimeRequest(SQLModel):
+    duration_minutes: int
+    participant_ids: List[uuid.UUID]
+    start_date: datetime
+    end_date: datetime
 
 @router.get("/", response_model=EventsPublic)
 def read_events(
@@ -329,4 +336,85 @@ def delete_event(
     session.commit()
     
     return Message(message="Event deleted successfully")
+
+@router.post("/find-available-time", response_model=List[datetime])
+def find_available_time(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    request: AvailableTimeRequest
+) -> Any:
+    """
+    Find available time slots for event participants.
+    Returns a list of possible start times where all participants are available.
+    Maximum 200 slots will be returned.
+    """
+    # Convert dates to naive if they are timezone-aware
+    start_date = request.start_date.replace(tzinfo=None) if request.start_date.tzinfo else request.start_date
+    end_date = request.end_date.replace(tzinfo=None) if request.end_date.tzinfo else request.end_date
+
+    # Add current user to the list of participants if not already included
+    all_participant_ids = list(set([*request.participant_ids, current_user.id]))
+
+    # Get all events for the participants in the given time range
+    participant_events = session.exec(
+        select(Event)
+        .join(EventParticipant)
+        .where(
+            and_(
+                EventParticipant.user_id.in_(all_participant_ids),
+                or_(
+                    and_(Event.start >= start_date, Event.start < end_date),
+                    and_(Event.end > start_date, Event.end <= end_date),
+                    and_(Event.start <= start_date, Event.end >= end_date)
+                )
+            )
+        )
+    ).all()
+
+    # Create a list of busy time ranges
+    busy_ranges = []
+    for event in participant_events:
+        # Convert event times to naive if they are timezone-aware
+        event_start = event.start.replace(tzinfo=None) if event.start.tzinfo else event.start
+        event_end = event.end.replace(tzinfo=None) if event.end.tzinfo else event.end
+        
+        # Ensure we only consider events within our time range
+        event_start = max(event_start, start_date)
+        event_end = min(event_end, end_date)
+        
+        busy_ranges.append((event_start, event_end))
+
+    # Sort busy ranges by start time
+    busy_ranges.sort(key=lambda x: x[0])
+
+    # Find available slots
+    available_slots = []
+    current_time = start_date
+    MAX_SLOTS = 200
+
+    while (current_time + timedelta(minutes=request.duration_minutes) <= end_date and 
+           len(available_slots) < MAX_SLOTS):
+        # Check if current time slot overlaps with any busy range
+        is_available = True
+        for busy_start, busy_end in busy_ranges:
+            # If current slot ends before busy period starts or starts after busy period ends
+            if (current_time + timedelta(minutes=request.duration_minutes) <= busy_start or 
+                current_time >= busy_end):
+                continue
+            else:
+                is_available = False
+                # Skip to the end of this busy period
+                current_time = busy_end
+                break
+
+        if is_available:
+            available_slots.append(current_time)
+            # Move to next minute
+            current_time += timedelta(minutes=1)
+        else:
+            # We already moved current_time in the loop above
+            continue
+
+    return available_slots
 
