@@ -67,7 +67,7 @@ const Header: FC<IHeaderProps> = ({
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setIsDropdownVisible(true);
+    setIsDropdownVisible(true);    
   };
 
   const handleModeChange = (value: string) => {
@@ -97,7 +97,7 @@ const Header: FC<IHeaderProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
-        setIsDropdownVisible(false);
+        setIsDropdownVisible(false);        
       }
     };
 
@@ -121,13 +121,13 @@ const Header: FC<IHeaderProps> = ({
 
           const response = await axios.get(`http://localhost:8000/api/v1/basic-search?q=${encodeURIComponent(debouncedSearchQuery)}`, {
             headers: headers
-          });
+          });          
           setSearchResults(response.data);
         } catch (error) {
           console.error('Error fetching search results:', error);
           setSearchResults({ users: [], events: [], categories: [] });
         }
-      } else {
+      } else {        
         setSearchResults({ users: [], events: [], categories: [] });
       }
     };

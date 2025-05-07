@@ -31,7 +31,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   onCategoryClick,
   onUserClick,
 }) => {
-  const hasResults = results.events.length > 0 || results.categories.length > 0;
+  const hasResults = results.events.length > 0 || results.categories.length > 0 || results.users.length > 0;
 
   if (!hasResults) {
     return null;
