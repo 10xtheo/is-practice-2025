@@ -96,6 +96,7 @@
     margin-top: 30px;
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
   }
 
   &__edit-button {
@@ -109,6 +110,20 @@
 
     &:hover {
       background: #0056b3;
+    }
+  }
+
+  &__logout-button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+      background: #c82333;
     }
   }
 

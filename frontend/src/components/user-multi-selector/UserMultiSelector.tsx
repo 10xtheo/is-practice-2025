@@ -16,9 +16,13 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   className = '',
   defaultSelectedUsers = []
 }) => {
-  const { users } = useTypedSelector(({ users }) => users);
+  const { users, user } = useTypedSelector(({ users }) => users);
+  const currentUser = user;
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Скрываем текущего юзера из селектора
+  // users = users.filter((u) => u.id !== user.id)
 
   // Локальное состояние для выбранных пользователей
   const [selectedUsers, setSelectedUsers] = useState<IUser[]>(() => {
@@ -99,7 +103,11 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
               <div
                 key={user.id}
                 className={`${styles.userItem} ${isUserSelected(user) ? styles.selected : ''}`}
-                onClick={() => handleUserToggle(user)}
+                onClick={() => {
+                  if (user.id !== currentUser.id) {
+                    handleUserToggle(user)
+                  }
+                }}
               >
                 <span className={styles.userName}>{user.full_name}</span>
                 {isUserSelected(user) && (

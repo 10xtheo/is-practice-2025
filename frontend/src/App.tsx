@@ -1,26 +1,37 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import Calendar from './components/calendar/Calendar';
 import Layout from './components/Layout/Layout';
 import { useActions, useTypedSelector } from './hooks';
 import Auth from './components/Auth/Auth';
-
 import './common.scss';
 import Profile from 'components/Profile/Profile';
+import EventChatPage from 'components/common/EventChat';
 
 const backendHost = 'localhost';
 const backendPort = 8000;
 export const backendUrl = `http://${backendHost}:${backendPort}/api/v1`;
 
 const App: FC = () => {
-  const { getEvents, getCalendars, getMe } = useActions();
+  const { getEvents, getCalendars, getMe, getUsers } = useActions();
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useTypedSelector(({ users }) => users);
-
+  
   useEffect(() => {
-    getEvents();
-    getCalendars();
-    getMe();
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          getEvents(),
+          getCalendars(),
+          getMe(),
+          getUsers()
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
-
 
   const isAuthenticated = !!localStorage.getItem('token');
 
@@ -29,12 +40,16 @@ const App: FC = () => {
     return null;
   }
 
-  window["selectedUsers"] = []
+  if (isLoading) {
+    return <div></div>;
+  }
+
+  window["selectedUsers"] = [];
 
   return (
     <Layout isAuth={isAuthenticated}>
       {window.location.href.includes('/profile') ? (
-        <Profile currentUser={user}/>
+        <Profile currentUser={user} />
       ) : window.location.href.includes('/auth') ? (
         <Auth />
       ) : (

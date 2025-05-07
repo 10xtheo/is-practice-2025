@@ -1,6 +1,6 @@
 import { ICalendar } from "types/calendar";
 import { IEvent, IServerEventCreate } from "types/event";
-import { IUserUpdate } from "types/user";
+import { IServerUserParticipant, IUserUpdate, IServerUserCategoryParticipant } from "types/user";
 
 export enum METHODS {
   GET = 'GET',
@@ -33,15 +33,40 @@ interface PatchRequestOptionsEvents extends BaseRequestOptions<METHODS.PATCH> {
 
 export type RequestsOptionsEvents = GetRequestOptions | PostRequestOptionsEvents | DeleteRequestOptions | PutRequestOptionsEvents | PatchRequestOptionsEvents;
 
+
+interface PostRequestOptionsEventParticipants extends BaseRequestOptions<METHODS.POST> {
+  body?: IServerUserParticipant;
+}
+
+export type RequestsOptionsEventParticipants = PostRequestOptionsEventParticipants | DeleteRequestOptions;
+
+interface PostRequestOptionsCalendarParticipants extends BaseRequestOptions<METHODS.POST> {
+  body?: IServerUserCategoryParticipant;
+}
+
+export type RequestsOptionsCalendarParticipants = PostRequestOptionsCalendarParticipants | DeleteRequestOptions;
+
 interface PostRequestOptionsCalendars extends BaseRequestOptions<METHODS.POST> {
   body: {
-    category_in: Pick<ICalendar, 'title'>;
+    category_in: {
+      title: string,
+      participants: {
+        user_id: string,
+        is_creator: boolean,
+        permissions: string
+      }[]
+    }
     event_ids: string[];
   }
 }
 
 interface PutRequestOptionsCalendars extends BaseRequestOptions<METHODS.PUT> {
-  body?: Partial<ICalendar>;
+  body: {
+    category_in: {
+      title?: string
+    }
+    event_ids?: string[];
+  }
 }
 
 interface PatchRequestOptionsCalendars extends BaseRequestOptions<METHODS.PATCH> {

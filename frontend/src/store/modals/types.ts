@@ -6,9 +6,11 @@ export interface IModalsState {
   isOpenModalCreateEvent: boolean;
   isOpenModalDayInfoEvents: boolean;
   isOpenModalEditCalendar: boolean;
+  isOpenModalViewEvent: boolean;
   modalCreateEventOptions: IModalCreateEventOptions | null;
   modalEditEventOptions: IModalEditEventOptions | null;
   modalEditCalendarOptions: IModalEditCalendarOptions | null;
+  modalViewEventOptions: IModalViewEventOptions | null;
   selectedDate: Date | null;
 }
 
@@ -18,6 +20,10 @@ export interface IModalCreateEventOptions {
 
 export interface IModalEditEventOptions {
   eventData: TPartialEvent;
+  eventId: string;
+}
+
+export interface IModalViewEventOptions {
   eventId: string;
 }
 

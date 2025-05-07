@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 import { ICalendarCreate, TPartialCalendar } from 'types/calendar';
 import './ModalCreateCalendar.scss';
+import { useTypedSelector } from 'hooks/index';
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValuesCalendar } from '../types';
 import { useForm } from 'hooks/useForm';
@@ -16,6 +17,7 @@ interface ModalCreateCalendarProps {
 }
 
 const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal, handlerSubmit }) => {
+  const { user } = useTypedSelector(({ users }) => users);
   const dispatch = useDispatch<typeof store.dispatch>();
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValuesCalendar>({
     defaultValues: {
@@ -78,6 +80,7 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
           <div className="form-group">
             <label htmlFor="title">Участники календаря</label>
             <UserMultiSelector
+              defaultSelectedUsers={[user.id]}
               onChange={(users) => {
                 setValue('participants', users.map(user => user.id))
               }}

@@ -1,7 +1,8 @@
 import React, { FC, useState, useEffect } from 'react';
-import { useActions } from '../../hooks';
+import { useActions, useTypedSelector } from '../../hooks';
 import './Profile.scss';
 import { IUser } from 'types/user';
+
 
 interface ProfileProps {
   currentUser: IUser | undefined;
@@ -12,7 +13,7 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
   const { patchUser } = useActions();
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-
+  
   useEffect(() => {
     setEditedUser(currentUser);
   }, [currentUser]);
@@ -60,7 +61,7 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
           <button className="profile__back-button" onClick={() => {window.location.href = '/'}}>
             ← В календарь
           </button>
-          <h1 className="profile__title">Profile</h1>
+          <h1 className="profile__title">Профиль</h1>
         </div>
         <div className="profile__content">
           <div className="profile__avatar">
@@ -105,12 +106,23 @@ const Profile: FC<ProfileProps> = ({currentUser}) => {
         </div>
         <div className="profile__actions">
           {!isEditing ? (
+            <>
             <button 
               className="profile__edit-button"
               onClick={() => setIsEditing(true)}
             >
               Редактировать
             </button>
+              <button 
+                className="profile__logout-button"
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  window.location.href = '/auth';
+                }}
+              >
+                Выйти
+              </button>
+            </>
           ) : (
             <div className="profile__edit-actions">
               <button 
