@@ -1,9 +1,48 @@
-import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars, RequestsOptionsUsers } from "./types";
+import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars, RequestsOptionsUsers, RequestsOptionsEventParticipants } from "./types";
 import { EventPermission, IEvent, IEventCreate } from "../types/event";
 import { CategoryPermission, ICalendar, ICalendarCreate } from "../types/calendar";
-import { IUser, IUserUpdate } from "../types/user";
+import { IServerUserParticipant, IUser, IUserUpdate } from "../types/user";
 import { backendUrl } from "../App";
 
+class HttpEventParticipants {
+  private makeRequest = async <IDtoRequest>(options: RequestsOptionsEventParticipants): Promise<IDtoRequest> => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const headers: HeadersInit = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await fetch(`${backendUrl}/events${options.url}`, {
+        method: options.method,
+        headers,
+        // @ts-ignore
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to fetch event participants');
+      }
+
+      if (options.method === METHODS.DELETE) {
+        return {} as IDtoRequest;
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Event participants API error:', err);
+      throw err;
+    }
+  }
+
+  post = async <IDto>(url: string, body: IServerUserParticipant) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
+  delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });
+}
 
 class HttpEvents {
   private makeRequest = async <IDtoRequest>(options: RequestsOptionsEvents): Promise<IDtoRequest> => {
@@ -161,5 +200,6 @@ class HttpUsers {
 }
 
 export const requestEvents = new HttpEvents();
+export const requestEventParticipants = new HttpEventParticipants();
 export const requestCalendars = new HttpCalendars();
 export const requestUsers = new HttpUsers();

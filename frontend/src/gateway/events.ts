@@ -1,5 +1,7 @@
 import { IEvent, IEventCreate, IServerEvent, TPartialEvent } from "types/event";
-import { requestEvents } from "./api";
+import { requestEvents, requestEventParticipants } from "./api";
+import { IServerUserParticipant } from "types/user";
+import { deleteEventParticipant } from "store/events/actions";
 
 const getEvents = () => requestEvents.get<IServerEvent[]>('/permissions-and-participants');
 
@@ -11,10 +13,16 @@ const updateEvent = (eventId: string, eventData: TPartialEvent) => requestEvents
 
 const patchEvent = (eventId: string, eventData: TPartialEvent) => requestEvents.patch<IEvent>(`/${eventId}`, eventData);
 
+const addParticipant = (eventId: string, participant: IServerUserParticipant) => requestEventParticipants.post<IServerUserParticipant>(`/${eventId}/participants`, participant);
+
+const deleteParticipant = (eventId: string, userId: string) => requestEventParticipants.delete<unknown>(`/${eventId}/participants/${userId}`);
+
 export default {
   getEvents,
   createEvent,
   deleteEvent,
   updateEvent,
-  patchEvent
+  patchEvent,
+  addParticipant,
+  deleteParticipant,
 }

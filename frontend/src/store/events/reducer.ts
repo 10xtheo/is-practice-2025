@@ -1,36 +1,60 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { IEventsState } from './types'
-import { getEvents, createEvent, updateEvent, deleteEvent } from './actions'
+import { IEvent } from 'types/event'
+import {
+  getEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  addEventParticipant,
+  deleteEventParticipant,
+} from './actions'
+
+interface IEventsState {
+  events: IEvent[]
+}
 
 const initialState: IEventsState = {
   events: []
 }
 
-
 export const eventsSlice = createSlice({
   name: 'events',
   initialState,
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(getEvents.fulfilled, (state, { payload }) => {
         state.events = payload
       })
+      .addCase(createEvent.fulfilled, (state, { payload }) => {
+        state.events.push(payload)
+      })
       .addCase(updateEvent.fulfilled, (state, { payload }) => {
-        const { eventId, updatedEvent } = payload;
-        state.events = state.events.map(event => event.id === eventId ? updatedEvent : event);
-        // @TODO мб форс апдейт или location.reload() как костыль
-
+        const { eventId, updatedEvent } = payload
+        const index = state.events.findIndex(event => event.id === eventId)
+        if (index !== -1) {
+          state.events[index] = updatedEvent
+        }
       })
       .addCase(deleteEvent.fulfilled, (state, { payload }) => {
-        const { eventId } = payload;        
-        state.events = state.events.filter(event => event.id !== eventId); 
-        // @TODO мб форс апдейт или location.reload() как костыль
+        const { eventId } = payload
+        state.events = state.events.filter(event => event.id !== eventId)
       })
-      .addCase(createEvent.fulfilled, (state, { payload }) => {
-        state.events = [...state.events, payload]
+      .addCase(addEventParticipant.fulfilled, (state, { payload }) => {
+        const event = state.events.find(event => event.id === payload)
+        // if (event) { @TODO
+        //   event.participants.push(payload.participant)
+        // }
       })
-  },
-  reducers: {}
+      .addCase(deleteEventParticipant.fulfilled, (state, { payload }) => {
+        const event = state.events.find(event => event.id === payload)
+        // if (event) { @TODO
+        //   event.participants = event.participants.filter(
+        //     participant => participant.id !== payload
+        //   )
+        // }
+      })
+  }
 })
 
 export const { reducer } = eventsSlice

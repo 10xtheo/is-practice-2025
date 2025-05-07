@@ -20,6 +20,7 @@ interface IModalFormEventProps {
   defaultEventValues: IModalValues;
   closeModal: () => void;
   handlerSubmit: (eventData: TPartialEvent) => void;
+  onParticipantsChange?: (users: { id: string }[]) => void;
 }
 
 const EVENT_REPEAT_INTERVALS = [
@@ -34,10 +35,11 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   textSendingBtn,
   closeModal,
   defaultEventValues,
-  handlerSubmit
+  handlerSubmit,
+  onParticipantsChange
 }) => {
   const dispatch = useDispatch<typeof store.dispatch>();
-  const modalRef = useRef<HTMLDivElement>();
+  const modalRef = useRef<HTMLDivElement>(null);
   const { calendars } = useTypedSelector(({ calendars }) => calendars);
   const { users } = useTypedSelector(({ users }) => users);
   
@@ -132,7 +134,6 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   // }
 
   const onChangeCategoryValue = (category_id: string) => {
-
     const calendar = calendars.find(i => i.id === category_id);
     if (calendar) {
       setValue('category_id', category_id);
@@ -150,7 +151,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       end: data.end,
       repeat_step: data.repeat_step,
       is_private: data.is_private,
-      is_finished: false, // @TODO надо ли?
+      is_finished: false,
       max_repeats_count: data.max_repeats_count,
       type: data.type,
       priority: data.priority,
@@ -272,7 +273,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
               <UserMultiSelector
                 defaultSelectedUsers={defaultEventValues.participants}
                 onChange={(users) => {
-                  setValue('participants', users.map(user => user.id))
+                  setValue('participants', users.map(user => user.id));
+                  onParticipantsChange?.(users);
                 }}
               />
             </div>

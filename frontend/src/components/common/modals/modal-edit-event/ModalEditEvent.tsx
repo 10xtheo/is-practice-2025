@@ -1,15 +1,16 @@
 import React, { FC } from "react";
 import { getMapEventValues } from "../helpers";
 import ModalFormEvent from "../modal-form-event/ModalFormEvent";
-import { TPartialEvent } from "types/event";
+import { EventPermission, TPartialEvent } from "types/event";
 import { useActions, useModal } from "hooks/index";
 import { IModalEditEventOptions } from "store/modals/types";
+import { IServerUserParticipant } from "types/user";
 
 const ModalEditEvent: FC<IModalEditEventOptions> = ({
   eventData,
   eventId
 }) => {
-  const { updateEvent } = useActions();
+  const { updateEvent, addEventParticipant, deleteEventParticipant } = useActions();
   const { closeModalEdit } = useModal();
   const startDate = new Date(eventData.start);
   const endDate = new Date(eventData.end);
@@ -33,12 +34,44 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
     updateEvent({ eventId, event })
   };
 
+  const handleParticipantsChange = async (users: { id: string }[]) => {
+    const currentParticipants = eventData.participants.map(p => p.id);
+    const newParticipants = users.map(u => u.id);
+
+    console.log('curr part-s', currentParticipants);
+
+    // Добавляем новых участников
+    const participantsToAdd = newParticipants.filter(id => !currentParticipants.includes(id));
+    console.log('toadd part-s', participantsToAdd);
+
+    for (const userId of participantsToAdd) {
+      const participant: IServerUserParticipant = {
+        user_id: userId,
+        is_creator: false,
+        is_listener: true,
+        permissions: EventPermission.VIEW
+      };
+      await addEventParticipant({ eventId, participant });
+    }
+
+    // Удаляем участников, которых больше нет
+    const participantsToRemove = currentParticipants.filter(id => !newParticipants.includes(id));
+    console.log('torem part-s', participantsToRemove);
+    
+    for (const userId of participantsToRemove) {
+      console.log('to rem', userId);
+      
+      await deleteEventParticipant({ eventId, userId });
+    }
+  };
+
   return (
     <ModalFormEvent
       textSendButton="Изменить"
       textSendingBtn="Изменение..."
       defaultEventValues={defaultEventValues}
       handlerSubmit={onUpdateEvent}
+      onParticipantsChange={handleParticipantsChange}
       closeModal={() => {
         closeModalEdit();
         window["selectedUsers"] = [];

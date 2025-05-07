@@ -58,9 +58,9 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
     }
   };
   
-  const goBack = () => {
-    window.location.href = '/';
-  };
+  // const goBack = () => {
+  //   window.location.href = '/';
+  // };
 
   if (!eventId || !token) {
     return <div>eventId или token не переданы в query-параметрах!</div>;
@@ -68,8 +68,8 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
 
   return (
     <div style={{ maxWidth: 500, margin: '40px auto', background: '#fafbfc', border: '1px solid #eee', borderRadius: 8, boxShadow: '0 2px 8px #0001', padding: 24 }}>
-      <button onClick={goBack} style={{ marginBottom: 16, border: 'none', background: '#1976d2', color: '#fff', borderRadius: 4, padding: '6px 16px', cursor: 'pointer' }}>Назад</button>
-      <h2 style={{ marginTop: 0 }}>Чат события</h2>
+      {/* <button onClick={goBack} style={{ marginBottom: 16, border: 'none', background: '#1976d2', color: '#fff', borderRadius: 4, padding: '6px 16px', cursor: 'pointer' }}>Назад</button> */}
+      {/* <h2 style={{ marginTop: 0 }}>Чат события</h2> */}
       <div style={{ width: '100%', height: 400, border: '1px solid #eee', display: 'flex', flexDirection: 'column', background: '#fff', marginBottom: 12 }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
           {messages.map((msg, idx) => (

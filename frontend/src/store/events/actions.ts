@@ -1,7 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import apiEvents from 'gateway/events';
 import { IEvent, IEventCreate, TPartialEvent } from 'types/event';
+import { IServerUserParticipant } from 'types/user';
 import { pickRandomColor } from 'utils/helpers/pickRandomColor';
+import { createAction } from '@reduxjs/toolkit';
 
 const createRepeatedEvents = (event: IEvent): IEvent[] => {
   if (event.repeat_step === 0 || !event.max_repeats_count) {
@@ -84,9 +86,7 @@ export const updateEvent = createAsyncThunk<
 >(
   'events/update-event',
   async ({ eventId, event }, thunkAPI) => {
-    try {
-      console.log('upd', event);
-      
+    try {      
       const updatedEvent = await apiEvents.updateEvent(eventId, event);
       return { eventId, updatedEvent }
     } catch (error) {
@@ -105,6 +105,38 @@ export const deleteEvent = createAsyncThunk<
     try {
       await apiEvents.deleteEvent(eventId);
       return { eventId };
+    } catch (error) {
+      alert(error)
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)
+
+export const addEventParticipant = createAsyncThunk<
+  string,
+  { eventId: string; participant: IServerUserParticipant }
+>(
+  'events/event-add-participant',
+  async ({ eventId, participant }, thunkAPI) => {
+    try {
+      await apiEvents.addParticipant(eventId, participant);
+      return eventId;
+    } catch (error) {
+      alert(error)
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)
+
+export const deleteEventParticipant = createAsyncThunk<
+  string,
+  { eventId: string; userId: string }
+>(
+  'events/event-del-participant',
+  async ({ eventId, userId }, thunkAPI) => {
+    try {
+      await apiEvents.deleteParticipant(eventId, userId);
+      return eventId;
     } catch (error) {
       alert(error)
       return thunkAPI.rejectWithValue(error)

@@ -52,8 +52,6 @@ const App: FC = () => {
         <Profile currentUser={user} />
       ) : window.location.href.includes('/auth') ? (
         <Auth />
-      ) : window.location.href.includes('/chat') ? (
-        <EventChatPage />
       ) : (
         <Calendar />
       )}
