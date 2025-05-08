@@ -1,7 +1,13 @@
+# Backend
 .vscode
-node_modules/
+uploaded_files/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 venv/
+
+# Frontend
+node_modules/
+dist/
+package-lock.json
