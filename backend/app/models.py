@@ -18,6 +18,14 @@ class EventPriority(str, Enum):
     MEDIUM = "medium"
     HIGH = "high"
 
+class RepeatType(str, Enum):
+    none = "none"
+    hourly = "hourly"
+    daily = "daily"
+    weekly = "weekly"
+    monthly = "monthly"
+    yearly = "yearly"
+
 class CategoryPermission(str, Enum):
     VIEW = "view"
     EDIT = "edit"
@@ -219,7 +227,9 @@ class EventBase(SQLModel):
     start: datetime
     end: datetime
     type: EventType
+    repeat_type: RepeatType = RepeatType.none
     repeat_step: int = Field(default=0, ge=0)  # 0 = no repeat
+    repeat_until: datetime | None = None  # Дата окончания повторений
     is_private: bool = False
     priority: EventPriority = EventPriority.MEDIUM
     is_finished: bool = False
@@ -235,12 +245,14 @@ class EventUpdate(SQLModel):
     start: datetime | None = None
     end: datetime | None = None
     type: EventType | None = None
+    repeat_type: RepeatType | None = None
     repeat_step: int | None = Field(default=None, ge=0)
+    repeat_until: datetime | None = None
     is_private: bool | None = None
     priority: EventPriority | None = None
     is_finished: bool | None = None
     max_repeats_count: int | None = Field(default=None, ge=0)
-    category_id: uuid.UUID | None = None # @TODO это потрогал фронтендер, поэтому лучше проверить норм ли сделал
+    category_id: uuid.UUID | None = None
 
 class Event(EventBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
