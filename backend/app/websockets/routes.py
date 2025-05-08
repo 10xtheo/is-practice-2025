@@ -1,4 +1,5 @@
 from fastapi import WebSocket, WebSocketDisconnect, status
+from ..models import Message, MessageCreate
 from app.api.deps import get_db
 from app.websockets.router import websocket_route
 from app.websockets.manager import manager
@@ -47,11 +48,30 @@ async def event_chat_ws(websocket: WebSocket, user: CurrentUserWS, event_id: str
     try:
         while True:
             data = await websocket.receive_text()
+            # Create a new message instance based on the new schema
+            message = MessageCreate(
+                content=data,
+                user_id=user_id,
+                event_id=event_id
+            )
+            # Save message to the database
+            db_message = Message(
+                content=message.content,
+                user_id=message.user_id,
+                event_id=message.event_id
+            )
+            db.add(db_message)
+            db.commit()
+            db.refresh(db_message)
+            # Prepare the message data to send to other users
             message_data = {
-            "message": data,
-            "user_id": str(user.id),
-            "event_id": event_id
+                "id": str(db_message.id),  # Convert UUID to string
+                "content": db_message.content,
+                "user_id": str(db_message.user_id),  # Convert UUID to string
+                "event_id": str(db_message.event_id),  # Convert UUID to string
+                "timestamp": db_message.timestamp.isoformat()  # Convert timestamp to ISO format
             }
+
             await manager.send_message_to_event(event_id, message_data)
     except WebSocketDisconnect:
         manager.disconnect(websocket, user_id)
