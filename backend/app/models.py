@@ -80,6 +80,9 @@ class User(UserBase, table=True):
     # New fields - relation with category_participations
     category_participations: list["CategoryParticipant"] = Relationship(back_populates="user")
     event_participations: list["EventParticipant"] = Relationship(back_populates="user")
+    # Messaging
+    messages: List["Message"] = Relationship(back_populates="user", cascade_delete=True)
+
 
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
@@ -256,6 +259,8 @@ class Event(EventBase, table=True):
         # cascade_delete=True
     )
     participants: list["EventParticipant"] = Relationship(back_populates="event")
+    # Messaging
+    messages: List["Message"] = Relationship(back_populates="event", cascade_delete=True)
 
 class EventPublic(EventBase):
     id: uuid.UUID
@@ -309,7 +314,39 @@ class BasicSearchResponse(SQLModel):
     events: List[EventPublic]
     categories: List[CategoryPublic]
 
+class UploadedFile(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    filename: str
+    file_url: str
+    event_id: uuid.UUID
+    user_id: uuid.UUID
+
 class UploadResponse(SQLModel):
     filename: str
     file_url: str
     message: str
+
+
+class MessageBase(SQLModel):
+    content: str = Field(min_length=1, max_length=500)  # Adjust max_length as needed
+    event_id: uuid.UUID = Field(foreign_key="event.id")
+    user_id: uuid.UUID = Field(foreign_key="user.id")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class MessageCreate(MessageBase):
+    pass
+
+class MessageUpdate(SQLModel):
+    content: str | None = Field(default=None, min_length=1, max_length=500)
+
+class Message(MessageBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    event: "Event" = Relationship(back_populates="messages")
+    user: "User" = Relationship(back_populates="messages")
+
+class MessagePublic(MessageBase):
+    id: uuid.UUID
+
+class MessagesPublic(SQLModel):
+    data: List[MessagePublic]
+    count: int

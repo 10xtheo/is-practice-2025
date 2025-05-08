@@ -10,7 +10,8 @@ from app.api.routes.utils import check_category_permissions, check_event_permiss
 from app.models import (
     Event, EventCreate, EventPublic, EventsPublic, EventUpdate, Message,
     EventParticipant, EventPermission, EventParticipantsPublic,
-    CategoryParticipant, CategoryPermission, EventCategoryLink, User, Category
+    CategoryParticipant, CategoryPermission, EventCategoryLink, User, Category,
+    MessagesPublic
 )
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -418,3 +419,29 @@ def find_available_time(
 
     return available_slots
 
+@router.get("/{event_id}/messages", response_model=MessagesPublic)
+def get_event_messages(
+    event_id: uuid.UUID,
+    session: SessionDep,
+    current_user: CurrentUser  
+) -> Any:
+    """
+    Retrieve all messages for a specific event based on the event ID.
+    """
+    # Retrieve the event from the database
+    event = session.get(Event, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found.")
+    # Check if the user is a participant in the event
+    is_participant = session.exec(
+        select(EventParticipant).where(
+            EventParticipant.event_id == event_id,
+            EventParticipant.user_id == current_user.id
+        )
+    ).first()
+    if not is_participant:
+        raise HTTPException(status_code=403, detail="User  is not a participant in this event.")
+    # Query to get all messages for the specified event
+    statement = select(Message).where(Message.event_id == event_id)
+    messages = session.exec(statement).all()
+    return MessagesPublic(data=messages, count=len(messages))
