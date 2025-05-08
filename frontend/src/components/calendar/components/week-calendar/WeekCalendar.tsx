@@ -18,7 +18,7 @@ interface IWeekCalendarProps {
 const WeekCalendar: FC<IWeekCalendarProps> = ({ weekDays, weekDaysNames, selectedCalendarIds }) => {
   let { events } = useTypedSelector(({ events }) => events);  
   
-  events = events.filter(e => selectedCalendarIds.includes(e.category_id));
+  events = events.filter(e => selectedCalendarIds.includes(e.category_id) || e.category_id === '0');
   
   const calendarBodyRef = useRef<HTMLDivElement>(null);
 

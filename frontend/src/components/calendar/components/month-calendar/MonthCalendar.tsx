@@ -24,7 +24,7 @@ const MonthCalendar: FC<IMonthCalendarProps> = ({
   selectedCalendarIds
 }) => {
   let { events } = useTypedSelector(({ events }) => events);
-  events = events.filter(e => selectedCalendarIds.includes(e.category_id));
+  events = events.filter(e => selectedCalendarIds.includes(e.category_id) || e.category_id === '0');
   
   const monthEvents = getEventsInterval(calendarDaysOfMonth, events);
   const shortEvents = getShortEvents(monthEvents);
