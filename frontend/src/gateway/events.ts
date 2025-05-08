@@ -1,7 +1,6 @@
-import { IEvent, IEventCreate, IServerEvent, TPartialEvent } from "types/event";
+import { IEvent, IEventCreate, IServerEvent, TPartialEvent, IEventTimeManagement } from "types/event";
 import { requestEvents, requestEventParticipants } from "./api";
 import { IServerUserParticipant } from "types/user";
-import { deleteEventParticipant } from "store/events/actions";
 
 const getEvents = () => requestEvents.get<IServerEvent[]>('/permissions-and-participants');
 
@@ -12,6 +11,8 @@ const deleteEvent = (eventId: string) => requestEvents.delete(`/${eventId}`);
 const updateEvent = (eventId: string, eventData: TPartialEvent) => requestEvents.put<IEvent>(`/${eventId}`, eventData);
 
 const patchEvent = (eventId: string, eventData: TPartialEvent) => requestEvents.patch<IEvent>(`/${eventId}`, eventData);
+
+const findAvailableTimeSlots = (body: IEventTimeManagement) => requestEvents.postTimeManagement<string[]>('/find-available-time', body);
 
 const addParticipant = (eventId: string, participant: IServerUserParticipant) => requestEventParticipants.post<IServerUserParticipant>(`/${eventId}/participants`, participant);
 
@@ -25,4 +26,5 @@ export default {
   patchEvent,
   addParticipant,
   deleteParticipant,
+  findAvailableTimeSlots,
 }

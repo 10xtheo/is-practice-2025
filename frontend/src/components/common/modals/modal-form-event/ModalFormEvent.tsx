@@ -9,6 +9,7 @@ import { getEventTypeOptions, getEventPriorityOptions } from '../helpers';
 import cn from 'classnames';
 import { useDispatch } from 'react-redux';
 import { store } from 'store/store';
+import { findAvailableTimeSlots } from 'store/events/actions';
 
 import styles from './modal-form-event.module.scss';
 import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
@@ -42,6 +43,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const { calendars } = useTypedSelector(({ calendars }) => calendars);
   const { users, user } = useTypedSelector(({ users }) => users);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
   
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
@@ -173,6 +176,53 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     }
   };
   
+  const handleFindAvailableTime = async () => {
+    if (!values.participants.length) {
+      alert('Please select participants first');
+      return;
+    }
+
+    setIsLoadingTimeSlots(true);
+    try {
+      const durationMinutes = Math.round((values.end - values.start) / (1000 * 60));
+      
+      const slots = await dispatch(findAvailableTimeSlots({
+        duration_minutes: durationMinutes,
+        participant_ids: values.participants,
+        start_date: new Date(values.start - new Date(values.start).getTimezoneOffset() * 60 * 1000).toISOString(),
+        end_date: new Date(values.end - new Date(values.end).getTimezoneOffset() * 60 * 1000 + 24 * 60 * 60 * 1000).toISOString()
+      })).unwrap();
+
+      if (slots.length > 100) {
+        setAvailableTimeSlots(slots.filter((slot, idx) => {
+          if (idx % 30 == 0) return slot;
+        }));
+      } else if (slots.length > 30) {
+        setAvailableTimeSlots(slots.filter((slot, idx) => {
+          if (idx % 10 == 0) return slot;
+        }));
+      } else {
+        setAvailableTimeSlots(slots);
+      }
+      
+    } catch (error) {
+      console.error('Error finding available time slots:', error);
+      alert('Failed to find available time slots');
+    } finally {
+      setIsLoadingTimeSlots(false);
+    }
+  };
+
+  const handleSelectTimeSlot = (slot: string) => {
+    const slotDate = new Date(slot);
+    const duration = values.end - values.start;
+    const newEndDate = new Date(slotDate.getTime() + duration);
+    
+    setValue('start', slotDate.getTime());
+    setValue('end', newEndDate.getTime());
+    setAvailableTimeSlots([]);
+  };
+
   useClickOutside(modalRef, closeModal);
 
   return (
@@ -283,13 +333,13 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 }}
               />
             </div>
-            {values.color !== 'rgb(255, 255, 255)' && (<div className={cn(styles.modal__form__group)}>
+            {/* {values.color !== 'rgb(255, 255, 255)' && (<div className={cn(styles.modal__form__group)}>
               <ColorPicker
                 selectedColor={values.color}
                 // onChangeColor={onChangeColor}
                 onChangeColor={() => {}}
               />
-            </div>)}
+            </div>)} */}
 
              <div className={cn(styles.modal__form__checkbox__container, styles.modal__form__group)}>
               <label htmlFor="is_finished">
@@ -370,6 +420,36 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 className={styles.modal__form__textarea}
               />
             </div>
+            <div style={{paddingBottom: 20}}className={cn(styles.modal__form__group)}>
+              <button
+                type="button"
+                style={{width: '100%', display: 'block'}}
+                className={cn(styles.navigation__today__btn, "button")}
+                onClick={handleFindAvailableTime}
+                disabled={isLoadingTimeSlots}
+              >
+                {isLoadingTimeSlots ? 'Поиск...' : 'Найти свободный слот'}
+              </button>
+            </div>
+
+            {availableTimeSlots.length > 0 && (
+              <div className={cn(styles.modal__form__group)}>
+                <h4>Свободные слоты:</h4>
+                <div className={styles.modal__form__time_slots}>
+                  {availableTimeSlots.map((slot, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      className={styles.modal__form__time_slot}
+                      onClick={() => handleSelectTimeSlot(slot)}
+                    >
+                      {new Date(slot).toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button
               className={cn(styles.navigation__today__btn, "button")}
               type="submit"

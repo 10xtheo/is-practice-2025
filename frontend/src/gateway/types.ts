@@ -1,5 +1,5 @@
 import { ICalendar } from "types/calendar";
-import { IEvent, IServerEventCreate } from "types/event";
+import { IEvent, IServerEventCreate, IEventTimeManagement } from "types/event";
 import { IServerUserParticipant, IUserUpdate, IServerUserCategoryParticipant } from "types/user";
 
 export enum METHODS {
@@ -23,6 +23,10 @@ interface PostRequestOptionsEvents extends BaseRequestOptions<METHODS.POST> {
   body?: IServerEventCreate;
 }
 
+interface PostRequestOptionsEventsTimeManagement extends BaseRequestOptions<METHODS.POST> {
+  body: IEventTimeManagement;
+}
+
 interface PutRequestOptionsEvents extends BaseRequestOptions<METHODS.PUT> {
   body?: Partial<IEvent>;
 }
@@ -31,7 +35,7 @@ interface PatchRequestOptionsEvents extends BaseRequestOptions<METHODS.PATCH> {
   body?: Partial<IEvent>;
 }
 
-export type RequestsOptionsEvents = GetRequestOptions | PostRequestOptionsEvents | DeleteRequestOptions | PutRequestOptionsEvents | PatchRequestOptionsEvents;
+export type RequestsOptionsEvents = GetRequestOptions | PostRequestOptionsEvents | PostRequestOptionsEventsTimeManagement | DeleteRequestOptions | PutRequestOptionsEvents | PatchRequestOptionsEvents;
 
 
 interface PostRequestOptionsEventParticipants extends BaseRequestOptions<METHODS.POST> {

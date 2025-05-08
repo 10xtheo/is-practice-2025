@@ -71,6 +71,13 @@ export interface IServerEventCreate {
   participants: IServerUserParticipant[];
 }
 
+export interface IEventTimeManagement {
+  duration_minutes: number;
+  participant_ids: string[];
+  start_date: string;
+  end_date: string;
+}
+
 export enum EventType {
   MEETING = "meeting",
   TASK = "task",

@@ -142,3 +142,23 @@ export const deleteEventParticipant = createAsyncThunk<
     }
   }
 )
+
+export const findAvailableTimeSlots = createAsyncThunk<
+  string[],
+  {
+    duration_minutes: number;
+    participant_ids: string[];
+    start_date: string;
+    end_date: string;
+  }
+>(
+  'events/find-available-time-slots',
+  async (params, thunkAPI) => {
+    try {
+      return await apiEvents.findAvailableTimeSlots(params);
+    } catch (error) {
+      alert(error)
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)

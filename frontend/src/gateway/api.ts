@@ -1,5 +1,5 @@
 import { METHODS, RequestsOptionsEvents, RequestsOptionsCalendars, RequestsOptionsUsers, RequestsOptionsEventParticipants, RequestsOptionsCalendarParticipants } from "./types";
-import { EventPermission, IEvent, IEventCreate } from "../types/event";
+import { EventPermission, IEvent, IEventCreate, IEventTimeManagement} from "../types/event";
 import { CategoryPermission, ICalendar, ICalendarCreate } from "../types/calendar";
 import { IServerUserParticipant, IServerUserCategoryParticipant, IUserUpdate } from "../types/user";
 import { backendUrl } from "../App";
@@ -140,6 +140,7 @@ class HttpEvents {
       permissions: EventPermission.ORGANIZE
     }))
   } });
+  postTimeManagement = async <IDto>(url: string, body: IEventTimeManagement) => this.makeRequest<IDto>({ url, method: METHODS.POST, body: body });
   delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });
   patch = async <IDto>(url: string, body: Partial<IEvent>) => this.makeRequest<IDto>({ url, method: METHODS.PATCH, body });
   put = async <IDto>(url: string, body: Partial<IEvent>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });
