@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTypedSelector } from 'hooks/index';
+import { useDispatch } from 'react-redux';
+import { store } from 'store/store';
+import { getEventMessages } from 'store/events/actions';
 
 interface IChatMessage {
   event_id: string;
@@ -17,6 +20,7 @@ function getQueryParam(name: string): string | null {
 }
 
 const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
+  const dispatch = useDispatch<typeof store.dispatch>();
   const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [input, setInput] = useState('');
   const { users } = useTypedSelector(({ users }) => users);
@@ -29,12 +33,23 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
 
   useEffect(() => {
     if (!eventId || !token) return;
+
+    // Подключаемся к WebSocket
     ws.current = new WebSocket(`ws://localhost:8000/ws/event/${eventId}?token=${token}`);
+
+    // Загружаем историю сообщений
+    dispatch(getEventMessages(eventId)).unwrap().then((response) => {
+      const historyMessages = response.data.map(msg => ({
+        event_id: msg.event_id,
+        message: msg.content,
+        user_id: msg.user_id
+      }));
+      setMessages(historyMessages);
+    });
+
     ws.current.onmessage = (event) => {
       try {
-        
         const data: IChatMessage = JSON.parse(event.data);
-
         if (data.event_id && data.message) {          
           setMessages((prev) => [...prev, data]);
         }
@@ -43,7 +58,7 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
     return () => {
       ws.current?.close();
     };
-  }, [eventId, token]);
+  }, [eventId, token, dispatch]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,6 +71,16 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
       ws.current.send(input);
       setInput('');
     }
+
+    // Загружаем историю сообщений
+    dispatch(getEventMessages(eventId)).unwrap().then((response) => {
+      const historyMessages = response.data.map(msg => ({
+        event_id: msg.event_id,
+        message: msg.content,
+        user_id: msg.user_id
+      }));
+      setMessages(historyMessages);
+    }); // @TODO убрать костыль
   };
   
   // const goBack = () => {

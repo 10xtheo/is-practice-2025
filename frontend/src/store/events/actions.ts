@@ -162,3 +162,24 @@ export const findAvailableTimeSlots = createAsyncThunk<
     }
   }
 )
+
+export const getEventMessages = createAsyncThunk<
+  { data: Array<{
+    content: string;
+    event_id: string;
+    user_id: string;
+    timestamp: string;
+    id: string;
+  }>, count: number },
+  string
+>(
+  'events/get-event-messages',
+  async (eventId, thunkAPI) => {
+    try {
+      return await apiEvents.getEventMessages(eventId);
+    } catch (error) {
+      console.error('Error fetching event messages:', error);
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)

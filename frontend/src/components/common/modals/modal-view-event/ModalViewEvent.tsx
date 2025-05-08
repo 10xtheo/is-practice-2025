@@ -1,7 +1,10 @@
-import React, { FC, useRef } from "react";
+import React, { FC, useRef, useEffect } from "react";
 import { useClickOutside, useModal, useTypedSelector } from "hooks/index";
 import EventChat from 'components/common/EventChat';
 import styles from "./modal-view-event.module.scss";
+import { useDispatch } from "react-redux";
+import { store } from "store/store";
+import { getEventMessages } from "store/events/actions";
 
 interface IModalViewEventProps {
   eventId: string;
@@ -10,11 +13,18 @@ interface IModalViewEventProps {
 const ModalViewEvent: FC<IModalViewEventProps> = ({
   eventId
 }) => {
+  const dispatch = useDispatch<typeof store.dispatch>();
   const { closeModalView } = useModal();
   const modalRef = useRef<HTMLDivElement>(null);
   const { events } = useTypedSelector(({ events }) => events);
   const { users } = useTypedSelector(({ users }) => users);
   const event = events.find(e => e.id === eventId);
+
+  useEffect(() => {
+    if (eventId) {
+      dispatch(getEventMessages(eventId));
+    }
+  }, [eventId, dispatch]);
 
   const handleCloseModal = () => closeModalView();
   

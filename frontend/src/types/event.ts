@@ -78,6 +78,14 @@ export interface IEventTimeManagement {
   end_date: string;
 }
 
+export interface IEventChatHistory {
+  content: string;
+  event_id: string;
+  user_id: string;
+  timestamp: string;
+  id: string;
+}
+
 export enum EventType {
   MEETING = "meeting",
   TASK = "task",
