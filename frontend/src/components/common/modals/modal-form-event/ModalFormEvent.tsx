@@ -357,6 +357,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
               <label>Информируемые лица</label>
               <UserMultiSelector
                 defaultSelectedUsers={defaultEventValues.listeners || []}
+                storageName='listenerUsers
+                '
                 onChange={(users) => {
                   setValue('listeners', users.map(user => user.id));
                 }}

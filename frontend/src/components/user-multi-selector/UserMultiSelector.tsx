@@ -7,6 +7,7 @@ interface IUserMultiSelectorProps {
   onChange: (users: IUser[]) => void;
   placeholder?: string;
   className?: string;
+  storageName?: string
   defaultSelectedUsers?: string[];
 }
 
@@ -14,6 +15,7 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   onChange,
   placeholder = 'Выберите участников...',
   className = '',
+  storageName = 'selectedUsers',
   defaultSelectedUsers = []
 }) => {
   const { users, user } = useTypedSelector(({ users }) => users);
@@ -27,12 +29,12 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
   // Локальное состояние для выбранных пользователей
   const [selectedUsers, setSelectedUsers] = useState<IUser[]>(() => {
     // Инициализация из window или defaultSelectedUsers
-    if (window["selectedUsers"] && window["selectedUsers"].length > 0) {
-      return window["selectedUsers"];
+    if (window[storageName] && window[storageName].length > 0) {
+      return window[storageName];
     }
     if (defaultSelectedUsers.length > 0 && users.length > 0) {
       const initial = users.filter(user => defaultSelectedUsers.includes(user.id));
-      window["selectedUsers"] = initial;
+      window[storageName] = initial;
       return initial;
     }
     return [];
@@ -40,9 +42,9 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
 
   // При изменении users или defaultSelectedUsers синхронизируем состояние
   useEffect(() => {
-    if ((!window["selectedUsers"] || window["selectedUsers"].length === 0) && defaultSelectedUsers.length > 0) {
+    if ((!window[storageName] || window[storageName].length === 0) && defaultSelectedUsers.length > 0) {
       const initial = users.filter(user => defaultSelectedUsers.includes(user.id));
-      window["selectedUsers"] = initial;
+      window[storageName] = initial;
       setSelectedUsers(initial);
     }
   }, [users, defaultSelectedUsers]);
@@ -59,7 +61,7 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
         : [...prev, user];
 
       // Синхронизируем с window
-      window["selectedUsers"] = newSelected;
+      window[storageName] = newSelected;
 
       onChange(newSelected);
       return newSelected;
