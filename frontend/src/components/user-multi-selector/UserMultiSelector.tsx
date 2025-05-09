@@ -111,7 +111,7 @@ const UserMultiSelector: FC<IUserMultiSelectorProps> = ({
                   }
                 }}
               >
-                <span className={styles.userName}>{user.full_name}</span>
+                <span className={styles.userName}>{user.full_name} ({user.department})</span>
                 {isUserSelected(user) && (
                   <span className={styles.checkmark}>✓</span>
                 )}
