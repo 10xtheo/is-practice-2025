@@ -166,7 +166,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       })
     }
     
-    // allParticipants.splice(allParticipants.findIndex(u => u.id === currentUser.id), 1)
+    allParticipants.splice(allParticipants.findIndex(u => u.id === currentUser.id), 1)
 
     const newEvent: TPartialEvent = {
       title: data.title,
@@ -189,6 +189,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       await handlerSubmit(newEvent);
       closeModal();
       window["selectedUsers"] = [];
+      window["listenerUsers"] = [];
       await dispatch(getEvents());
     } catch (error) {
       console.error('Error creating event:', error);

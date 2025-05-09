@@ -35,6 +35,8 @@ const Calendar: FC<ICalendarProps> = ({ onMenuToggle }) => {
       .set('minutes', startMins + minutes)
       .result();
 
+    window['selectedUsers'] = []
+    window['listenerUsers'] = []
     openModalCreate({ selectedDate });
   };
 

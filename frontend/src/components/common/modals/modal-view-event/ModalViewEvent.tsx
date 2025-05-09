@@ -27,7 +27,11 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
     }
   }, [eventId, dispatch]);
 
-  const handleCloseModal = () => closeModalView();
+  const handleCloseModal = () => {
+    closeModalView()
+    window["selectedUsers"] = [];
+    window["listenerUsers"] = [];
+  };
   
   useClickOutside(modalRef, handleCloseModal);
 
