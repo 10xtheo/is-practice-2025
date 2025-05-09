@@ -48,17 +48,22 @@ async def event_chat_ws(websocket: WebSocket, user: CurrentUserWS, event_id: str
     try:
         while True:
             data = await websocket.receive_text()
+
+            full_name = user.full_name
+
             # Create a new message instance based on the new schema
             message = MessageCreate(
                 content=data,
                 user_id=user_id,
-                event_id=event_id
+                event_id=event_id,
+                full_name=full_name
             )
             # Save message to the database
             db_message = Message(
                 content=message.content,
                 user_id=message.user_id,
-                event_id=message.event_id
+                event_id=message.event_id,
+                full_name = message.full_name
             )
             db.add(db_message)
             db.commit()
@@ -69,7 +74,8 @@ async def event_chat_ws(websocket: WebSocket, user: CurrentUserWS, event_id: str
                 "content": db_message.content,
                 "user_id": str(db_message.user_id),  # Convert UUID to string
                 "event_id": str(db_message.event_id),  # Convert UUID to string
-                "timestamp": db_message.timestamp.isoformat()  # Convert timestamp to ISO format
+                "timestamp": db_message.timestamp.isoformat(),  # Convert timestamp to ISO format
+                "full_name": db_message.full_name,
             }
 
             await manager.send_message_to_event(event_id, message_data)

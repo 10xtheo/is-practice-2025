@@ -331,6 +331,7 @@ class MessageBase(SQLModel):
     content: str = Field(min_length=1, max_length=500)  # Adjust max_length as needed
     event_id: uuid.UUID = Field(foreign_key="event.id")
     user_id: uuid.UUID = Field(foreign_key="user.id")
+    full_name: str = Field(min_length=1, max_length=100)  # Store user's full name here
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 class MessageCreate(MessageBase):
