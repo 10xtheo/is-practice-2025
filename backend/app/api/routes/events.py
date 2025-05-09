@@ -11,7 +11,7 @@ from app.models import (
     Event, EventCreate, EventPublic, EventsPublic, EventUpdate, Message,
     EventParticipant, EventPermission, EventParticipantsPublic,
     CategoryParticipant, CategoryPermission, EventCategoryLink, User, Category,
-    MessagesPublic
+    MessagesPublic, RepeatType
 )
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -24,17 +24,73 @@ class AvailableTimeRequest(SQLModel):
 
 @router.get("/", response_model=EventsPublic)
 def read_events(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep, 
+    current_user: CurrentUser, 
+    skip: int = 0, 
+    limit: int = 100,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    user_id: uuid.UUID | None = None
 ) -> Any:
     """
     Retrieve events.
     """
+    # Преобразуем даты в timezone-naive если они есть
+    if start_date:
+        start_date = start_date.replace(tzinfo=None) if start_date.tzinfo else start_date
+    if end_date:
+        end_date = end_date.replace(tzinfo=None) if end_date.tzinfo else end_date
+
+    # Проверяем права на получение событий другого пользователя
+    if user_id is not None and user_id != current_user.id:
+        if not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions to view other user's events"
+            )
+        # Проверяем существование пользователя
+        user = session.get(User, user_id)
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail=f"User with ID {user_id} not found"
+            )
+
+    # Проверяем корректность дат
+    if start_date is not None and end_date is not None and start_date > end_date:
+        raise HTTPException(
+            status_code=400,
+            detail="start_date must be before end_date"
+        )
+
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Event)
+        # Базовый запрос
+        query = select(Event)
+        
+        # Добавляем фильтр по пользователю если указан
+        if user_id is not None:
+            query = query.where(Event.creator_id == user_id)
+        
+        # Добавляем фильтры по датам
+        if start_date is not None:
+            query = query.where(Event.start >= start_date)
+        if end_date is not None:
+            query = query.where(Event.end <= end_date)
+            
+        # Получаем общее количество
+        count_statement = select(func.count()).select_from(query.subquery())
         count = session.exec(count_statement).one()
-        statement = select(Event).offset(skip).limit(limit)
+        
+        # Добавляем пагинацию
+        statement = query.offset(skip).limit(limit)
         events = session.exec(statement).all()
     else:
+        # Получаем события, где пользователь является участником
+        user_participations = session.exec(
+            select(EventParticipant).where(EventParticipant.user_id == current_user.id)
+        ).all()
+        user_event_ids = {ep.event_id for ep in user_participations}
+
         # Получаем категории, к которым у пользователя есть доступ
         accessible_categories = session.exec(
             select(Category.id).join(CategoryParticipant).where(
@@ -46,21 +102,33 @@ def read_events(
         ).all()
 
         # Получаем события из доступных категорий
-        count_statement = (
-            select(func.count())
-            .select_from(Event)
+        category_events = session.exec(
+            select(Event.id)
             .join(EventCategoryLink)
             .where(EventCategoryLink.category_id.in_(accessible_categories))
-        )
-        count = session.exec(count_statement).one()
+        ).all()
+        category_event_ids = {event.id for event in category_events}
 
-        statement = (
-            select(Event)
-            .join(EventCategoryLink)
-            .where(EventCategoryLink.category_id.in_(accessible_categories))
-            .offset(skip)
-            .limit(limit)
-        )
+        # Объединяем ID событий
+        all_event_ids = list(user_event_ids | category_event_ids)
+        if not all_event_ids:
+            return EventsPublic(data=[], count=0)
+
+        # Базовый запрос с фильтром по ID событий
+        query = select(Event).where(Event.id.in_(all_event_ids))
+        
+        # Добавляем фильтры по датам
+        if start_date is not None:
+            query = query.where(Event.start >= start_date)
+        if end_date is not None:
+            query = query.where(Event.end <= end_date)
+            
+        # Получаем общее количество
+        count_statement = select(func.count()).select_from(query.subquery())
+        count = session.exec(count_statement).one()
+        
+        # Добавляем пагинацию
+        statement = query.offset(skip).limit(limit)
         events = session.exec(statement).all()
 
     return EventsPublic(data=events, count=count)
@@ -69,7 +137,41 @@ def read_events(
 def get_events_with_permissions(
     session: SessionDep,
     current_user: CurrentUser,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    user_id: uuid.UUID | None = None
 ):
+    """
+    Get events with permissions and participants.
+    """
+    # Преобразуем даты в timezone-naive если они есть
+    if start_date:
+        start_date = start_date.replace(tzinfo=None) if start_date.tzinfo else start_date
+    if end_date:
+        end_date = end_date.replace(tzinfo=None) if end_date.tzinfo else end_date
+
+    # Проверяем права на получение событий другого пользователя
+    if user_id is not None and user_id != current_user.id:
+        if not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions to view other user's events"
+            )
+        # Проверяем существование пользователя
+        user = session.get(User, user_id)
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail=f"User with ID {user_id} not found"
+            )
+
+    # Проверяем корректность дат
+    if start_date is not None and end_date is not None and start_date > end_date:
+        raise HTTPException(
+            status_code=400,
+            detail="start_date must be before end_date"
+        )
+
     # 1. Categories where user - is a participant
     category_participants = session.exec(
         select(CategoryParticipant).where(CategoryParticipant.user_id == current_user.id)
@@ -101,9 +203,22 @@ def get_events_with_permissions(
         return []
 
     # 4. Load events, participant and relations with catetgories
-    events = session.exec(
-        select(Event).where(Event.id.in_(all_event_ids))
-    ).all()
+    query = select(Event).where(Event.id.in_(all_event_ids))
+
+    # Добавляем фильтр по пользователю если указан
+    if user_id is not None:
+        if current_user.is_superuser:
+            query = query.where(Event.creator_id == user_id)
+        else:
+            query = query.where(Event.creator_id == current_user.id)
+
+    # Добавляем фильтры по датам
+    if start_date is not None:
+        query = query.where(Event.start >= start_date)
+    if end_date is not None:
+        query = query.where(Event.end <= end_date)
+
+    events = session.exec(query).all()
 
     # Preload of relations: EventParticipant + EventCategoryLink + User
     all_event_participants = session.exec(
@@ -177,6 +292,100 @@ def read_event(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) ->
 
     return event
 
+def create_recurring_events(
+    session: SessionDep,
+    base_event: Event,
+    event_in: EventCreate,
+    current_user: CurrentUser
+) -> List[Event]:
+    """
+    Создает повторяющиеся события на основе базового события.
+    """
+    if event_in.repeat_type == RepeatType.none or event_in.repeat_step == 0:
+        return []
+
+    # Преобразуем даты в timezone-naive
+    base_start = base_event.start.replace(tzinfo=None) if base_event.start.tzinfo else base_event.start
+    base_end = base_event.end.replace(tzinfo=None) if base_event.end.tzinfo else base_event.end
+    repeat_until = event_in.repeat_until.replace(tzinfo=None) if event_in.repeat_until and event_in.repeat_until.tzinfo else event_in.repeat_until
+
+    # Вычисляем длительность события
+    duration = base_end - base_start
+    
+    # Определяем шаг повторения в зависимости от типа
+    if event_in.repeat_type == RepeatType.hourly:
+        step = timedelta(hours=event_in.repeat_step)
+    elif event_in.repeat_type == RepeatType.daily:
+        step = timedelta(days=event_in.repeat_step)
+    elif event_in.repeat_type == RepeatType.weekly:
+        step = timedelta(weeks=event_in.repeat_step)
+    elif event_in.repeat_type == RepeatType.monthly:
+        # Для месячного повторения используем относительные месяцы
+        step = timedelta(days=30 * event_in.repeat_step)
+    elif event_in.repeat_type == RepeatType.yearly:
+        step = timedelta(days=365 * event_in.repeat_step)
+    else:
+        return []
+
+    recurring_events = []
+    current_start = base_start + step
+    current_end = base_end + step
+    repeats_count = 0
+
+    # Максимальная дата для создания событий (10 лет вперед)
+    max_future_date = datetime.now() + timedelta(days=3650)
+
+    # Создаем повторяющиеся события
+    while True:
+        # Проверяем ограничения
+        if event_in.max_repeats_count > 0 and repeats_count >= event_in.max_repeats_count:
+            break
+        if repeat_until and current_start > repeat_until:
+            break
+        # Проверяем, что событие не слишком далеко в будущем
+        if current_start > max_future_date:
+            break
+
+        # Создаем новое событие
+        new_event = Event(
+            title=base_event.title,
+            description=base_event.description,
+            start=current_start,
+            end=current_end,
+            type=base_event.type,
+            repeat_type=RepeatType.none,  # Повторяющиеся события не имеют своих повторений
+            repeat_step=0,
+            is_private=base_event.is_private,
+            priority=base_event.priority,
+            creator_id=current_user.id
+        )
+        session.add(new_event)
+        session.flush()
+
+        # Создаем связь с категорией
+        link = EventCategoryLink(event_id=new_event.id, category_id=event_in.category_id)
+        session.add(link)
+
+        # Копируем участников из базового события
+        for participant in base_event.participants:
+            new_participant = EventParticipant(
+                event_id=new_event.id,
+                user_id=participant.user_id,
+                is_creator=participant.is_creator,
+                is_listener=participant.is_listener,
+                permissions=participant.permissions
+            )
+            session.add(new_participant)
+
+        recurring_events.append(new_event)
+        repeats_count += 1
+
+        # Обновляем время для следующего события
+        current_start += step
+        current_end += step
+
+    return recurring_events
+
 @router.post("/", response_model=EventPublic)
 def create_event(
     *, session: SessionDep, current_user: CurrentUser, event_in: EventCreate
@@ -184,8 +393,13 @@ def create_event(
     """
     Create new event.
     """
+    # Преобразуем даты в timezone-naive перед сравнением
+    start_date = event_in.start.replace(tzinfo=None) if event_in.start.tzinfo else event_in.start
+    end_date = event_in.end.replace(tzinfo=None) if event_in.end.tzinfo else event_in.end
+    repeat_until = event_in.repeat_until.replace(tzinfo=None) if event_in.repeat_until and event_in.repeat_until.tzinfo else event_in.repeat_until
+
     # Проверяем корректность времени
-    if event_in.start >= event_in.end:
+    if start_date >= end_date:
         raise HTTPException(
             status_code=400,
             detail="Event start time must be before end time"
@@ -201,6 +415,11 @@ def create_event(
     try:
         # Создаем событие без category_id и participants
         event_data = event_in.model_dump(exclude={"category_id", "participants"})
+        # Убеждаемся, что даты в event_data тоже timezone-naive
+        event_data["start"] = start_date
+        event_data["end"] = end_date
+        if repeat_until:
+            event_data["repeat_until"] = repeat_until
         event = Event.model_validate(event_data, update={"creator_id": current_user.id})
         session.add(event)
         session.flush()
@@ -242,6 +461,9 @@ def create_event(
                     permissions=participant.permissions
                 )
                 session.add(event_participant)
+
+        # Создаем повторяющиеся события
+        recurring_events = create_recurring_events(session, event, event_in, current_user)
 
         session.commit()
         session.refresh(event)
