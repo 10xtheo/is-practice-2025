@@ -22,6 +22,7 @@ interface IModalFormEventProps {
   closeModal: () => void;
   handlerSubmit: (eventData: TPartialEvent) => void;
   onParticipantsChange?: (users: { id: string }[]) => void;
+  onListenersChange?: (users: { id: string }[]) => void;
 }
 
 const EVENT_REPEAT_INTERVALS = [
@@ -37,7 +38,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   closeModal,
   defaultEventValues,
   handlerSubmit,
-  onParticipantsChange
+  onParticipantsChange,
+  onListenersChange,
 }) => {
   const dispatch = useDispatch<typeof store.dispatch>();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -362,6 +364,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                 '
                 onChange={(users) => {
                   setValue('listeners', users.map(user => user.id));
+                  onListenersChange?.(users);
                 }}
                 placeholder="Выберите информируемых лиц..."
               />

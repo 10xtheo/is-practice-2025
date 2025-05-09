@@ -46,23 +46,16 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
 
   let prevParticipants: string[] = defaultEventValues.participants;
   const handleParticipantsChange = async (users: { id: string }[]) => {
-    
-    const updatedParticipants = eventData.participants.map(p => p.id);
-
     // Предыдущее состояние содержало больше юзеров => нужно удаление
     if (prevParticipants.length > users.length) {
-      for (const userId of prevParticipants.filter(pUserId => !users.find(user => user.id === pUserId))) { 
-        console.log('delete for', userId);
-        
+      for (const userId of prevParticipants.filter(pUserId => !users.find(user => user.id === pUserId))) {         
         if (userId === currentUser.id) {
           continue;
         }
         await deleteEventParticipant({ eventId, userId });
       }
     } else {
-      for (const user of users.filter(user => !prevParticipants.includes(user.id))) { 
-        console.log('add for', user.id);
-        
+      for (const user of users.filter(user => !prevParticipants.includes(user.id))) {         
         if (user.id === currentUser.id) {
           continue;
         }
@@ -71,15 +64,40 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
           user_id: user.id,
           is_creator: false,
           is_listener: false,
-          permissions: EventPermission.VIEW
+          permissions: EventPermission.EDIT
         };
         await addEventParticipant({ eventId, participant });
       }
     }
 
-    console.log('prev', prevParticipants);
-    console.log('on change', users);
+    prevParticipants = users.map(u => u.id);
+  };
 
+  let prevListeners: string[] = defaultEventValues.listeners;
+  const handleListenersChange = async (users: { id: string }[]) => {
+    // Предыдущее состояние содержало больше юзеров => нужно удаление
+    if (prevListeners.length > users.length) {
+      for (const userId of prevListeners.filter(pUserId => !users.find(user => user.id === pUserId))) {         
+        if (userId === currentUser.id) {
+          continue;
+        }
+        await deleteEventParticipant({ eventId, userId });
+      }
+    } else {
+      for (const user of users.filter(user => !prevListeners.includes(user.id))) {         
+        if (user.id === currentUser.id) {
+          continue;
+        }
+
+        const participant: IServerUserParticipant = {
+          user_id: user.id,
+          is_creator: false,
+          is_listener: true,
+          permissions: EventPermission.VIEW
+        };
+        await addEventParticipant({ eventId, participant });
+      }
+    }
 
     prevParticipants = users.map(u => u.id);
   };
@@ -91,6 +109,7 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
       defaultEventValues={defaultEventValues}
       handlerSubmit={onUpdateEvent}
       onParticipantsChange={handleParticipantsChange}
+      onListenersChange={handleListenersChange}
       closeModal={async () => {
         closeModalEdit();
         window["selectedUsers"] = [];
