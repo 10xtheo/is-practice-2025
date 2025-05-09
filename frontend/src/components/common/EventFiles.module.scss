@@ -1,0 +1,58 @@
+.files {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #e9ecef;
+  }
+
+  i {
+    font-size: 24px;
+    margin-right: 12px;
+    color: #666;
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__name {
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  &__user {
+    font-size: 12px;
+    color: #666;
+  }
+}
+
+.loading {
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.error {
+  color: #dc3545;
+  margin-top: 8px;
+}
+
+.empty {
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+} 

@@ -1,6 +1,7 @@
 import React, { FC, useRef, useEffect } from "react";
 import { useClickOutside, useModal, useTypedSelector } from "hooks/index";
 import EventChat from 'components/common/EventChat';
+import EventFiles from 'components/common/EventFiles';
 import styles from "./modal-view-event.module.scss";
 import { useDispatch } from "react-redux";
 import { store } from "store/store";
@@ -75,6 +76,10 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
                   <li key={participant.id}>{participant.full_name}</li>
                 ))}
               </ul>
+            </div>
+            <div className={styles.modal__info__item}>
+              <strong>Прикрепленные файлы:</strong>
+              <EventFiles eventId={eventId} />
             </div>
           </div>
         </div>

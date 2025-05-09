@@ -4,6 +4,7 @@ import { IEvent, IEventCreate, TPartialEvent } from 'types/event';
 import { IServerUserParticipant } from 'types/user';
 import { pickRandomColor } from 'utils/helpers/pickRandomColor';
 import { createAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 const createRepeatedEvents = (event: IEvent): IEvent[] => {
   if (event.repeat_step === 0 || !event.max_repeats_count) {
@@ -183,3 +184,11 @@ export const getEventMessages = createAsyncThunk<
     }
   }
 )
+
+export const getEventFiles = createAsyncThunk(
+  'events/getEventFiles',
+  async (eventId: string) => {
+    const response = await axios.get(`http://localhost:8000/api/v1/events/${eventId}/files`);
+    return response.data;
+  }
+);
