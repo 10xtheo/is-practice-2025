@@ -6,7 +6,7 @@ import { getEventMessages } from 'store/events/actions';
 
 interface IChatMessage {
   event_id: string;
-  message: string;
+  content: string;
   user_id: string;
 }
 
@@ -41,16 +41,16 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
     dispatch(getEventMessages(eventId)).unwrap().then((response) => {
       const historyMessages = response.data.map(msg => ({
         event_id: msg.event_id,
-        message: msg.content,
+        content: msg.content,
         user_id: msg.user_id
       }));
       setMessages(historyMessages);
     });
 
     ws.current.onmessage = (event) => {
-      try {
+      try {        
         const data: IChatMessage = JSON.parse(event.data);
-        if (data.event_id && data.message) {          
+        if (data.event_id && data.content) {          
           setMessages((prev) => [...prev, data]);
         }
       } catch {}
@@ -71,16 +71,6 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
       ws.current.send(input);
       setInput('');
     }
-
-    // Загружаем историю сообщений
-    dispatch(getEventMessages(eventId)).unwrap().then((response) => {
-      const historyMessages = response.data.map(msg => ({
-        event_id: msg.event_id,
-        message: msg.content,
-        user_id: msg.user_id
-      }));
-      setMessages(historyMessages);
-    }); // @TODO убрать костыль
   };
   
   // const goBack = () => {
@@ -98,7 +88,7 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
       <div style={{ width: '100%', height: 400, border: '1px solid #eee', display: 'flex', flexDirection: 'column', background: '#fff', marginBottom: 12 }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
           {messages.map((msg, idx) => (
-            <div key={idx} style={{ marginBottom: 6, wordBreak: 'break-word' }}>{users.find(u => u.id === msg.user_id)?.full_name ?? "Аноним"}: {msg.message}</div>
+            <div key={idx} style={{ marginBottom: 6, wordBreak: 'break-word' }}>{users.find(u => u.id === msg.user_id)?.full_name ?? "Аноним"}: {msg.content}</div>
           ))}
           <div ref={messagesEndRef} />
         </div>
