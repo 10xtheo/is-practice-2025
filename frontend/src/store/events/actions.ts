@@ -186,3 +186,31 @@ export const getEventFiles = createAsyncThunk(
     return response.data;
   }
 );
+
+export const uploadEventFile = createAsyncThunk(
+  'events/uploadEventFile',
+  async ({ eventId, file, token }: { eventId: string; file: File, token: string }) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await axios.post(`http://localhost:8000/api/v1/uploadfile?event_id=${eventId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    return response.data;
+  }
+);
+
+export const deleteEventFile = createAsyncThunk(
+  'events/deleteEventFile',
+  async ({ fileId, token }: { fileId: string, token: string }) => {
+    await axios.delete(`http://localhost:8000/api/v1/uploadfile/${fileId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return fileId;
+  }
+);
