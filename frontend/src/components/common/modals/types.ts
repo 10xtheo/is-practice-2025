@@ -1,5 +1,5 @@
 import { IValidatorData } from "hooks/useValidator/types";
-import { EventType, EventPriority } from "types/event";
+import { EventType, EventPriority, RepeatType } from "types/event";
 
 export interface IModalValues extends IValidatorData {
   title: string;
@@ -11,6 +11,8 @@ export interface IModalValues extends IValidatorData {
   is_private: boolean;
   is_finished: boolean;
   repeat_step: number;
+  repeat_type?: RepeatType;
+  repeat_until?: number;
   max_repeats_count: number;
   color: string;
   category_id: string;
@@ -28,7 +30,9 @@ export interface IMapEventValues {
   is_private?: boolean;
   is_finished?: boolean;
   repeat_step?: number;
+  repeat_type?: RepeatType;
   max_repeats_count?: number;
+  repeat_until?: number;
   color?: string;
   category_id: string;
   participants: string[];

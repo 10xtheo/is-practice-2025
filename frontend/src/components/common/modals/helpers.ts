@@ -1,6 +1,6 @@
 import { IMapEventValues, IModalValues } from "./types";
 import { EventType, EventPriority } from "types/event";
-import { colors } from "../form-elements/color-picker/colors";
+import { RepeatType } from "types/event";
 
 const formatEnumValue = (value: string): string => {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
@@ -20,6 +20,13 @@ export const getEventPriorityOptions = () => {
   }));
 };
 
+export const getEventRepeatTypeOptions = () => {
+  return Object.entries(RepeatType).map(([key, value]) => ({
+    value: value,
+    label: formatEnumValue(value)
+  }));
+};
+
 export const getMapEventValues = ({
   title,
   description,
@@ -30,6 +37,8 @@ export const getMapEventValues = ({
   is_private = false,
   is_finished = false,
   repeat_step = 0,
+  repeat_type = RepeatType.NONE,
+  repeat_until = Date.now(),
   max_repeats_count = 0,
   color = 'rgb(255, 255, 255)',
   category_id,
@@ -46,6 +55,8 @@ export const getMapEventValues = ({
     is_private,
     is_finished,
     repeat_step,
+    repeat_type,
+    repeat_until,
     max_repeats_count,
     color,
     category_id,

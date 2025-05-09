@@ -3,9 +3,9 @@ import { useClickOutside, useForm, useTypedSelector } from 'hooks/index';
 import { checkDateIsEqual, getDateTime, getDifferenceInTimeFromTwoTimes, getDifferenceOfTwoDates, getDifferenceOfTwoTimestamps, shmoment } from 'utils/date';
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValues } from 'components/common/modals/types';
-import { TPartialEvent, EventType, EventPriority, EventPermission } from 'types/event';
+import { TPartialEvent, EventType, EventPriority, EventPermission, RepeatType } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
-import { getEventTypeOptions, getEventPriorityOptions } from '../helpers';
+import { getEventTypeOptions, getEventPriorityOptions, getEventRepeatTypeOptions } from '../helpers';
 import cn from 'classnames';
 import { useDispatch } from 'react-redux';
 import { store } from 'store/store';
@@ -24,13 +24,6 @@ interface IModalFormEventProps {
   onParticipantsChange?: (users: { id: string }[]) => void;
   onListenersChange?: (users: { id: string }[]) => void;
 }
-
-const EVENT_REPEAT_INTERVALS = [
-  { label: 'Час', value: 'hour', hours: 1 },
-  { label: 'День', value: 'day', hours: 24 },
-  { label: 'Месяц', value: 'month', hours: 24 * 30 },
-  { label: 'Год', value: 'year', hours: 24 * 365 },
-];
 
 const ModalFormEvent: FC<IModalFormEventProps> = ({
   textSendButton,
@@ -54,27 +47,12 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     // rules: createEventSchema @TODO добавить валидацию
   });
 
-  const [isRecurring, setIsRecurring] = useState(defaultEventValues.repeat_step !== 0);
-  const [intervalType, setIntervalType] = useState('day');
+  const [isRecurring, setIsRecurring] = useState(defaultEventValues.repeat_type !== RepeatType.NONE);
   const isValid = Object.keys(errors).length === 0;
   
   const onChangeRepeatStepValue = (e) => {
     const value = parseInt(e.target.value, 10) || 0;
-    const interval = EVENT_REPEAT_INTERVALS.find(i => i.value === intervalType);
-    const hours = value * (interval ? interval.hours : 24);
-    setValue('repeat_step', hours);
-  };
-
-  const onChangeIntervalType = (e) => {    
-    const newType = e.target.value;
-    setIntervalType(newType);
-    
-    // @ts-ignore
-    const value = parseInt(document.getElementById('repeat_step_input').value, 10) || 0;
-    
-    const interval = EVENT_REPEAT_INTERVALS.find(i => i.value === newType);
-    const hours = value * (interval ? interval.hours : 24);
-    setValue('repeat_step', hours);
+    setValue('repeat_step', value);
   };
 
   const onSelectStartDate = (date: Date) => {
@@ -138,9 +116,10 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     setValue('priority', value as EventPriority);
   }
 
-  // const onChangeColor = (color: string) => {
-  //   setValue('color', color);
-  // }
+  const onChangeRepeatType = (value: string) => {
+    setValue('repeat_type', value as RepeatType);
+  }
+
 
   const onChangeCategoryValue = (category_id: string) => {
     const calendar = calendars.find(i => i.id === category_id);
@@ -149,6 +128,10 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     } else {
       alert(`нет такой категории: ${category_id}`);
     }
+  };
+
+  const onSelectRepeatUntil = (date: Date) => {
+    setValue('repeat_until', date.getTime() - date.getTimezoneOffset() * 60 * 1000);
   };
 
   const onSubmit: TSubmitHandler<IModalValues> = async (data) => {
@@ -169,13 +152,15 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     }
     
     allParticipants.splice(allParticipants.findIndex(u => u.id === currentUser.id), 1)
-
+    
     const newEvent: TPartialEvent = {
       title: data.title,
       description: data.description,
-      start: data.start,
-      end: data.end,
+      start: data.start - new Date(data.start).getTimezoneOffset() * 60 * 1000,
+      end: data.end - new Date(data.end).getTimezoneOffset() * 60 * 1000,
       repeat_step: data.repeat_step,
+      repeat_type: data.repeat_type,
+      repeat_until: isRecurring ? data.repeat_until : Date.now(),
       is_private: data.is_private,
       is_finished: data.is_finished,
       max_repeats_count: data.max_repeats_count,
@@ -185,7 +170,6 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       category_id: data.category_id,
       participants: allParticipants,
     };
-    console.log('newEvent', newEvent);
     
     try {      
       await handlerSubmit(newEvent);
@@ -410,6 +394,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                     if (v) {
                       setValue('repeat_step', 0);
                       setValue('max_repeats_count', 0);
+                      setValue('repeat_type', RepeatType.NONE);
+                      setValue('repeat_until', Date.now());
                     }
                     return !v
                   })}
@@ -418,32 +404,31 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
               </label>
             </div>
             <div style={{ display: isRecurring ? 'block' : 'none' }}>
-              <span className={styles.modal__form__group}>Повторять каждые</span>
-              <div className={cn(styles.modal__form__group)} style={{ display: 'flex', gap: 8 }}>
+              <span className={styles.modal__form__group}>Интервал повторения</span>
+              <div className={cn(styles.modal__form__group)} style={{ display: 'flex', gap: 8, paddingBottom: 4 }}>
                 <input
                   id="repeat_step_input"
                   type="number"
                   min={defaultEventValues.repeat_step === 0 ? 0 : 1}
                   onChange={onChangeRepeatStepValue}
                   defaultValue={defaultEventValues.repeat_step}
-                  style={{ width: 80 }}
+                  style={{ width: 80, height: 36 }}
                 />
-                <select value={intervalType} onChange={onChangeIntervalType}>
-                  {EVENT_REPEAT_INTERVALS.map(i => (
-                    <option key={i.value} value={i.value}>{i.label}</option>
-                  ))}
-                </select>
+                <Select
+                  name="repeat_type"
+                  value={values.repeat_type}
+                  onChange={onChangeRepeatType}
+                  options={getEventRepeatTypeOptions()}
+                  placeholder="Шаг повторения"
+                  error={errors.repeat_type}
+                />
               </div>
-              <span className={styles.modal__form__group}>Количество повторений (0 - бесконечно)</span>
+              <span className={styles.modal__form__group}>Повторять до</span>
               <div className={cn(styles.modal__form__group)}>
-                <TextField
-                  type="number"
-                  name="max_repeats_count"
-                  onChange={onChangeMaxRepeats}
-                  value={values.max_repeats_count}
-                  error={errors.max_repeats_count}
-                  className={styles.modal__form__input}
-                  fullWidth
+                <DatePicker
+                  selectedDate={values.repeat_until ? new Date(values.repeat_until) : new Date()}
+                  selectDate={onSelectRepeatUntil}
+                  error={errors.repeat_until}
                 />
               </div>
             </div>

@@ -6,30 +6,6 @@ import { pickRandomColor } from 'utils/helpers/pickRandomColor';
 import { IChatMessage } from '../../components/common/EventChat'
 import axios from 'axios';
 
-const createRepeatedEvents = (event: IEvent): IEvent[] => {
-  if (event.repeat_step === 0 || !event.max_repeats_count) {
-    return [event];
-  }
-
-  const repeatedEvents: IEvent[] = [event];
-  const duration = event.end - event.start;
-
-  for (let i = 1; i < event.max_repeats_count; i++) {
-    const repeatOffset = event.repeat_step * 60 * 60 * 1000; // convert hours to milliseconds
-    const newStart = event.start + (repeatOffset * i);
-    const newEnd = newStart + duration;
-
-    repeatedEvents.push({
-      ...event,
-      // id: `${event.id}_repeat_${i}`,
-      start: newStart,
-      end: newEnd,
-    });
-  }
-
-  return repeatedEvents;
-};
-
 export const getEvents = createAsyncThunk<IEvent[]>(
   'events/get-events',
   async (_, thunkAPI) => {
@@ -40,6 +16,8 @@ export const getEvents = createAsyncThunk<IEvent[]>(
           id: event.id,
           title: event.title,
           description: event.description,
+          repeat_type: event.repeat_type,
+          repeat_until: new Date(event.repeat_until).getTime(),
           repeat_step: event.repeat_step,
           is_private: event.is_private,
           creator_id: event.creator_id,
@@ -63,7 +41,7 @@ export const getEvents = createAsyncThunk<IEvent[]>(
           end: new Date(event.end).getTime(),
         }
         
-        return createRepeatedEvents(frontendEvent);
+        return frontendEvent
       });
     } catch (error) {
       return thunkAPI.rejectWithValue(error)

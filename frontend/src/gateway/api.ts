@@ -128,6 +128,8 @@ class HttpEvents {
     start: new Date(body.start),
     end: new Date(body.end),
     repeat_step: body.repeat_step,
+    repeat_type: body.repeat_type,
+    repeat_until: body.repeat_until ? new Date(body.repeat_until) : undefined,
     is_private: body.is_private,
     max_repeats_count: body.max_repeats_count,
     type: body.type,

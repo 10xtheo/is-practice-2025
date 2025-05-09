@@ -7,6 +7,8 @@ export interface IServerEvent {
   description: string;
   start: string;
   end: string;
+  repeat_type?: RepeatType;
+  repeat_until?: string;
   repeat_step: number;
   is_private: boolean;
   creator_id: string;
@@ -29,6 +31,8 @@ export interface IEvent {
   description: string;
   start: number; // timestamp
   end: number; // timestamp
+  repeat_type?: RepeatType;
+  repeat_until?: number; // timestamp
   repeat_step: number;
   is_private: boolean;
   creator_id: string;
@@ -48,7 +52,9 @@ export interface IEventCreate {
   description: string;
   start: number;
   end: number;
-  repeat_step: number; // @TODO мб указать единицы измерения
+  repeat_type?: RepeatType;
+  repeat_until?: number; // timestamp
+  repeat_step: number;
   is_private: boolean;
   max_repeats_count: number; // @TODO ивент может повторяться до даты!
   color: string;
@@ -63,6 +69,8 @@ export interface IServerEventCreate {
   description: string;
   start: Date;
   end: Date;
+  repeat_type?: RepeatType;
+  repeat_until?: Date;
   repeat_step: number;
   is_private: boolean;
   max_repeats_count: number;
@@ -105,4 +113,13 @@ export enum EventPermission {
   VIEW = "view",
   EDIT = "edit",
   ORGANIZE = "organize"
+}
+
+export enum RepeatType {
+  NONE = "none",
+  HOURLY = "hourly",
+  DAILY = "daily",
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
+  YEARLY = "yearly",
 }

@@ -15,17 +15,22 @@ export const createEventSchema: IRules = {
   },
   end: {
     isRequired: true,
-    isDateInFuture: 'start' // @TODO нейроистория не работает
+    isDateInFuture: 'start'
   },
   repeat_step: {
     isRequired: false,
     isNumber: true,
     min: 0
   },
-  max_repeats_count: {
+  repeat_type: {
+    isRequired: false
+  },
+  repeat_until: {
     isRequired: false,
-    isNumber: true,
-    min: 0
+    isDateInFuture: 'start'
+  },
+  max_repeats_count: {
+    isRequired: false
   },
   is_private: {
     isRequired: false
