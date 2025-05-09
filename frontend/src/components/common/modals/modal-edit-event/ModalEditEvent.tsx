@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { getMapEventValues } from "../helpers";
 import ModalFormEvent from "../modal-form-event/ModalFormEvent";
 import { EventPermission, TPartialEvent } from "types/event";
-import { useActions, useModal } from "hooks/index";
+import { useActions, useModal, useTypedSelector } from "hooks/index";
 import { IModalEditEventOptions } from "store/modals/types";
 import { IServerUserParticipant } from "types/user";
 import { getEvents } from "store/events/actions";
@@ -13,6 +13,8 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
 }) => {
   const { updateEvent, addEventParticipant, deleteEventParticipant } = useActions();
   const { closeModalEdit } = useModal();
+  const { user } = useTypedSelector(({ users }) => users);
+  const currentUser = user;
   const startDate = new Date(eventData.start);
   const endDate = new Date(eventData.end);
 
@@ -45,8 +47,12 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
 
     // Добавляем новых участников
     const participantsToAdd = newParticipants.filter(id => !currentParticipants.includes(id));
-
+    
     for (const userId of participantsToAdd) {
+      if (userId === currentUser.id) {
+        continue;
+      }
+
       const participant: IServerUserParticipant = {
         user_id: userId,
         is_creator: false,
@@ -59,7 +65,10 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
     // Удаляем участников, которых больше нет
     const participantsToRemove = currentParticipants.filter(id => !newParticipants.includes(id));
     
-    for (const userId of participantsToRemove) {      
+    for (const userId of participantsToRemove) { 
+      if (userId === currentUser.id) {
+        continue;
+      }     
       await deleteEventParticipant({ eventId, userId });
     }
   };

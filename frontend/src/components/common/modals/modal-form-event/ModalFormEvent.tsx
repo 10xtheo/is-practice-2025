@@ -155,7 +155,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     .map(up => ({...up, 
       is_creator: up.id === currentUser.id, 
       is_listener: false, 
-      permissions: up.id === currentUser.id ? EventPermission.EDIT : EventPermission.ORGANIZE}))
+      permissions: up.id === currentUser.id ? EventPermission.ORGANIZE : EventPermission.EDIT}))
     if (data.listeners) {
       users.filter(user => data.listeners.includes(user.id))
       .map(up => ({...up, is_creator: up.id === currentUser.id, is_listener: true}))
