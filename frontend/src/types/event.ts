@@ -1,4 +1,5 @@
 import { IServerExtendedUserParticipant, IServerUserParticipant, IUser } from "./user";
+import { IChatMessage } from '../components/common/EventChat'
 
 export interface IServerEvent {
   id: string;
@@ -78,10 +79,11 @@ export interface IEventTimeManagement {
   end_date: string;
 }
 
-export interface IEventChatHistory {
+export interface IEventChatHistory extends IChatMessage {
   content: string;
   event_id: string;
   user_id: string;
+  full_name: string
   timestamp: string;
   id: string;
 }

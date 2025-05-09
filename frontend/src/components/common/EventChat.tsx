@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useTypedSelector } from 'hooks/index';
 import { useDispatch } from 'react-redux';
 import { store } from 'store/store';
 import { getEventMessages } from 'store/events/actions';
 
-interface IChatMessage {
+export interface IChatMessage {
   event_id: string;
   content: string;
   user_id: string;
+  full_name: string;
 }
 
 export interface IEventChat {
@@ -23,7 +23,6 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
   const dispatch = useDispatch<typeof store.dispatch>();
   const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const { users } = useTypedSelector(({ users }) => users);
   
   const ws = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -42,7 +41,8 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
       const historyMessages = response.data.map(msg => ({
         event_id: msg.event_id,
         content: msg.content,
-        user_id: msg.user_id
+        user_id: msg.user_id,
+        full_name: msg.full_name
       }));
       setMessages(historyMessages);
     });
@@ -88,7 +88,7 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
       <div style={{ width: '100%', height: 400, border: '1px solid #eee', display: 'flex', flexDirection: 'column', background: '#fff', marginBottom: 12 }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
           {messages.map((msg, idx) => (
-            <div key={idx} style={{ marginBottom: 6, wordBreak: 'break-word' }}>{users.find(u => u.id === msg.user_id)?.full_name ?? "Аноним"}: {msg.content}</div>
+            <div key={idx} style={{ marginBottom: 6, wordBreak: 'break-word' }}>{msg.full_name ?? "Аноним"}: {msg.content}</div>
           ))}
           <div ref={messagesEndRef} />
         </div>

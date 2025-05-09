@@ -3,7 +3,7 @@ import apiEvents from 'gateway/events';
 import { IEvent, IEventCreate, TPartialEvent } from 'types/event';
 import { IServerUserParticipant } from 'types/user';
 import { pickRandomColor } from 'utils/helpers/pickRandomColor';
-import { createAction } from '@reduxjs/toolkit';
+import { IChatMessage } from '../../components/common/EventChat'
 import axios from 'axios';
 
 const createRepeatedEvents = (event: IEvent): IEvent[] => {
@@ -165,13 +165,7 @@ export const findAvailableTimeSlots = createAsyncThunk<
 )
 
 export const getEventMessages = createAsyncThunk<
-  { data: Array<{
-    content: string;
-    event_id: string;
-    user_id: string;
-    timestamp: string;
-    id: string;
-  }>, count: number },
+  { data: IChatMessage[], count: number },
   string
 >(
   'events/get-event-messages',
