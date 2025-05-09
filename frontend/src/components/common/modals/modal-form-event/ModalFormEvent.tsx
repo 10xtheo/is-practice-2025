@@ -3,7 +3,7 @@ import { useClickOutside, useForm, useTypedSelector } from 'hooks/index';
 import { checkDateIsEqual, getDateTime, getDifferenceInTimeFromTwoTimes, getDifferenceOfTwoDates, getDifferenceOfTwoTimestamps, shmoment } from 'utils/date';
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValues } from 'components/common/modals/types';
-import { TPartialEvent, EventType, EventPriority } from 'types/event';
+import { TPartialEvent, EventType, EventPriority, EventPermission } from 'types/event';
 import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
 import { getEventTypeOptions, getEventPriorityOptions } from '../helpers';
 import cn from 'classnames';
@@ -45,7 +45,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   const { users, user } = useTypedSelector(({ users }) => users);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
-  
+  const currentUser = user;
+
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
     defaultValues: defaultEventValues,
     // rules: createEventSchema @TODO добавить валидацию
@@ -144,12 +145,29 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     if (calendar) {
       setValue('category_id', category_id);
     } else {
-      // @TODO добавить фичу чтобы автоматом создавалась категория если новая
       alert(`нет такой категории: ${category_id}`);
     }
   };
 
   const onSubmit: TSubmitHandler<IModalValues> = async (data) => {
+    let allParticipants = users
+    .filter(user => data.participants.includes(user.id))
+    .map(up => ({...up, 
+      is_creator: up.id === currentUser.id, 
+      is_listener: false, 
+      permissions: up.id === currentUser.id ? EventPermission.EDIT : EventPermission.ORGANIZE}))
+    if (data.listeners) {
+      users.filter(user => data.listeners.includes(user.id))
+      .map(up => ({...up, is_creator: up.id === currentUser.id, is_listener: true}))
+      .forEach(u => {
+        if (!allParticipants.find(up => up.id === u.id) && u.id !== currentUser.id) {
+          allParticipants.push({...u, permissions: EventPermission.VIEW})
+        }
+      })
+    }
+    
+    // allParticipants.splice(allParticipants.findIndex(u => u.id === currentUser.id), 1)
+
     const newEvent: TPartialEvent = {
       title: data.title,
       description: data.description,
@@ -163,8 +181,9 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
       priority: data.priority,
       // color: data.color,
       category_id: data.category_id,
-      participants: users.filter(user => data.participants.includes(user.id))
+      participants: allParticipants,
     };
+    console.log('newEvent', newEvent);
     
     try {      
       await handlerSubmit(newEvent);
@@ -224,7 +243,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
   };
 
   useClickOutside(modalRef, closeModal);
-
+  
   return (
     <div className="overlay" style={{ zIndex: 1002 }}>
       <div className={styles.modal} ref={modalRef}>
@@ -323,6 +342,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
               />
             </div>
             <div className={cn(styles.modal__form__group)}>
+              <label>Участники</label>
               <UserMultiSelector
                 defaultSelectedUsers={defaultEventValues.participants.length > 0 
                   ? defaultEventValues.participants 
@@ -331,6 +351,16 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
                   setValue('participants', users.map(user => user.id));
                   onParticipantsChange?.(users);
                 }}
+              />
+            </div>
+            <div className={cn(styles.modal__form__group)}>
+              <label>Информируемые лица</label>
+              <UserMultiSelector
+                defaultSelectedUsers={defaultEventValues.listeners || []}
+                onChange={(users) => {
+                  setValue('listeners', users.map(user => user.id));
+                }}
+                placeholder="Выберите информируемых лиц..."
               />
             </div>
             {/* {values.color !== 'rgb(255, 255, 255)' && (<div className={cn(styles.modal__form__group)}>

@@ -53,7 +53,10 @@ export const getEvents = createAsyncThunk<IEvent[]>(
             email: participant.user.email,
             full_name: participant.user.full_name,
             position: participant.user.position,
-            department: participant.user.department
+            department: participant.user.department,
+            is_creator: participant.is_creator,
+            is_listener: participant.is_listener,
+            permissions: participant.permissions
           })),
           category_id: event.eventcategories.length > 0 ? event.eventcategories[0].category_id : '0',
           start: new Date(event.start).getTime(),

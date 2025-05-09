@@ -1,4 +1,4 @@
-import { IServerExtendedUserParticipant, IServerUserParticipant, IUser } from "./user";
+import { IServerExtendedUserParticipant, IServerUserParticipant, IUser, IServerUser } from "./user";
 import { IChatMessage } from '../components/common/EventChat'
 
 export interface IServerEvent {
@@ -38,7 +38,7 @@ export interface IEvent {
   type: EventType;
   priority: EventPriority;
   category_id: string;
-  participants: IUser[];
+  participants: IServerUser[];
 }
 
 export type TPartialEvent = Partial<IEvent>;
@@ -55,7 +55,7 @@ export interface IEventCreate {
   type: EventType;
   priority: EventPriority;
   category_id: string;
-  participants: IUser[];
+  participants: IServerUser[];
 }
 
 export interface IServerEventCreate {

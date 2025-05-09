@@ -72,9 +72,21 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
             <div className={styles.modal__info__item}>
               <strong>Участники:</strong>
               <ul>
-                {event.participants.map(participant => (
-                  <li key={participant.id}>{participant.full_name}</li>
-                ))}
+                {event.participants
+                  .filter(participant => !participant.is_listener)
+                  .map(participant => (
+                    <li key={participant.id}>{participant.full_name}</li>
+                  ))}
+              </ul>
+            </div>
+            <div className={styles.modal__info__item}>
+              <strong>Информируемые лица:</strong>
+              <ul>
+                {event.participants
+                  .filter(participant => participant.is_listener)
+                  .map(participant => (
+                    <li key={participant.id}>{participant.full_name}</li>
+                  ))}
               </ul>
             </div>
             <div className={styles.modal__info__item}>

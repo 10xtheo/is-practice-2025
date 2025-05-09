@@ -9,6 +9,17 @@ export interface IUser {
   department: string;
 }
 
+export interface IServerUser extends IUser {
+  id: string;
+  email: string;
+  full_name: string;
+  position: string;
+  department: string;
+  is_creator?: boolean;
+  is_listener?: boolean;
+  permissions?: EventPermission;
+}
+
 export interface IServerUserParticipant {
   user_id: string;
   is_creator: boolean;

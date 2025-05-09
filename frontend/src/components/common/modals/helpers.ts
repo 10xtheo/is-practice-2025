@@ -25,24 +25,22 @@ export const getMapEventValues = ({
   description,
   startDate,
   endDate,
-  type,
-  priority,
-  is_finished = false,
+  type = EventType.MEETING,
+  priority = EventPriority.MEDIUM,
   is_private = false,
+  is_finished = false,
   repeat_step = 0,
   max_repeats_count = 0,
   color = 'rgb(255, 255, 255)',
   category_id,
-  participants = []
+  participants = [],
+  listeners = []
 }: IMapEventValues): IModalValues => {
-  const start = startDate instanceof Date ? startDate : new Date(startDate);
-  const end = endDate instanceof Date ? endDate : new Date(endDate);
-
   return {
     title,
     description,
-    start: start.getTime(),
-    end: end.getTime(),
+    start: startDate instanceof Date ? startDate.getTime() : startDate,
+    end: endDate instanceof Date ? endDate.getTime() : endDate,
     type,
     priority,
     is_private,
@@ -51,6 +49,7 @@ export const getMapEventValues = ({
     max_repeats_count,
     color,
     category_id,
-    participants
-  }
-}
+    participants,
+    listeners
+  };
+};

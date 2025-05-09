@@ -15,6 +15,7 @@ export interface IModalValues extends IValidatorData {
   color: string;
   category_id: string;
   participants: string[];
+  listeners?: string[];
 }
 
 export interface IMapEventValues {
@@ -31,6 +32,7 @@ export interface IMapEventValues {
   color?: string;
   category_id: string;
   participants: string[];
+  listeners?: string[];
 }
 
 export interface IModalValuesCalendar extends IValidatorData {

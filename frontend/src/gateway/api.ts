@@ -135,9 +135,9 @@ class HttpEvents {
     category_id: body.category_id,
     participants: body.participants.map(participant => ({
       user_id: participant.id,
-      is_creator: false,
-      is_listener: false,
-      permissions: EventPermission.ORGANIZE
+      is_creator: participant.is_creator ?? false,
+      is_listener: participant.is_listener ?? false,
+      permissions: participant.permissions ?? EventPermission.ORGANIZE
     }))
   } });
   postTimeManagement = async <IDto>(url: string, body: IEventTimeManagement) => this.makeRequest<IDto>({ url, method: METHODS.POST, body: body });
