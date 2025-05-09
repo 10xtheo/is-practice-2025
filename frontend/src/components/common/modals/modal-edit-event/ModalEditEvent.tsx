@@ -89,13 +89,13 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
           continue;
         }
 
-        const listener: IServerUserParticipant = {
+        const participant: IServerUserParticipant = {
           user_id: user.id,
           is_creator: false,
           is_listener: true,
           permissions: EventPermission.VIEW
         };
-        await addEventParticipant({ eventId, listener });
+        await addEventParticipant({ eventId, participant });
       }
     }
 

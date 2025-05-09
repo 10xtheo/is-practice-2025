@@ -3,7 +3,7 @@ import { CategoryPermission, ICalendar } from 'types/calendar';
 import { useActions, useModal } from 'hooks/index';
 import { useTypedSelector } from 'hooks/index';
 import './ModalEditCalendar.scss';
-import { IServerUserCategoryParticipant } from "types/user";
+import { IServerUserCategoryParticipant, IServerUserParticipant } from "types/user";
 import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
 
 interface IModalEditCalendarProps {
@@ -16,6 +16,7 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
   calendarId,
 }) => {
   const { user } = useTypedSelector(({ users }) => users);
+  const currentUser = user;
   const [title, setTitle] = useState(calendarData.title);
   // const [color, setColor] = useState(calendarData.color);
   const { updateCalendar, getCalendars, addCalendarParticipant, deleteCalendarParticipant } = useActions();
@@ -37,31 +38,35 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
   const handleClose = () => {
     closeModalEditCalendar();
     window["selectedUsers"] = [];
+    getCalendars();
   };
 
+  let prevParticipants: string[] = calendarData.participants.map(p => p.id);
   const handleParticipantsChange = async (users: { id: string }[]) => {
-    const currentParticipants = calendarData.participants.map(p => p.id);
-    const newParticipants = users.map(u => u.id);
+    // Предыдущее состояние содержало больше юзеров => нужно удаление
+    if (prevParticipants.length > users.length) {
+      for (const userId of prevParticipants.filter(pUserId => !users.find(user => user.id === pUserId))) {         
+        if (userId === currentUser.id) {
+          continue;
+        }
+        await deleteCalendarParticipant({ calendarId, userId });
+      }
+    } else {
+      for (const user of users.filter(user => !prevParticipants.includes(user.id))) {         
+        if (user.id === currentUser.id) {
+          continue;
+        }
 
-    // Добавляем новых участников
-    const participantsToAdd = newParticipants.filter(id => !currentParticipants.includes(id));
-
-    for (const userId of participantsToAdd) {
-      const participant: IServerUserCategoryParticipant = {
-        user_id: userId,
-        is_creator: false,
-        is_listener: false,
-        permissions: CategoryPermission.VIEW
-      };
-      await addCalendarParticipant({ calendarId, participant });
+        const participant: IServerUserCategoryParticipant = {
+          user_id: user.id,
+          is_creator: false,
+          permissions: CategoryPermission.EDIT
+        };
+        await addCalendarParticipant({ calendarId, participant });
+      }
     }
 
-    // Удаляем участников, которых больше нет
-    const participantsToRemove = currentParticipants.filter(id => !newParticipants.includes(id));
-    
-    for (const userId of participantsToRemove) {      
-      await deleteCalendarParticipant({ calendarId, userId });
-    }
+    prevParticipants = users.map(u => u.id);
   };
 
   return (

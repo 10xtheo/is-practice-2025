@@ -30,7 +30,6 @@ export interface IServerUserParticipant {
 export interface IServerUserCategoryParticipant {
   user_id: string;
   is_creator: boolean;
-  is_listener: boolean;
   permissions: CategoryPermission;
 }
 
