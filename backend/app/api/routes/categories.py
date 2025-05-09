@@ -17,7 +17,8 @@ from app.models import (
     EventCategoryLink,
     CategoryParticipant,
     CategoryPermission,
-    User
+    User,
+    EventParticipant
 )
 
 router = APIRouter(prefix="/categories", tags=["categories"])
@@ -162,7 +163,7 @@ def update_category(
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    if not check_category_permissions(session, current_user, category.id, CategoryPermission.MANAGE):
+    if check_category_permissions(session, current_user, category.id, CategoryPermission.VIEW):
         raise HTTPException(status_code=403, detail="Not enough permissions to update this category")
 
     # Update category fields
@@ -181,6 +182,17 @@ def update_category(
             event = session.get(Event, event_id)
             if not event:
                 raise HTTPException(status_code=404, detail=f"Event with ID {event_id} not found")
+            
+            # Check if the current user is a participant of the event
+            participant = session.exec(
+                select(EventParticipant).where(
+                    EventParticipant.event_id == event_id,
+                    EventParticipant.user_id == current_user.id
+                )
+            ).first()
+            if not participant:
+                raise HTTPException(status_code=403, detail=f"User  is not a participant of event with ID {event_id}")
+
             new_link = EventCategoryLink(event_id=event_id, category_id=category.id)
             session.add(new_link)
 
