@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { store } from 'store/store';
 import { getEventMessages } from 'store/events/actions';
+import { closeModalView } from 'store/modals/actions';
 
 export interface IChatMessage {
   event_id: string;
@@ -45,6 +46,9 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
         full_name: msg.full_name
       }));
       setMessages(historyMessages);
+    }).catch((err) => {      
+      window.location.href = '/auth'
+      window.location.href = '/'
     });
 
     ws.current.onmessage = (event) => {
