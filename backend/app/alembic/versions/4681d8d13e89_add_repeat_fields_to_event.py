@@ -1,7 +1,7 @@
 """add repeat fields to event
 
 Revision ID: 4681d8d13e89
-Revises: 356bb0472e4b
+Revises: 840607e8fdcb
 Create Date: 2025-05-08 17:06:29.070804
 
 """
@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '4681d8d13e89'
-down_revision: Union[str, None] = '356bb0472e4b'
+down_revision: Union[str, None] = '840607e8fdcb'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

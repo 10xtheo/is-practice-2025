@@ -34,11 +34,13 @@ def read_events(
 ) -> Any:
     """
     Retrieve events.
-    Optional filters:
-    - start_date: returns events that start after or at start_date
-    - end_date: returns events that end before or at end_date
-    - user_id: returns events for specific user (admin only)
     """
+    # Преобразуем даты в timezone-naive если они есть
+    if start_date:
+        start_date = start_date.replace(tzinfo=None) if start_date.tzinfo else start_date
+    if end_date:
+        end_date = end_date.replace(tzinfo=None) if end_date.tzinfo else end_date
+
     # Проверяем права на получение событий другого пользователя
     if user_id is not None and user_id != current_user.id:
         if not current_user.is_superuser:
@@ -141,11 +143,13 @@ def get_events_with_permissions(
 ):
     """
     Get events with permissions and participants.
-    Optional filters:
-    - start_date: returns events that start after or at start_date
-    - end_date: returns events that end before or at end_date
-    - user_id: returns events for specific user (admin only)
     """
+    # Преобразуем даты в timezone-naive если они есть
+    if start_date:
+        start_date = start_date.replace(tzinfo=None) if start_date.tzinfo else start_date
+    if end_date:
+        end_date = end_date.replace(tzinfo=None) if end_date.tzinfo else end_date
+
     # Проверяем права на получение событий другого пользователя
     if user_id is not None and user_id != current_user.id:
         if not current_user.is_superuser:
@@ -300,8 +304,13 @@ def create_recurring_events(
     if event_in.repeat_type == RepeatType.none or event_in.repeat_step == 0:
         return []
 
+    # Преобразуем даты в timezone-naive
+    base_start = base_event.start.replace(tzinfo=None) if base_event.start.tzinfo else base_event.start
+    base_end = base_event.end.replace(tzinfo=None) if base_event.end.tzinfo else base_event.end
+    repeat_until = event_in.repeat_until.replace(tzinfo=None) if event_in.repeat_until and event_in.repeat_until.tzinfo else event_in.repeat_until
+
     # Вычисляем длительность события
-    duration = base_event.end - base_event.start
+    duration = base_end - base_start
     
     # Определяем шаг повторения в зависимости от типа
     if event_in.repeat_type == RepeatType.hourly:
@@ -319,8 +328,8 @@ def create_recurring_events(
         return []
 
     recurring_events = []
-    current_start = base_event.start + step
-    current_end = base_event.end + step
+    current_start = base_start + step
+    current_end = base_end + step
     repeats_count = 0
 
     # Максимальная дата для создания событий (10 лет вперед)
@@ -331,7 +340,7 @@ def create_recurring_events(
         # Проверяем ограничения
         if event_in.max_repeats_count > 0 and repeats_count >= event_in.max_repeats_count:
             break
-        if event_in.repeat_until and current_start > event_in.repeat_until:
+        if repeat_until and current_start > repeat_until:
             break
         # Проверяем, что событие не слишком далеко в будущем
         if current_start > max_future_date:
@@ -384,8 +393,13 @@ def create_event(
     """
     Create new event.
     """
+    # Преобразуем даты в timezone-naive перед сравнением
+    start_date = event_in.start.replace(tzinfo=None) if event_in.start.tzinfo else event_in.start
+    end_date = event_in.end.replace(tzinfo=None) if event_in.end.tzinfo else event_in.end
+    repeat_until = event_in.repeat_until.replace(tzinfo=None) if event_in.repeat_until and event_in.repeat_until.tzinfo else event_in.repeat_until
+
     # Проверяем корректность времени
-    if event_in.start >= event_in.end:
+    if start_date >= end_date:
         raise HTTPException(
             status_code=400,
             detail="Event start time must be before end time"
@@ -401,6 +415,11 @@ def create_event(
     try:
         # Создаем событие без category_id и participants
         event_data = event_in.model_dump(exclude={"category_id", "participants"})
+        # Убеждаемся, что даты в event_data тоже timezone-naive
+        event_data["start"] = start_date
+        event_data["end"] = end_date
+        if repeat_until:
+            event_data["repeat_until"] = repeat_until
         event = Event.model_validate(event_data, update={"creator_id": current_user.id})
         session.add(event)
         session.flush()
