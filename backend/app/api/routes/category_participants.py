@@ -63,7 +63,7 @@ def add_category_participant(
     Add a participant to a category (without adding to category's events).
     """
     # Verify category exists and user has manage permissions
-    if not check_category_permissions(session, current_user, category_id, CategoryPermission.MANAGE):
+    if check_category_permissions(session, current_user, category_id, CategoryPermission.VIEW):
         raise HTTPException(status_code=403, detail="Not enough permissions to add participants")
 
     # Verify target user exists

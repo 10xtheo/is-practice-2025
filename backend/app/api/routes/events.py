@@ -270,7 +270,7 @@ def update_event(
         raise HTTPException(status_code=404, detail="Event not found")
 
     # Проверяем права на обновление события
-    if not check_event_permissions(session, current_user, event, EventPermission.ORGANIZE):
+    if check_event_permissions(session, current_user, event, EventPermission.VIEW):
         raise HTTPException(status_code=403, detail="Not enough permissions to update this event")
 
     # Если пытаемся изменить категорию, проверяем права на новую категорию

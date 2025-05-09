@@ -10,7 +10,7 @@ from app.websockets.manager import manager
 from app.api.deps import CurrentUser , SessionDep
 from app.chat.permissions import is_user_participant_of_event
 from urllib.parse import quote
-from ...models import UploadResponse, UploadedFile
+from ...models import UploadResponse, UploadedFile, EventParticipant, EventPermission
 
 router = APIRouter()
 
@@ -42,9 +42,15 @@ async def upload_file(
     user: CurrentUser ,
     file: UploadFile = File(...)
 ):
-    # Check user participation
-    if not is_user_participant_of_event(db, event_id, user.id):
-        raise HTTPException(status_code=403, detail="User  not participant of event")
+    # Check user participation and permissions
+    participant = db.exec(
+        select(EventParticipant).where(
+            EventParticipant.event_id == event_id,
+            EventParticipant.user_id == user.id
+        )
+    ).first()
+    if not participant or participant.permissions in [EventPermission.VIEW]:
+        raise HTTPException(status_code=403, detail="User  does not have permission to upload files to this event.")
 
     # Sanitize filename
     sanitized_filename = quote(file.filename)
@@ -112,8 +118,16 @@ async def delete_file(
     if not uploaded_file:
         raise HTTPException(status_code=404, detail="File not found.")
 
-    # Check if the user is the uploader or a superuser
-    if uploaded_file.user_id != user.id and not user.is_superuser:
+    # Check if the user is the uploader or has 'organize' permission
+    participant = db.exec(
+        select(EventParticipant).where(
+            EventParticipant.event_id == uploaded_file.event_id,
+            EventParticipant.user_id == user.id
+        )
+    ).first()
+    if not participant:
+        raise HTTPException(status_code=403, detail="User  is not a participant of the event.")
+    if uploaded_file.user_id != user.id and participant.permissions != EventPermission.ORGANIZE and not user.is_superuser:
         raise HTTPException(status_code=403, detail="Not enough permissions to delete this file.")
 
     # Delete the file from the filesystem
