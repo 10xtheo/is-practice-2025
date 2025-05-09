@@ -89,17 +89,17 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
           continue;
         }
 
-        const participant: IServerUserParticipant = {
+        const listener: IServerUserParticipant = {
           user_id: user.id,
           is_creator: false,
           is_listener: true,
           permissions: EventPermission.VIEW
         };
-        await addEventParticipant({ eventId, participant });
+        await addEventParticipant({ eventId, listener });
       }
     }
 
-    prevParticipants = users.map(u => u.id);
+    prevListeners = users.map(u => u.id);
   };
 
   return (
