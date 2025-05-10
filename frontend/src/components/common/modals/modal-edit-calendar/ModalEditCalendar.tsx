@@ -1,14 +1,23 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { CategoryPermission, ICalendar } from 'types/calendar';
 import { useActions, useModal } from 'hooks/index';
 import { useTypedSelector } from 'hooks/index';
 import './ModalEditCalendar.scss';
-import { IServerUserCategoryParticipant, IServerUserParticipant } from "types/user";
+import { IServerUserCategoryParticipant } from "types/user";
 import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector';
+import { requestCalendarParticipants } from 'gateway/api';
+import { useDispatch } from "react-redux";
+import apiCalendars from 'gateway/calendars';
+import apiUsers from 'gateway/users';
+import { store } from "store/store";
 
 interface IModalEditCalendarProps {
   calendarData: ICalendar;
   calendarId: string;
+}
+
+interface IExtendedParticipant extends IServerUserCategoryParticipant {
+  full_name: string;
 }
 
 const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
@@ -17,10 +26,34 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
 }) => {
   const { user } = useTypedSelector(({ users }) => users);
   const currentUser = user;
+  const dispatch = useDispatch<typeof store.dispatch>();
   const [title, setTitle] = useState(calendarData.title);
-  // const [color, setColor] = useState(calendarData.color);
+  const [participants, setParticipants] = useState<IExtendedParticipant[]>([]);
   const { updateCalendar, getCalendars, addCalendarParticipant, deleteCalendarParticipant } = useActions();
   const { closeModalEditCalendar } = useModal();
+
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        const response = await apiCalendars.getParticipants(calendarId);
+        const users = await apiUsers.getUsers();
+        
+        const extendedParticipants = response.data.map(p => {
+          const user = users.data.find(u => u.id === p.user_id);
+          return {
+            ...p,
+            full_name: user?.full_name || 'Unknown User'
+          };
+        });
+        
+        setParticipants(extendedParticipants);
+      } catch (error) {
+        console.error('Failed to fetch participants:', error);
+      }
+    };
+
+    fetchParticipants();
+  }, [calendarId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +102,42 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
     prevParticipants = users.map(u => u.id);
   };
 
+  const handlePermissionChange = async (userId: string, newPermission: CategoryPermission) => {
+    try {
+      const participant = participants.find(p => p.user_id === userId);
+      if (!participant) return;
+
+      const updatedParticipant: Omit<IServerUserCategoryParticipant, 'user_id'> = {
+        is_creator: participant.is_creator,
+        permissions: newPermission
+      };
+
+      await requestCalendarParticipants.put(`/${calendarId}/participants/${userId}`, updatedParticipant);
+      dispatch(getCalendars());
+    } catch (error) {
+      console.error('Failed to update participant permission:', error);
+    }
+  };
+
+  const renderParticipantList = () => (
+    <ul className="participants-list">
+      {participants.map(participant => (
+        <li key={participant.user_id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+          <span>{participant.full_name}</span>
+          <select
+            value={participant.permissions}
+            onChange={(e) => handlePermissionChange(participant.user_id, e.target.value as CategoryPermission)}
+            style={{ marginLeft: 'auto' }}
+          >
+            <option value={CategoryPermission.VIEW}>Просмотр</option>
+            <option value={CategoryPermission.EDIT}>Редактирование</option>
+            <option value={CategoryPermission.MANAGE}>Управление</option>
+          </select>
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <div className="modal-edit-calendar">
       <div className="modal-edit-calendar__content">
@@ -84,16 +153,6 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
               required
             />
           </div>
-          {/* <div className="modal-edit-calendar__field">
-            <label htmlFor="color">Цвет</label>
-            <input
-              type="color"
-              id="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              required
-            />
-          </div> */}
           <div className="form-group">
             <label htmlFor="title">Участники календаря</label>
             <UserMultiSelector
@@ -105,6 +164,10 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
                 : [user.id]
               }
             />
+          </div>
+          <div className="form-group">
+            <label>Уровни доступа участников</label>
+            {renderParticipantList()}
           </div>
           <div className="modal-edit-calendar__actions">
             <button type="button" onClick={handleClose}>

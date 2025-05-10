@@ -53,7 +53,11 @@ interface PostRequestOptionsCalendarParticipants extends BaseRequestOptions<METH
   body?: IServerUserCategoryParticipant;
 }
 
-export type RequestsOptionsCalendarParticipants = PostRequestOptionsCalendarParticipants | DeleteRequestOptions;
+interface PutRequestOptionsCalendarParticipants extends BaseRequestOptions<METHODS.PUT> {
+  body?: Omit<IServerUserCategoryParticipant, 'user_id'>;
+}
+
+export type RequestsOptionsCalendarParticipants = PutRequestOptionsCalendarParticipants | PostRequestOptionsCalendarParticipants | DeleteRequestOptions;
 
 interface PostRequestOptionsCalendars extends BaseRequestOptions<METHODS.POST> {
   body: {

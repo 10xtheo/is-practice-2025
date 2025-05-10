@@ -83,6 +83,7 @@ class HttpCalendarParticipants {
 
   post = async <IDto>(url: string, body: IServerUserCategoryParticipant) => this.makeRequest<IDto>({ url, method: METHODS.POST, body });
   delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });
+  put = async <IDto>(url: string, body: Omit<IServerUserCategoryParticipant, 'user_id'>) => this.makeRequest<IDto>({ url, method: METHODS.PUT, body });
 }
 
 
