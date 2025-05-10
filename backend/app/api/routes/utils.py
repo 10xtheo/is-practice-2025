@@ -48,21 +48,22 @@ def check_category_permissions(
     required_permission: CategoryPermission
 ) -> bool:
     """
-    Проверяет права доступа к категории.
+    Checks category permissions with hierarchy: VIEW < EDIT < MANAGE.
+    Superusers and category owners have full access.
     """
     category = session.get(Category, category_id)
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    # Суперпользователь имеет все права
+    # Superuser bypass
     if current_user.is_superuser:
         return True
 
-    # Владелец категории имеет все права
+    # Category owner has full permissions
     if category.owner_id == current_user.id:
         return True
 
-    # Проверяем права участника
+    # Check participant
     participant = session.exec(
         select(CategoryParticipant).where(
             CategoryParticipant.category_id == category.id,
@@ -76,11 +77,16 @@ def check_category_permissions(
             detail="Not enough permissions to access this category"
         )
 
-    # Проверяем уровень прав
+    # Permission hierarchy logic
     if required_permission == CategoryPermission.VIEW:
-        return True
+        return True  # All participants can view
+
     elif required_permission == CategoryPermission.EDIT:
-        return participant.permissions in [CategoryPermission.EDIT, CategoryPermission.MANAGE]
+        return participant.permissions in [
+            CategoryPermission.EDIT,
+            CategoryPermission.MANAGE
+        ]
+
     elif required_permission == CategoryPermission.MANAGE:
         return participant.permissions == CategoryPermission.MANAGE
 
@@ -93,28 +99,18 @@ def check_event_permissions(
     required_permission: EventPermission
 ) -> bool:
     """
-    Проверяет права доступа к событию.
+    Checks event permissions with hierarchy: VIEW < EDIT < ORGANIZE.
+    Superusers and event creators have full access.
     """
-    # Суперпользователь имеет все права
+    # Superuser bypass
     if current_user.is_superuser:
         return True
 
-    # Проверяем права на категорию
-    category_link = session.exec(
-        select(EventCategoryLink).where(EventCategoryLink.event_id == event.id)
-    ).first()
-    if not category_link:
-        raise HTTPException(status_code=404, detail="Event category not found")
-
-    # Проверяем права на категорию
-    if not check_category_permissions(session, current_user, category_link.category_id, CategoryPermission.VIEW):
-        return False
-
-    # Если нужно только просмотр, достаточно прав на категорию
-    if required_permission == EventPermission.VIEW:
+    # Event creator has full permissions
+    if event.creator_id == current_user.id:
         return True
 
-    # Проверяем права участника события
+    # Check participant
     participant = session.exec(
         select(EventParticipant).where(
             EventParticipant.event_id == event.id,
@@ -122,24 +118,19 @@ def check_event_permissions(
         )
     ).first()
 
-    # Если нет прав на категорию EDIT или MANAGE, проверяем права участника
-    if not check_category_permissions(session, current_user, category_link.category_id, CategoryPermission.EDIT):
-        if not participant:
-            return False
-        if required_permission == EventPermission.EDIT:
-            # Для EDIT нужно быть создателем события
-            return participant.is_creator
-        if required_permission == EventPermission.ORGANIZE:
-            # Для ORGANIZE нужно быть создателем события или иметь права ORGANIZE
-            return participant.is_creator or participant.permissions == EventPermission.ORGANIZE
+    if not participant:
+        raise HTTPException(status_code=403, detail="Not an event participant")
 
-    # Если есть права на категорию EDIT или MANAGE
-    if check_category_permissions(session, current_user, category_link.category_id, CategoryPermission.EDIT):
-        if required_permission == EventPermission.EDIT:
-            # Для EDIT нужно быть создателем события или иметь права MANAGE на категорию
-            return participant.is_creator or check_category_permissions(session, current_user, category_link.category_id, CategoryPermission.MANAGE)
-        if required_permission == EventPermission.ORGANIZE:
-            # Для ORGANIZE достаточно иметь права ORGANIZE на событие или быть создателем
-            return (participant and (participant.is_creator or participant.permissions == EventPermission.ORGANIZE))
+    if required_permission == EventPermission.VIEW:
+        return True
+
+    elif required_permission == EventPermission.EDIT:
+        return participant.permissions in [
+            EventPermission.EDIT,
+            EventPermission.ORGANIZE
+        ]
+
+    elif required_permission == EventPermission.ORGANIZE:
+        return participant.permissions == EventPermission.ORGANIZE
 
     return False

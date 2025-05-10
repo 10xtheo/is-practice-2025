@@ -6,19 +6,11 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.utils import check_category_permissions
-from app.models import (
-    Category,
-    CategoryCreate,
-    CategoryPublic,
-    CategoriesPublic,
-    CategoryUpdate,
-    Message,
-    Event,
-    EventCategoryLink,
-    CategoryParticipant,
-    CategoryPermission,
-    User,
-    EventParticipant
+from app.models import (Category, CategoryCreate, CategoryPublic, CategoriesPublic, CategoryUpdate,
+                        Message,
+                        Event, EventCategoryLink, CategoryParticipant,  CategoryPermission,
+                        User, 
+                        EventParticipant
 )
 
 router = APIRouter(prefix="/categories", tags=["categories"])
@@ -163,7 +155,7 @@ def update_category(
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    if check_category_permissions(session, current_user, category.id, CategoryPermission.VIEW):
+    if not check_category_permissions(session, current_user, category.id, CategoryPermission.EDIT) :
         raise HTTPException(status_code=403, detail="Not enough permissions to update this category")
 
     # Update category fields

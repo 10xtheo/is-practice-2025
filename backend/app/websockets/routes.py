@@ -1,10 +1,12 @@
 from fastapi import WebSocket, WebSocketDisconnect, status
-from ..models import Message, MessageCreate
+from ..models import Message, MessageCreate, EventParticipant
 from app.api.deps import get_db
 from app.websockets.router import websocket_route
 from app.websockets.manager import manager
 from app.websockets.deps import CurrentUserWS
 from app.chat.permissions import is_user_participant_of_event
+from sqlmodel import select
+
 
 @websocket_route("/ws/echo")
 async def echo_ws(websocket: WebSocket, user: CurrentUserWS):
@@ -40,6 +42,14 @@ async def event_chat_ws(websocket: WebSocket, user: CurrentUserWS, event_id: str
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
+    participant = db.exec(
+        select(EventParticipant).where(
+            EventParticipant.event_id == event_id,
+            EventParticipant.user_id == user.id
+        )
+    ).first()
+
+
     user_id = user.id
 
     await manager.connect(websocket, user_id)
@@ -48,6 +58,15 @@ async def event_chat_ws(websocket: WebSocket, user: CurrentUserWS, event_id: str
     try:
         while True:
             data = await websocket.receive_text()
+
+            # Block messages from listeners
+            if participant.is_listener:
+                error_msg = {
+                    "type": "error",
+                    "detail": "Listeners cannot send messages"
+                }
+                await websocket.send_json(error_msg)
+                continue
 
             full_name = user.full_name
 
@@ -70,11 +89,11 @@ async def event_chat_ws(websocket: WebSocket, user: CurrentUserWS, event_id: str
             db.refresh(db_message)
             # Prepare the message data to send to other users
             message_data = {
-                "id": str(db_message.id),  # Convert UUID to string
+                "id": str(db_message.id), 
                 "content": db_message.content,
-                "user_id": str(db_message.user_id),  # Convert UUID to string
-                "event_id": str(db_message.event_id),  # Convert UUID to string
-                "timestamp": db_message.timestamp.isoformat(),  # Convert timestamp to ISO format
+                "user_id": str(db_message.user_id),
+                "event_id": str(db_message.event_id),
+                "timestamp": db_message.timestamp.isoformat(),
                 "full_name": db_message.full_name,
             }
 

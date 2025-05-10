@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import DataError
 from fastapi import HTTPException
-from app.models import EventParticipant, User, Event  # Assuming you have a User model
+from app.models import EventParticipant, User, Event
 
 def is_user_participant_of_event(
     db: Session,
@@ -13,7 +13,7 @@ def is_user_participant_of_event(
     try:
         # Check if the user is a superuser
         user = db.query(User).filter(User.id == user_id).first()
-        if user and user.is_superuser:  # Assuming 'is_superuser' is a field in the User model
+        if user and user.is_superuser:
             return True
 
         # Check if the event exists
@@ -30,5 +30,4 @@ def is_user_participant_of_event(
         return participant is not None
 
     except DataError as e:
-        # Handle the DataError specifically
         raise HTTPException(status_code=400)

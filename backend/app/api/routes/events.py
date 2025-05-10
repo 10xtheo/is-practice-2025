@@ -35,20 +35,20 @@ def read_events(
     """
     Retrieve events.
     """
-    # Преобразуем даты в timezone-naive если они есть
+    # # Check dates in timezone-naive if them are provided
     if start_date:
         start_date = start_date.replace(tzinfo=None) if start_date.tzinfo else start_date
     if end_date:
         end_date = end_date.replace(tzinfo=None) if end_date.tzinfo else end_date
 
-    # Проверяем права на получение событий другого пользователя
+    # Check for rights on getting other user's events
     if user_id is not None and user_id != current_user.id:
         if not current_user.is_superuser:
             raise HTTPException(
                 status_code=403,
                 detail="Not enough permissions to view other user's events"
             )
-        # Проверяем существование пользователя
+        # Check for user existance
         user = session.get(User, user_id)
         if not user:
             raise HTTPException(
@@ -56,7 +56,7 @@ def read_events(
                 detail=f"User with ID {user_id} not found"
             )
 
-    # Проверяем корректность дат
+    # Check data format
     if start_date is not None and end_date is not None and start_date > end_date:
         raise HTTPException(
             status_code=400,
@@ -64,34 +64,33 @@ def read_events(
         )
 
     if current_user.is_superuser:
-        # Базовый запрос
         query = select(Event)
         
-        # Добавляем фильтр по пользователю если указан
+        # Filter by user if set
         if user_id is not None:
             query = query.where(Event.creator_id == user_id)
         
-        # Добавляем фильтры по датам
+        # Filter by data
         if start_date is not None:
             query = query.where(Event.start >= start_date)
         if end_date is not None:
             query = query.where(Event.end <= end_date)
             
-        # Получаем общее количество
+        # Receiving whole count
         count_statement = select(func.count()).select_from(query.subquery())
         count = session.exec(count_statement).one()
         
-        # Добавляем пагинацию
+        # Add paging
         statement = query.offset(skip).limit(limit)
         events = session.exec(statement).all()
     else:
-        # Получаем события, где пользователь является участником
+        # Receive events where user participates
         user_participations = session.exec(
             select(EventParticipant).where(EventParticipant.user_id == current_user.id)
         ).all()
         user_event_ids = {ep.event_id for ep in user_participations}
 
-        # Получаем категории, к которым у пользователя есть доступ
+        # Receive categoires to which user have access
         accessible_categories = session.exec(
             select(Category.id).join(CategoryParticipant).where(
                 or_(
@@ -101,7 +100,7 @@ def read_events(
             )
         ).all()
 
-        # Получаем события из доступных категорий
+        # Receive events via allowed categories
         category_events = session.exec(
             select(Event.id)
             .join(EventCategoryLink)
@@ -109,25 +108,25 @@ def read_events(
         ).all()
         category_event_ids = {event.id for event in category_events}
 
-        # Объединяем ID событий
+        # Unite ids of events
         all_event_ids = list(user_event_ids | category_event_ids)
         if not all_event_ids:
             return EventsPublic(data=[], count=0)
 
-        # Базовый запрос с фильтром по ID событий
+        # Basic query filtered on event ids
         query = select(Event).where(Event.id.in_(all_event_ids))
         
-        # Добавляем фильтры по датам
+        # Ddate filter
         if start_date is not None:
             query = query.where(Event.start >= start_date)
         if end_date is not None:
             query = query.where(Event.end <= end_date)
             
-        # Получаем общее количество
+        # Receiving whole count
         count_statement = select(func.count()).select_from(query.subquery())
         count = session.exec(count_statement).one()
         
-        # Добавляем пагинацию
+        # Adding paging
         statement = query.offset(skip).limit(limit)
         events = session.exec(statement).all()
 
@@ -144,20 +143,20 @@ def get_events_with_permissions(
     """
     Get events with permissions and participants.
     """
-    # Преобразуем даты в timezone-naive если они есть
+    # Check dates in timezone-naive if them are provided
     if start_date:
         start_date = start_date.replace(tzinfo=None) if start_date.tzinfo else start_date
     if end_date:
         end_date = end_date.replace(tzinfo=None) if end_date.tzinfo else end_date
 
-    # Проверяем права на получение событий другого пользователя
+    # Check user's rights on getting other users
     if user_id is not None and user_id != current_user.id:
         if not current_user.is_superuser:
             raise HTTPException(
                 status_code=403,
                 detail="Not enough permissions to view other user's events"
             )
-        # Проверяем существование пользователя
+        # Check user existance
         user = session.get(User, user_id)
         if not user:
             raise HTTPException(
@@ -165,7 +164,7 @@ def get_events_with_permissions(
                 detail=f"User with ID {user_id} not found"
             )
 
-    # Проверяем корректность дат
+    # Check date
     if start_date is not None and end_date is not None and start_date > end_date:
         raise HTTPException(
             status_code=400,
@@ -205,14 +204,14 @@ def get_events_with_permissions(
     # 4. Load events, participant and relations with catetgories
     query = select(Event).where(Event.id.in_(all_event_ids))
 
-    # Добавляем фильтр по пользователю если указан
+    # Users filtering if set
     if user_id is not None:
         if current_user.is_superuser:
             query = query.where(Event.creator_id == user_id)
         else:
             query = query.where(Event.creator_id == current_user.id)
 
-    # Добавляем фильтры по датам
+    # Date filtering
     if start_date is not None:
         query = query.where(Event.start >= start_date)
     if end_date is not None:
@@ -263,6 +262,7 @@ def get_events_with_permissions(
                 {
                     "is_creator": ep.is_creator,
                     "is_listener": ep.is_listener,
+                    "permissions": ep.permissions,
                     "user": {
                         "id": user_map[ep.user_id].id,
                         "full_name": user_map[ep.user_id].full_name,
@@ -433,18 +433,18 @@ def create_event(
             event_id=event.id,
             user_id=current_user.id,
             is_creator=True,
-            is_listener=True,
+            is_listener=False,
             permissions=EventPermission.ORGANIZE
         )
         session.add(creator_participant)
 
-        # Добавляем участников, если они указаны
+        # Add participants if they're provided
         if event_in.participants:
             for participant in event_in.participants:
                 if participant.user_id == current_user.id:
                     continue
 
-                # Проверяем существование пользователя
+                # Check for user existance
                 user = session.get(User, participant.user_id)
                 if not user:
                     raise HTTPException(
@@ -452,7 +452,7 @@ def create_event(
                         detail=f"User with ID {participant.user_id} not found"
                     )
 
-                # Создаем участника события
+                # Create event participant
                 event_participant = EventParticipant(
                     event_id=event.id,
                     user_id=participant.user_id,
@@ -462,7 +462,7 @@ def create_event(
                 )
                 session.add(event_participant)
 
-        # Создаем повторяющиеся события
+        # Create repeating events
         recurring_events = create_recurring_events(session, event, event_in, current_user)
 
         session.commit()
@@ -491,11 +491,11 @@ def update_event(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-    # Проверяем права на обновление события
-    if check_event_permissions(session, current_user, event, EventPermission.VIEW):
+    # Check rights on event update
+    if not check_event_permissions(session, current_user, event, EventPermission.EDIT):
         raise HTTPException(status_code=403, detail="Not enough permissions to update this event")
 
-    # Если пытаемся изменить категорию, проверяем права на новую категорию
+    # If trying to change category section - check right on categories
     if event_in.category_id and event_in.category_id != event.categories[0].id:
         if not check_category_permissions(session, current_user, event_in.category_id, CategoryPermission.EDIT):
             raise HTTPException(
@@ -503,23 +503,23 @@ def update_event(
                 detail="Not enough permissions to move event to this category"
             )
 
-    # Обновляем данные события
+    # Upadte event's data
     event_data = event_in.model_dump(exclude_unset=True)
     for field, value in event_data.items():
         if (field == "category_id"):
-            continue # @TODO это потрогал фронтендер, поэтому лучше проверить норм ли сделал
+            continue
         setattr(event, field, value)
 
-    # Если изменилась категория, обновляем связь
+    # If category changed - update the link
     if event_in.category_id and event_in.category_id != event.categories[0].id:
-        # Удаляем старую связь
+        # Old link deletion
         old_link = session.exec(
             select(EventCategoryLink).where(EventCategoryLink.event_id == event.id)
         ).first()
         if old_link:
             session.delete(old_link)
         
-        # Создаем новую связь
+        # new link creation
         new_link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
         session.add(new_link)
 

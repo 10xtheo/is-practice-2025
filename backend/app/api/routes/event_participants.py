@@ -66,7 +66,7 @@ def add_event_participant(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-    if check_event_permissions(session, current_user, event, EventPermission.VIEW):
+    if not check_event_permissions(session, current_user, event, EventPermission.EDIT):
         raise HTTPException(status_code=403, detail="Not enough permissions to add participants")
 
     # Verify target user exists

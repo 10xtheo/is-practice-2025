@@ -27,7 +27,7 @@ class ConnectionManager:
         """Send a personal message to a user based on their user_id."""
         websocket = self.user_to_connection.get(user_id)
         if websocket:
-            message = json.dumps(json_data)  # Convert dictionary to JSON string
+            message = json.dumps(json_data)
             await websocket.send_text(message)
             print(f"Sent message to user {user_id}")
         else:
@@ -38,7 +38,6 @@ class ConnectionManager:
         for websocket in self.user_to_connection.values():
             await websocket.send_text(message)
 
-# --------- New for Event Chat ---------
 
     def join_event(self, user_id: str, event_id: str):
         """Add a user to an event chat room."""
