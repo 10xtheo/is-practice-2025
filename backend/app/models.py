@@ -25,6 +25,8 @@ class RepeatType(str, Enum):
     weekly = "weekly"
     monthly = "monthly"
     yearly = "yearly"
+    recurring_parent = "recurring_parent"
+    recurring_duplicate = "recurring_duplicate"
 
 class CategoryPermission(str, Enum):
     VIEW = "view"
@@ -255,7 +257,7 @@ class EventUpdate(SQLModel):
     priority: EventPriority | None = None
     is_finished: bool | None = None
     max_repeats_count: int | None = Field(default=None, ge=0)
-    category_id: uuid.UUID | None = None
+    category_id: uuid.UUID | None = Field(default=None, foreign_key="category.id")
 
 class Event(EventBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)

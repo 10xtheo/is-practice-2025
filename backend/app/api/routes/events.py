@@ -295,24 +295,26 @@ def read_event(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) ->
 def create_recurring_events(
     session: SessionDep,
     base_event: Event,
-    event_in: EventCreate,
+    event_in: EventCreate | EventUpdate,
     current_user: CurrentUser
 ) -> List[Event]:
     """
-    Создает повторяющиеся события на основе базового события.
+    Creates recurring events based on the base event.
+    Events are created based on either max_repeats_count or repeat_until,
+    whichever is more restrictive.
     """
     if event_in.repeat_type == RepeatType.none or event_in.repeat_step == 0:
         return []
 
-    # Преобразуем даты в timezone-naive
+    # Convert dates to timezone-naive
     base_start = base_event.start.replace(tzinfo=None) if base_event.start.tzinfo else base_event.start
     base_end = base_event.end.replace(tzinfo=None) if base_event.end.tzinfo else base_event.end
     repeat_until = event_in.repeat_until.replace(tzinfo=None) if event_in.repeat_until and event_in.repeat_until.tzinfo else event_in.repeat_until
 
-    # Вычисляем длительность события
+    # Calculate event duration
     duration = base_end - base_start
     
-    # Определяем шаг повторения в зависимости от типа
+    # Determine step based on repeat type
     if event_in.repeat_type == RepeatType.hourly:
         step = timedelta(hours=event_in.repeat_step)
     elif event_in.repeat_type == RepeatType.daily:
@@ -320,7 +322,6 @@ def create_recurring_events(
     elif event_in.repeat_type == RepeatType.weekly:
         step = timedelta(weeks=event_in.repeat_step)
     elif event_in.repeat_type == RepeatType.monthly:
-        # Для месячного повторения используем относительные месяцы
         step = timedelta(days=30 * event_in.repeat_step)
     elif event_in.repeat_type == RepeatType.yearly:
         step = timedelta(days=365 * event_in.repeat_step)
@@ -332,29 +333,44 @@ def create_recurring_events(
     current_end = base_end + step
     repeats_count = 0
 
-    # Максимальная дата для создания событий (10 лет вперед)
+    # Maximum future date for event creation (10 years ahead)
     max_future_date = datetime.now() + timedelta(days=3650)
 
-    # Создаем повторяющиеся события
+    # Get current category ID
+    current_category_link = session.query(EventCategoryLink).filter(
+        EventCategoryLink.event_id == base_event.id
+    ).first()
+    category_id = current_category_link.category_id if current_category_link else None
+
+    # If category_id is provided in event_in, use it
+    if isinstance(event_in, EventCreate):
+        category_id = event_in.category_id
+    elif isinstance(event_in, EventUpdate) and hasattr(event_in, 'category_id') and event_in.category_id is not None:
+        category_id = event_in.category_id
+
+    # Create recurring events
     while True:
-        # Проверяем ограничения
+        # Check if we've reached the maximum number of repeats
         if event_in.max_repeats_count > 0 and repeats_count >= event_in.max_repeats_count:
             break
+            
+        # Check if we've reached the repeat_until date
         if repeat_until and current_start > repeat_until:
             break
-        # Проверяем, что событие не слишком далеко в будущем
+            
+        # Check if event is too far in the future
         if current_start > max_future_date:
             break
 
-        # Создаем новое событие
+        # Create new event
         new_event = Event(
             title=base_event.title,
             description=base_event.description,
             start=current_start,
             end=current_end,
             type=base_event.type,
-            repeat_type=RepeatType.none,  # Повторяющиеся события не имеют своих повторений
-            repeat_step=0,
+            repeat_type=RepeatType.recurring_duplicate,  # Mark as duplicate
+            repeat_step=event_in.repeat_step,
             is_private=base_event.is_private,
             priority=base_event.priority,
             creator_id=current_user.id
@@ -362,11 +378,12 @@ def create_recurring_events(
         session.add(new_event)
         session.flush()
 
-        # Создаем связь с категорией
-        link = EventCategoryLink(event_id=new_event.id, category_id=event_in.category_id)
-        session.add(link)
+        # Create category link if category exists
+        if category_id:
+            link = EventCategoryLink(event_id=new_event.id, category_id=category_id)
+            session.add(link)
 
-        # Копируем участников из базового события
+        # Copy participants from base event
         for participant in base_event.participants:
             new_participant = EventParticipant(
                 event_id=new_event.id,
@@ -380,7 +397,7 @@ def create_recurring_events(
         recurring_events.append(new_event)
         repeats_count += 1
 
-        # Обновляем время для следующего события
+        # Update time for next event
         current_start += step
         current_end += step
 
@@ -393,19 +410,32 @@ def create_event(
     """
     Create new event.
     """
-    # Преобразуем даты в timezone-naive перед сравнением
+    # Convert dates to timezone-naive for comparison
     start_date = event_in.start.replace(tzinfo=None) if event_in.start.tzinfo else event_in.start
     end_date = event_in.end.replace(tzinfo=None) if event_in.end.tzinfo else event_in.end
     repeat_until = event_in.repeat_until.replace(tzinfo=None) if event_in.repeat_until and event_in.repeat_until.tzinfo else event_in.repeat_until
 
-    # Проверяем корректность времени
+    # Validate time range
     if start_date >= end_date:
         raise HTTPException(
             status_code=400,
             detail="Event start time must be before end time"
         )
 
-    # Проверяем права на создание события в категории
+    # Validate recurring event parameters
+    if event_in.repeat_type != RepeatType.none and event_in.repeat_step > 0:
+        if not repeat_until and event_in.max_repeats_count == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Either repeat_until or max_repeats_count must be specified for recurring events"
+            )
+        if repeat_until and repeat_until <= start_date:
+            raise HTTPException(
+                status_code=400,
+                detail="repeat_until must be after event start time"
+            )
+
+    # Check permissions for creating event in category
     if not check_category_permissions(session, current_user, event_in.category_id, CategoryPermission.EDIT):
         raise HTTPException(
             status_code=403,
@@ -413,18 +443,23 @@ def create_event(
         )
 
     try:
-        # Создаем событие без category_id и participants
+        # Create event without category_id and participants
         event_data = event_in.model_dump(exclude={"category_id", "participants"})
-        # Убеждаемся, что даты в event_data тоже timezone-naive
+        # Ensure dates in event_data are timezone-naive
         event_data["start"] = start_date
         event_data["end"] = end_date
         if repeat_until:
             event_data["repeat_until"] = repeat_until
+
+        # If this is a recurring event, mark it as parent
+        if event_in.repeat_type != RepeatType.none and event_in.repeat_step > 0:
+            event_data["repeat_type"] = RepeatType.recurring_parent
+
         event = Event.model_validate(event_data, update={"creator_id": current_user.id})
         session.add(event)
         session.flush()
 
-        # Создаем связь с категорией
+        # Create category link
         link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
         session.add(link)
 
@@ -438,13 +473,13 @@ def create_event(
         )
         session.add(creator_participant)
 
-        # Add participants if they're provided
+        # Add participants if provided
         if event_in.participants:
             for participant in event_in.participants:
                 if participant.user_id == current_user.id:
                     continue
 
-                # Check for user existance
+                # Check for user existence
                 user = session.get(User, participant.user_id)
                 if not user:
                     raise HTTPException(
@@ -476,57 +511,122 @@ def create_event(
             detail=f"Failed to create event: {str(e)}"
         )
 
-@router.put("/{id}", response_model=EventPublic)
+@router.put("/{event_id}", response_model=EventPublic)
 def update_event(
     *,
     session: SessionDep,
     current_user: CurrentUser,
-    id: uuid.UUID,
+    event_id: uuid.UUID,
     event_in: EventUpdate
 ) -> Any:
     """
-    Update an event.
+    Update event.
     """
-    event = session.get(Event, id)
+    event = session.get(Event, event_id)
     if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Event not found"
+        )
 
-    # Check rights on event update
+    # Check permissions for event update
     if not check_event_permissions(session, current_user, event, EventPermission.EDIT):
-        raise HTTPException(status_code=403, detail="Not enough permissions to update this event")
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permissions to update this event"
+        )
 
-    # If trying to change category section - check right on categories
-    if event_in.category_id and event_in.category_id != event.categories[0].id:
+    # Get current category ID
+    current_category_link = session.query(EventCategoryLink).filter(
+        EventCategoryLink.event_id == event.id
+    ).first()
+    current_category_id = current_category_link.category_id if current_category_link else None
+
+    # If trying to change category, check permissions for the new category
+    if event_in.category_id and event_in.category_id != current_category_id:
         if not check_category_permissions(session, current_user, event_in.category_id, CategoryPermission.EDIT):
             raise HTTPException(
                 status_code=403,
                 detail="Not enough permissions to move event to this category"
             )
 
-    # Upadte event's data
-    event_data = event_in.model_dump(exclude_unset=True)
-    for field, value in event_data.items():
-        if (field == "category_id"):
-            continue
-        setattr(event, field, value)
+    # Convert dates to timezone-naive for comparison
+    start_date = event_in.start.replace(tzinfo=None) if event_in.start and event_in.start.tzinfo else event_in.start
+    end_date = event_in.end.replace(tzinfo=None) if event_in.end and event_in.end.tzinfo else event_in.end
+    repeat_until = event_in.repeat_until.replace(tzinfo=None) if event_in.repeat_until and event_in.repeat_until.tzinfo else event_in.repeat_until
 
-    # If category changed - update the link
-    if event_in.category_id and event_in.category_id != event.categories[0].id:
-        # Old link deletion
-        old_link = session.exec(
-            select(EventCategoryLink).where(EventCategoryLink.event_id == event.id)
-        ).first()
-        if old_link:
-            session.delete(old_link)
-        
-        # new link creation
-        new_link = EventCategoryLink(event_id=event.id, category_id=event_in.category_id)
-        session.add(new_link)
+    # Validate time range
+    if start_date and end_date and start_date >= end_date:
+        raise HTTPException(
+            status_code=400,
+            detail="Event start time must be before end time"
+        )
 
-    session.add(event)
-    session.commit()
-    session.refresh(event)
-    return event
+    # Check if trying to make a duplicate event recurring
+    if event.repeat_type == RepeatType.recurring_duplicate:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot make a duplicate event recurring"
+        )
+
+    # Validate recurring event parameters
+    if event_in.repeat_type and event_in.repeat_type != RepeatType.none and event_in.repeat_step and event_in.repeat_step > 0:
+        if not repeat_until and event_in.max_repeats_count == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Either repeat_until or max_repeats_count must be specified for recurring events"
+            )
+        if repeat_until and repeat_until <= (start_date or event.start):
+            raise HTTPException(
+                status_code=400,
+                detail="repeat_until must be after event start time"
+            )
+
+    try:
+        # Update event data
+        event_data = event_in.model_dump(exclude_unset=True)
+        if start_date:
+            event_data["start"] = start_date
+        if end_date:
+            event_data["end"] = end_date
+        if repeat_until:
+            event_data["repeat_until"] = repeat_until
+
+        # If this is a recurring event, mark it as parent
+        if event_in.repeat_type and event_in.repeat_type != RepeatType.none and event_in.repeat_step and event_in.repeat_step > 0:
+            event_data["repeat_type"] = RepeatType.recurring_parent
+
+        # Remove category_id from event_data as it's not a field in Event model
+        category_id = event_data.pop("category_id", None)
+
+        for field, value in event_data.items():
+            setattr(event, field, value)
+
+        # If category changed, update the link
+        if category_id and category_id != current_category_id:
+            # Remove old category link
+            if current_category_link:
+                session.delete(current_category_link)
+
+            # Create new category link
+            new_link = EventCategoryLink(event_id=event.id, category_id=category_id)
+            session.add(new_link)
+
+        # If event becomes recurring, create recurring events
+        if event_in.repeat_type and event_in.repeat_type != RepeatType.none and event_in.repeat_step and event_in.repeat_step > 0:
+            # Create recurring events
+            recurring_events = create_recurring_events(session, event, event_in, current_user)
+
+        session.commit()
+        session.refresh(event)
+        return event
+
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update event: {str(e)}"
+        )
 
 @router.delete("/{id}", response_model=Message)
 def delete_event(
