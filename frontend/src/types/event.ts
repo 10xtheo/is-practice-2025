@@ -122,4 +122,6 @@ export enum RepeatType {
   WEEKLY = "weekly",
   MONTHLY = "monthly",
   YEARLY = "yearly",
+  RECURRING_PARENT = "recurring_parent",
+  RECURRING_DUPLICATE = "recurring_duplicate"
 }

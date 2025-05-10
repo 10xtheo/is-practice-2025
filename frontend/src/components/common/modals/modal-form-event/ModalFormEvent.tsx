@@ -4,7 +4,7 @@ import { checkDateIsEqual, getDateTime, getDifferenceInTimeFromTwoTimes, getDiff
 import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValues } from 'components/common/modals/types';
 import { TPartialEvent, EventType, EventPriority, EventPermission, RepeatType } from 'types/event';
-import { TextField, DatePicker, TimePicker, ColorPicker, Select } from 'components/common/form-elements';
+import { TextField, DatePicker, TimePicker, Select } from 'components/common/form-elements';
 import { getEventTypeOptions, getEventPriorityOptions, getEventRepeatTypeOptions } from '../helpers';
 import cn from 'classnames';
 import { useDispatch } from 'react-redux';

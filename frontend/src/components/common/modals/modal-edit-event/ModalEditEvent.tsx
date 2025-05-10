@@ -42,6 +42,7 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({
   
   const onUpdateEvent = (event: TPartialEvent) => {
     updateEvent({ eventId, event })
+    dispatch(getEvents())
   };
 
   let prevParticipants: string[] = defaultEventValues.participants;

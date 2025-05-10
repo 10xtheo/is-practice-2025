@@ -24,7 +24,10 @@ export const getEventRepeatTypeOptions = () => {
   return Object.entries(RepeatType).map(([key, value]) => ({
     value: value,
     label: formatEnumValue(value)
-  }));
+  })).filter(el => 
+    el.value !== RepeatType.RECURRING_DUPLICATE && 
+    el.value !== RepeatType.RECURRING_PARENT
+  );
 };
 
 export const getMapEventValues = ({
