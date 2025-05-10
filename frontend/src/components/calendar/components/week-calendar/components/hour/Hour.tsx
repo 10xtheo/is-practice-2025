@@ -9,66 +9,56 @@ import { useModal } from 'hooks/useModal';
 import styles from './hour.module.scss';
 
 interface IHourProps {
-  dataHour: number;
-  dateDay: Date;
-  hourEvents: IEvent[];
-  dayEvents: IEvent[];
+	dataHour: number;
+	dateDay: Date;
+	hourEvents: IEvent[];
+	dayEvents: IEvent[];
 }
 
-const Hour: FC<IHourProps> = ({
-  dataHour,
-  hourEvents,
-  dateDay,
-  dayEvents
-}) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const timeSlotRef = useRef<HTMLDivElement>();
-  const isCurrentHour = dataHour === currentDate.getHours();
-  const { openModalCreate } = useModal();
+const Hour: FC<IHourProps> = ({ dataHour, hourEvents, dateDay, dayEvents }) => {
+	const [currentDate, setCurrentDate] = useState(new Date());
+	const timeSlotRef = useRef<HTMLDivElement>();
+	const isCurrentHour = dataHour === currentDate.getHours();
+	const { openModalCreate } = useModal();
 
-  const handleCreateEvent = (e: MouseEvent<HTMLDivElement>) => {
-    const { top } = timeSlotRef.current.getBoundingClientRect();
-    const offsetY = e.pageY - top;
-    
-    const mins = Math.floor(offsetY / 30) * 30;
-    const selectedDate = shmoment(dateDay).add('hours', dataHour).add('minutes', mins).result();
-    
-    openModalCreate({ selectedDate })
-  }
+	const handleCreateEvent = (e: MouseEvent<HTMLDivElement>) => {
+		const { top } = timeSlotRef.current.getBoundingClientRect();
+		const offsetY = e.pageY - top;
 
-  return (
-    <div
-      className={styles.time__slot}
-      data-time={dataHour + 1}
-      onClick={handleCreateEvent}
-      ref={timeSlotRef}
-    >
-      {(checkIsToday(dateDay) && isCurrentHour) && (
-        <TimeLine currentDate={currentDate} setCurrentDate={setCurrentDate} />
-      )}
+		const mins = Math.floor(offsetY / 30) * 30;
+		const selectedDate = shmoment(dateDay).add('hours', dataHour).add('minutes', mins).result();
 
-      {hourEvents.map((event) => {
-        const { id, title, color } = event;
+		openModalCreate({ selectedDate });
+	};
 
-        const { eventHeight, offsetTop, time } = getStyledByPostionYForEvent(event, dateDay);
-        const { left, width } = getStyledByPositionXForEvent(dayEvents, event);
-        
-        return (
-          <Event
-            key={id}
-            height={eventHeight}
-            top={offsetTop}
-            time={time}
-            title={title}
-            color={color}
-            id={id}
-            left={left}
-            width={width}
-          />
-        );
-      })}
-    </div>
-  );
+	return (
+		<div className={styles.time__slot} data-time={dataHour + 1} onClick={handleCreateEvent} ref={timeSlotRef}>
+			{checkIsToday(dateDay) && isCurrentHour && (
+				<TimeLine currentDate={currentDate} setCurrentDate={setCurrentDate} />
+			)}
+
+			{hourEvents.map((event) => {
+				const { id, title, color } = event;
+
+				const { eventHeight, offsetTop, time } = getStyledByPostionYForEvent(event, dateDay);
+				const { left, width } = getStyledByPositionXForEvent(dayEvents, event);
+
+				return (
+					<Event
+						key={id}
+						height={eventHeight}
+						top={offsetTop}
+						time={time}
+						title={title}
+						color={color}
+						id={id}
+						left={left}
+						width={width}
+					/>
+				);
+			})}
+		</div>
+	);
 };
 
 export default Hour;

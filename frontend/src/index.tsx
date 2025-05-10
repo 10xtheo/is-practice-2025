@@ -11,10 +11,12 @@ import './index.scss';
 const rootElement = document.querySelector('#root');
 
 ReactDOM.render(
-  <StoreProvider store={store}>
-    <ModalProvider>
-      <PopupProvider>
-        <App />
-      </PopupProvider>
-    </ModalProvider>
-  </StoreProvider>, rootElement);
+	<StoreProvider store={store}>
+		<ModalProvider>
+			<PopupProvider>
+				<App />
+			</PopupProvider>
+		</ModalProvider>
+	</StoreProvider>,
+	rootElement,
+);

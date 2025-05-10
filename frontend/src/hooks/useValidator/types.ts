@@ -1,31 +1,35 @@
-import { validationMethodsWithDates, validationMethodsWithoutParams, validationMethodsWithParams } from "utils/validations";
+import {
+	validationMethodsWithDates,
+	validationMethodsWithoutParams,
+	validationMethodsWithParams,
+} from 'utils/validations';
 
 export interface IValidatorData {
-  [k: string]: string | number | boolean | Date | string[];
+	[k: string]: string | number | boolean | Date | string[];
 }
 
 export interface IRules {
-  [k: string]: IRule;
+	[k: string]: IRule;
 }
 
 export type IRuleWithParam = {
-  [k in TypeRuleWithParameter]?: number;
+	[k in TypeRuleWithParameter]?: number;
 };
 
 export type IRuleWithoutParam = {
-  [k in TypeRuleWithoutParameter]?: boolean;
+	[k in TypeRuleWithoutParameter]?: boolean;
 };
 
 export type IRuleWithDates = {
-  [k in TypeRuleWithDates]?: keyof IRules;
+	[k in TypeRuleWithDates]?: keyof IRules;
 };
 
 export type IRule = IRuleWithParam | IRuleWithoutParam | IRuleWithDates;
 
 export interface IDataForCheck<Fields> {
-  value: Fields[keyof Fields];
-  fieldRules: IRule;
-  fields?: Fields;
+	value: Fields[keyof Fields];
+	fieldRules: IRule;
+	fields?: Fields;
 }
 
 export type TypeRuleMethods = TypeRuleWithoutParameter | TypeRuleWithParameter | TypeRuleWithDates;
@@ -35,10 +39,10 @@ export type TypeRuleWithParameter = keyof typeof validationMethodsWithParams;
 export type TypeRuleWithDates = keyof typeof validationMethodsWithDates;
 
 export interface IValidationResponse {
-  status: boolean;
-  errorMessage?: string;
+	status: boolean;
+	errorMessage?: string;
 }
 
 export type IErrorsMessages<DefaultFields> = {
-  [k in keyof DefaultFields]?: string;
-}
+	[k in keyof DefaultFields]?: string;
+};

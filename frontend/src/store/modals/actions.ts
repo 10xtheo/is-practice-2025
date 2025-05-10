@@ -1,5 +1,10 @@
 import { createAction } from '@reduxjs/toolkit';
-import { IModalCreateEventOptions, IModalEditEventOptions, IModalEditCalendarOptions, IModalViewEventOptions } from './types';
+import {
+	IModalCreateEventOptions,
+	IModalEditEventOptions,
+	IModalEditCalendarOptions,
+	IModalViewEventOptions,
+} from './types';
 
 export const openModalCreate = createAction<IModalCreateEventOptions>('modals/openModalCreate');
 export const openModalEdit = createAction<IModalEditEventOptions>('modals/openModalEdit');
