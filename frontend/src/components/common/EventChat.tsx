@@ -52,12 +52,19 @@ const EventChatPage: React.FC<IEventChat> = ({eventId}) => {
     });
 
     ws.current.onmessage = (event) => {
+      const eventRawData = JSON.parse(event.data)
+      if (eventRawData['type'] === 'error') {
+        alert(eventRawData['detail'] ?? 'Ошибка отправки сообщения')
+      }
+      
       try {        
-        const data: IChatMessage = JSON.parse(event.data);
+        const data: IChatMessage = eventRawData;
         if (data.event_id && data.content) {          
           setMessages((prev) => [...prev, data]);
         }
-      } catch {}
+      } catch (err) {
+        alert(err)
+      }
     };
     return () => {
       ws.current?.close();

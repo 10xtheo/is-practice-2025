@@ -152,12 +152,14 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
     }
     
     allParticipants.splice(allParticipants.findIndex(u => u.id === currentUser.id), 1)
-    
+    const eventStart = data.start - new Date(data.start).getTimezoneOffset() * 60 * 1000
+    const eventEnd = data.end - new Date(data.end).getTimezoneOffset() * 60 * 1000
+
     const newEvent: TPartialEvent = {
       title: data.title,
       description: data.description,
-      start: data.start - new Date(data.start).getTimezoneOffset() * 60 * 1000,
-      end: data.end - new Date(data.end).getTimezoneOffset() * 60 * 1000,
+      start: textSendButton === 'Изменить' ? data.start : eventStart,
+      end: textSendButton === 'Изменить' ? data.end : eventEnd,
       repeat_step: data.repeat_step,
       repeat_type: data.repeat_type,
       repeat_until: isRecurring ? data.repeat_until : Date.now(),
