@@ -263,6 +263,7 @@ def get_events_with_permissions(
                 {
                     "is_creator": ep.is_creator,
                     "is_listener": ep.is_listener,
+                    "permissions": ep.permissions,  # Only permissions field kept here
                     "user": {
                         "id": user_map[ep.user_id].id,
                         "full_name": user_map[ep.user_id].full_name,
