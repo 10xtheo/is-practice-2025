@@ -12,7 +12,7 @@ import { TSubmitHandler } from 'hooks/useForm/types';
 import { IModalValues } from 'components/common/modals/types';
 import { TPartialEvent, EventType, EventPriority, EventPermission, RepeatType } from 'types/event';
 import { TextField, DatePicker, TimePicker, Select } from 'components/common/form-elements';
-import { getEventTypeOptions, getEventPriorityOptions, getEventRepeatTypeOptions } from '../helpers';
+import { getEventTypeOptions, getEventPriorityOptions, getEventRepeatTypeOptions, getEditEventRepeatTypeOptions } from '../helpers';
 import cn from 'classnames';
 import { useDispatch } from 'react-redux';
 import { store } from 'store/store';
@@ -55,6 +55,8 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 	});
 
 	const [isRecurring, setIsRecurring] = useState(defaultEventValues.repeat_type !== RepeatType.NONE);
+  console.log('eveve', defaultEventValues.category_id, defaultEventValues.repeat_type);
+  
 	const isValid = Object.keys(errors).length === 0;
 
 	const onChangeRepeatStepValue = (e) => {
@@ -445,7 +447,7 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 									name="repeat_type"
 									value={values.repeat_type}
 									onChange={onChangeRepeatType}
-									options={getEventRepeatTypeOptions()}
+									options={textSendButton === 'Изменить' ? getEditEventRepeatTypeOptions() : getEventRepeatTypeOptions()}
 									placeholder="Шаг повторения"
 									error={errors.repeat_type}
 								/>

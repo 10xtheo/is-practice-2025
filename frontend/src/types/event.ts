@@ -7,8 +7,8 @@ export interface IServerEvent {
 	description: string;
 	start: string;
 	end: string;
-	repeat_type?: RepeatType;
-	repeat_until?: string;
+	repeat_type: RepeatType;
+	repeat_until: string | null;
 	repeat_step: number;
 	is_private: boolean;
 	creator_id: string;
@@ -31,8 +31,8 @@ export interface IEvent {
 	description: string;
 	start: number; // timestamp
 	end: number; // timestamp
-	repeat_type?: RepeatType;
-	repeat_until?: number; // timestamp
+	repeat_type: RepeatType;
+	repeat_until: number | null; // timestamp
 	repeat_step: number;
 	is_private: boolean;
 	creator_id: string;

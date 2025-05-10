@@ -9,13 +9,13 @@ import axios from 'axios';
 export const getEvents = createAsyncThunk<IEvent[]>('events/get-events', async (_, thunkAPI) => {
 	try {
 		const events = await apiEvents.getEvents();
-		return events?.flatMap((event) => {
+		return events?.flatMap((event) => {			
 			const frontendEvent: IEvent = {
 				id: event.id,
 				title: event.title,
 				description: event.description,
 				repeat_type: event.repeat_type,
-				repeat_until: new Date(event.repeat_until).getTime(),
+				repeat_until: event.repeat_until ? new Date(event.repeat_until).getTime() : null,
 				repeat_step: event.repeat_step,
 				is_private: event.is_private,
 				creator_id: event.creator_id,
