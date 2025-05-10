@@ -1,7 +1,7 @@
 """Add uploadedfiles table
 
 Revision ID: 3fbce20aa201
-Revises: 549e27c26d1e
+Revises: 4681d8d13e89
 Create Date: 2025-05-08 15:33:31.702924
 
 """
@@ -12,7 +12,7 @@ import sqlmodel.sql.sqltypes
 
 # revision identifiers, used by Alembic.
 revision = '3fbce20aa201'
-down_revision = '549e27c26d1e'
+down_revision = '4681d8d13e89'
 branch_labels = None
 depends_on = None
 
