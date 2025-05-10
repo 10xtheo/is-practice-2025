@@ -434,7 +434,7 @@ def create_event(
             event_id=event.id,
             user_id=current_user.id,
             is_creator=True,
-            is_listener=True,
+            is_listener=False,
             permissions=EventPermission.ORGANIZE
         )
         session.add(creator_participant)
