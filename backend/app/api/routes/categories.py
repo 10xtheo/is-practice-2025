@@ -163,7 +163,7 @@ def update_category(
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    if check_category_permissions(session, current_user, category.id, CategoryPermission.VIEW):
+    if not check_category_permissions(session, current_user, category.id, CategoryPermission.EDIT) :
         raise HTTPException(status_code=403, detail="Not enough permissions to update this category")
 
     # Update category fields
