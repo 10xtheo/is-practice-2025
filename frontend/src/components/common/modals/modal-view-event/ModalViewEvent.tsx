@@ -53,6 +53,7 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
       // Refresh events to get updated data
       dispatch(getEvents());
     } catch (error) {
+      alert(error)
       console.error('Failed to update participant permission:', error);
     }
   };

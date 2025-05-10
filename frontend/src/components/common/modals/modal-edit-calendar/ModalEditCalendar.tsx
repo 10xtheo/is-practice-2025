@@ -113,8 +113,18 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({
       };
 
       await requestCalendarParticipants.put(`/${calendarId}/participants/${userId}`, updatedParticipant);
+      
+      // Update local state immediately
+      setParticipants(prev => prev.map(p => 
+        p.user_id === userId 
+          ? { ...p, permissions: newPermission }
+          : p
+      ));
+      
+      // Then update global state
       dispatch(getCalendars());
     } catch (error) {
+      alert(error)
       console.error('Failed to update participant permission:', error);
     }
   };
