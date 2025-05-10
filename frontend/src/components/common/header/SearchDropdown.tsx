@@ -82,7 +82,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
               className={styles.item}
               onClick={() => onUserClick(user.id)}
             >
-              <div className={styles.itemTitle}>{user.full_name}</div>
+              <div className={styles.itemTitle}>{user.full_name} ({user.department})</div>
             </div>
           ))}
         </div>
