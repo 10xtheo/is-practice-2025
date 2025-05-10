@@ -75,7 +75,7 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
             >
               <option value={EventPermission.VIEW}>Просмотр</option>
               <option value={EventPermission.EDIT}>Редактирование</option>
-              <option value={EventPermission.ORGANIZE}>Организация</option>
+              <option value={EventPermission.ORGANIZE}>Управление</option>
             </select>
           </li>
         ))}
