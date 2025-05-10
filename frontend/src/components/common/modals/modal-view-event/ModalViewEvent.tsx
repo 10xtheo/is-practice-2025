@@ -5,7 +5,10 @@ import EventFiles from 'components/common/EventFiles';
 import styles from "./modal-view-event.module.scss";
 import { useDispatch } from "react-redux";
 import { store } from "store/store";
-import { getEventMessages } from "store/events/actions";
+import { getEventMessages, getEvents } from "store/events/actions";
+import { EventPermission } from "types/event";
+import { requestEventParticipants } from "gateway/api";
+import { IServerUserParticipant } from "types/user";
 
 interface IModalViewEventProps {
   eventId: string;
@@ -35,9 +38,49 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
   
   useClickOutside(modalRef, handleCloseModal);
 
+  const handlePermissionChange = async (userId: string, newPermission: EventPermission) => {
+    try {
+      const participant = event.participants.find(p => p.id === userId);
+      if (!participant) return;
+
+      const updatedParticipant: Omit<IServerUserParticipant, 'user_id'> = {
+        is_creator: participant.is_creator,
+        is_listener: participant.is_listener,
+        permissions: newPermission
+      };
+
+      await requestEventParticipants.put(`/${eventId}/participants/${userId}`, updatedParticipant);
+      // Refresh events to get updated data
+      dispatch(getEvents());
+    } catch (error) {
+      console.error('Failed to update participant permission:', error);
+    }
+  };
+
   if (!event) {
     return null;
   }
+
+  const renderParticipantList = (participants: typeof event.participants, isListener: boolean) => (
+    <ul>
+      {participants
+        .filter(participant => participant.is_listener === isListener)
+        .map(participant => (
+          <li key={participant.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+            <span>{participant.full_name}</span>
+            <select
+              value={participant.permissions}
+              onChange={(e) => handlePermissionChange(participant.id, e.target.value as EventPermission)}
+              style={{ marginLeft: 'auto' }}
+            >
+              <option value={EventPermission.VIEW}>Просмотр</option>
+              <option value={EventPermission.EDIT}>Редактирование</option>
+              <option value={EventPermission.ORGANIZE}>Организация</option>
+            </select>
+          </li>
+        ))}
+    </ul>
+  );
 
   return (
     <div style={{zIndex: 1200}} className="overlay">
@@ -75,23 +118,11 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({
             </div>
             <div className={styles.modal__info__item}>
               <strong>Участники:</strong>
-              <ul>
-                {event.participants
-                  .filter(participant => !participant.is_listener)
-                  .map(participant => (
-                    <li key={participant.id}>{participant.full_name}</li>
-                  ))}
-              </ul>
+              {renderParticipantList(event.participants, false)}
             </div>
             <div className={styles.modal__info__item}>
               <strong>Информируемые лица:</strong>
-              <ul>
-                {event.participants
-                  .filter(participant => participant.is_listener)
-                  .map(participant => (
-                    <li key={participant.id}>{participant.full_name}</li>
-                  ))}
-              </ul>
+              {renderParticipantList(event.participants, true)}
             </div>
             <div className={styles.modal__info__item}>
               <strong>Прикрепленные файлы:</strong>
