@@ -31,8 +31,8 @@ const ModalEditEvent: FC<IModalEditEventOptions> = ({ eventData, eventId }) => {
 		priority: eventData.priority,
 		is_finished: eventData.is_finished,
 		repeat_step: eventData.repeat_step,
-    repeat_type: eventData.repeat_type,
-    repeat_until: eventData.repeat_until,
+		repeat_type: eventData.repeat_type,
+		repeat_until: eventData.repeat_until,
 		is_private: eventData.is_private,
 		max_repeats_count: eventData.max_repeats_count,
 	});

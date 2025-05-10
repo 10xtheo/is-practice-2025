@@ -8,23 +8,23 @@ const formatEnumValue = (value: string): string => {
 
 const formatRepeatTypeEnumValue = (value: RepeatType): string => {
 	switch (value) {
-    case RepeatType.NONE:
-      return 'Не указано'
-    case RepeatType.HOURLY:
-      return 'Час'
-    case RepeatType.DAILY:
-      return 'День'
-    case RepeatType.WEEKLY:
-      return 'Неделя'
-    case RepeatType.MONTHLY:
-      return 'Месяц'
-    case RepeatType.YEARLY:
-      return 'Год'
-    case RepeatType.RECURRING_PARENT:
-      return 'Ключевое'
-    case RepeatType.RECURRING_DUPLICATE:
-      return 'Дочернее'
-  }
+		case RepeatType.NONE:
+			return 'Не указано';
+		case RepeatType.HOURLY:
+			return 'Час';
+		case RepeatType.DAILY:
+			return 'День';
+		case RepeatType.WEEKLY:
+			return 'Неделя';
+		case RepeatType.MONTHLY:
+			return 'Месяц';
+		case RepeatType.YEARLY:
+			return 'Год';
+		case RepeatType.RECURRING_PARENT:
+			return 'Ключевое';
+		case RepeatType.RECURRING_DUPLICATE:
+			return 'Дочернее';
+	}
 };
 
 export const getEventTypeOptions = () => {
@@ -51,11 +51,10 @@ export const getEventRepeatTypeOptions = () => {
 };
 
 export const getEditEventRepeatTypeOptions = () => {
-	return Object.entries(RepeatType)
-		.map(([key, value]) => ({
-			value: value,
-			label: formatRepeatTypeEnumValue(value),
-		}))
+	return Object.entries(RepeatType).map(([key, value]) => ({
+		value: value,
+		label: formatRepeatTypeEnumValue(value),
+	}));
 };
 
 export const getMapEventValues = ({

@@ -9,7 +9,7 @@ import axios from 'axios';
 export const getEvents = createAsyncThunk<IEvent[]>('events/get-events', async (_, thunkAPI) => {
 	try {
 		const events = await apiEvents.getEvents();
-		return events?.flatMap((event) => {			
+		return events?.flatMap((event) => {
 			const frontendEvent: IEvent = {
 				id: event.id,
 				title: event.title,
