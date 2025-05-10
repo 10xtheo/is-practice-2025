@@ -5,9 +5,9 @@ import * as calendarsActions from './calendars/actions';
 import * as usersActions from './users/actions';
 
 export const allActions = {
-  ...eventsActions,
-  ...usersActions,
-  ...calendarsActions,
-  ...modalsActions,
-  ...popusActions
-}
+	...eventsActions,
+	...usersActions,
+	...calendarsActions,
+	...modalsActions,
+	...popusActions,
+};

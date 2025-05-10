@@ -1,167 +1,167 @@
 .profile {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+	padding: 20px;
+	max-width: 800px;
+	margin: 0 auto;
 
-  &__container {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+	&__container {
+		background: white;
+		border-radius: 8px;
+		padding: 20px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 
-  &__header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
+	&__header {
+		display: flex;
+		align-items: center;
+		margin-bottom: 20px;
+	}
 
-  &__back-button {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 8px;
-    margin-right: 20px;
+	&__back-button {
+		background: none;
+		border: none;
+		color: #666;
+		cursor: pointer;
+		font-size: 16px;
+		padding: 8px;
+		margin-right: 20px;
 
-    &:hover {
-      color: #333;
-    }
-  }
+		&:hover {
+			color: #333;
+		}
+	}
 
-  &__title {
-    margin: 0;
-    font-size: 24px;
-  }
+	&__title {
+		margin: 0;
+		font-size: 24px;
+	}
 
-  &__content {
-    display: flex;
-    gap: 30px;
-  }
+	&__content {
+		display: flex;
+		gap: 30px;
+	}
 
-  &__avatar {
-    flex-shrink: 0;
-  }
+	&__avatar {
+		flex-shrink: 0;
+	}
 
-  &__avatar-placeholder {
-    width: 100px;
-    height: 100px;
-    background: #f0f0f0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+	&__avatar-placeholder {
+		width: 100px;
+		height: 100px;
+		background: #f0f0f0;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-  &__avatar-text {
-    font-size: 36px;
-    color: #666;
-  }
+	&__avatar-text {
+		font-size: 36px;
+		color: #666;
+	}
 
-  &__info {
-    flex-grow: 1;
-  }
+	&__info {
+		flex-grow: 1;
+	}
 
-  &__field {
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-  }
+	&__field {
+		margin-bottom: 15px;
+		display: flex;
+		align-items: center;
+	}
 
-  &__label {
-    width: 120px;
-    color: #666;
-    font-weight: 500;
-  }
+	&__label {
+		width: 120px;
+		color: #666;
+		font-weight: 500;
+	}
 
-  &__value {
-    flex-grow: 1;
-  }
+	&__value {
+		flex-grow: 1;
+	}
 
-  &__input {
-    flex-grow: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+	&__input {
+		flex-grow: 1;
+		padding: 8px 12px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		font-size: 16px;
 
-    &:focus {
-      outline: none;
-      border-color: #007bff;
-    }
-  }
+		&:focus {
+			outline: none;
+			border-color: #007bff;
+		}
+	}
 
-  &__actions {
-    margin-top: 30px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
+	&__actions {
+		margin-top: 30px;
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+	}
 
-  &__edit-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+	&__edit-button {
+		background: #007bff;
+		color: white;
+		border: none;
+		padding: 10px 20px;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 16px;
 
-    &:hover {
-      background: #0056b3;
-    }
-  }
+		&:hover {
+			background: #0056b3;
+		}
+	}
 
-  &__logout-button {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+	&__logout-button {
+		background: #dc3545;
+		color: white;
+		border: none;
+		padding: 10px 20px;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 16px;
 
-    &:hover {
-      background: #c82333;
-    }
-  }
+		&:hover {
+			background: #c82333;
+		}
+	}
 
-  &__edit-actions {
-    display: flex;
-    gap: 10px;
-  }
+	&__edit-actions {
+		display: flex;
+		gap: 10px;
+	}
 
-  &__cancel-button {
-    background: #f8f9fa;
-    color: #333;
-    border: 1px solid #ddd;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+	&__cancel-button {
+		background: #f8f9fa;
+		color: #333;
+		border: 1px solid #ddd;
+		padding: 10px 20px;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 16px;
 
-    &:hover {
-      background: #e9ecef;
-    }
-  }
+		&:hover {
+			background: #e9ecef;
+		}
+	}
 
-  &__save-button {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+	&__save-button {
+		background: #28a745;
+		color: white;
+		border: none;
+		padding: 10px 20px;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 16px;
 
-    &:hover:not(:disabled) {
-      background: #218838;
-    }
+		&:hover:not(:disabled) {
+			background: #218838;
+		}
 
-    &--disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-  }
-} 
+		&--disabled {
+			background: #ccc;
+			cursor: not-allowed;
+		}
+	}
+}

@@ -1,141 +1,144 @@
 .notifications-list {
-  margin-top: 5px;
-  padding: 10px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+	margin-top: 5px;
+	padding: 10px;
+	background-color: #f5f5f5;
+	border-radius: 8px;
+	transition: background-color 0.3s ease;
 
-  &--animate {
-    animation: notificationPulse 2s ease;
-  }
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px;
-    font-weight: 500;
-  }
+	&--animate {
+		animation: notificationPulse 2s ease;
+	}
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 8px;
+		font-weight: 500;
+	}
 
-  &__controls {
-    display: flex;
-    gap: 8px;
-  }
+	&__controls {
+		display: flex;
+		gap: 8px;
+	}
 
-  &__toggle-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    color: #666;
-    font-size: 12px;
+	&__toggle-btn {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 4px;
+		color: #666;
+		font-size: 12px;
 
-    &:hover {
-      color: #333;
-    }
-  }
+		&:hover {
+			color: #333;
+		}
+	}
 
-  &__items {
-    margin-top: 10px;
-    max-height: 100px;
-    overflow-y: auto;
+	&__items {
+		margin-top: 10px;
+		max-height: 100px;
+		overflow-y: auto;
 
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
 
-    &::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 3px;
-    }
+		&::-webkit-scrollbar-track {
+			background: #f1f1f1;
+			border-radius: 3px;
+		}
 
-    &::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 3px;
-    }
+		&::-webkit-scrollbar-thumb {
+			background: #888;
+			border-radius: 3px;
+		}
 
-    &::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-  }
+		&::-webkit-scrollbar-thumb:hover {
+			background: #555;
+		}
+	}
 
-  &__item {
-    padding: 8px;
-    border-radius: 4px;
-    background-color: #fff;
-    margin-bottom: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+	&__item {
+		padding: 8px;
+		border-radius: 4px;
+		background-color: #fff;
+		margin-bottom: 8px;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		position: relative;
+		cursor: pointer;
+		transition:
+			background-color 0.2s ease,
+			transform 0.1s ease;
 
+		&:last-child {
+			margin-bottom: 0;
+		}
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+		&:hover {
+			background-color: #f8f8f8;
+			transform: translateY(-1px);
 
-    &:hover {
-      background-color: #f8f8f8;
-      transform: translateY(-1px);
+			.notifications-list__hide-btn {
+				opacity: 1;
+			}
+		}
 
-      .notifications-list__hide-btn {
-        opacity: 1;
-      }
-    }
+		&:active {
+			transform: translateY(0);
+		}
+	}
 
-    &:active {
-      transform: translateY(0);
-    }
-  }
+	&__content {
+		flex: 1;
+	}
 
-  &__content {
-    flex: 1;
-  }
+	&__message {
+		color: #333;
+		font-size: 14px;
+		margin-bottom: 4px;
+	}
 
-  &__message {
-    color: #333;
-    font-size: 14px;
-    margin-bottom: 4px;
-  }
+	&__timestamp {
+		color: #666;
+		font-size: 12px;
+	}
 
-  &__timestamp {
-    color: #666;
-    font-size: 12px;
-  }
+	&__hide-btn {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 4px;
+		color: #666;
+		font-size: 12px;
+		opacity: 0;
+		transition:
+			opacity 0.2s ease,
+			color 0.2s ease;
+		margin-left: 8px;
 
-  &__hide-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    color: #666;
-    font-size: 12px;
-    opacity: 0;
-    transition: opacity 0.2s ease, color 0.2s ease;
-    margin-left: 8px;
-
-    &:hover {
-      color: #ff4444;
-    }
-  }
+		&:hover {
+			color: #ff4444;
+		}
+	}
 }
 
 @keyframes notificationPulse {
-  0% {
-    background-color: #f5f5f5;
-  }
-  25% {
-    background-color: #b1b1b1;
-  }
-  50% {
-    background-color: #f5f5f5;
-  }
-  75% {
-    background-color: #b1b1b1;
-  }
-  100% {
-    background-color: #f5f5f5;
-  }
-} 
+	0% {
+		background-color: #f5f5f5;
+	}
+	25% {
+		background-color: #b1b1b1;
+	}
+	50% {
+		background-color: #f5f5f5;
+	}
+	75% {
+		background-color: #b1b1b1;
+	}
+	100% {
+		background-color: #f5f5f5;
+	}
+}

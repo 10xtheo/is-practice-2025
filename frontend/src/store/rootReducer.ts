@@ -5,9 +5,9 @@ import { reducer as calendarsReducer } from './calendars/reducer';
 import { reducer as usersReducer } from './users/reducer';
 
 export const reducers = {
-  events: eventsReducer,
-  users: usersReducer,
-  calendars: calendarsReducer,
-  modals: modalsReducer,
-  popups: popupsReducer
-}
+	events: eventsReducer,
+	users: usersReducer,
+	calendars: calendarsReducer,
+	modals: modalsReducer,
+	popups: popupsReducer,
+};

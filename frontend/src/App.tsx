@@ -12,51 +12,46 @@ const backendPort = 8000;
 export const backendUrl = `http://${backendHost}:${backendPort}/api/v1`;
 
 const App: FC = () => {
-  const { getEvents, getCalendars, getMe, getUsers } = useActions();
-  const [isLoading, setIsLoading] = useState(true);
-  const { user } = useTypedSelector(({ users }) => users);
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await Promise.all([
-          getEvents(),
-          getCalendars(),
-          getMe(),
-          getUsers()
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, []);
+	const { getEvents, getCalendars, getMe, getUsers } = useActions();
+	const [isLoading, setIsLoading] = useState(true);
+	const { user } = useTypedSelector(({ users }) => users);
 
-  const isAuthenticated = !!localStorage.getItem('token');
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				await Promise.all([getEvents(), getCalendars(), getMe(), getUsers()]);
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-  if (!isAuthenticated && !window.location.href.includes('/auth')) {
-    window.location.href = '/auth';
-    return null;
-  }
+		fetchData();
+	}, []);
 
-  if (isLoading) {
-    return <div></div>;
-  }
+	const isAuthenticated = !!localStorage.getItem('token');
 
-  window["selectedUsers"] = [];
+	if (!isAuthenticated && !window.location.href.includes('/auth')) {
+		window.location.href = '/auth';
+		return null;
+	}
 
-  return (
-    <Layout isAuth={isAuthenticated}>
-      {window.location.href.includes('/profile') ? (
-        <Profile currentUser={user} />
-      ) : window.location.href.includes('/auth') ? (
-        <Auth />
-      ) : (
-        <Calendar />
-      )}
-    </Layout>
-  );
-}
+	if (isLoading) {
+		return <div></div>;
+	}
+
+	window['selectedUsers'] = [];
+
+	return (
+		<Layout isAuth={isAuthenticated}>
+			{window.location.href.includes('/profile') ? (
+				<Profile currentUser={user} />
+			) : window.location.href.includes('/auth') ? (
+				<Auth />
+			) : (
+				<Calendar />
+			)}
+		</Layout>
+	);
+};
 
 export default App;

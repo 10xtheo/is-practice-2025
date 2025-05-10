@@ -1,7 +1,13 @@
-import { IEvent, IEventCreate, IServerEvent, TPartialEvent } from "types/event";
-import { requestEvents, requestEventParticipants } from "./api";
-import { IServerUserParticipant } from "types/user";
-import { deleteEventParticipant } from "store/events/actions";
+import {
+	IEvent,
+	IEventCreate,
+	IServerEvent,
+	TPartialEvent,
+	IEventTimeManagement,
+	IEventChatHistory,
+} from 'types/event';
+import { requestEvents, requestEventParticipants } from './api';
+import { IServerUserParticipant } from 'types/user';
 
 const getEvents = () => requestEvents.get<IServerEvent[]>('/permissions-and-participants');
 
@@ -13,16 +19,26 @@ const updateEvent = (eventId: string, eventData: TPartialEvent) => requestEvents
 
 const patchEvent = (eventId: string, eventData: TPartialEvent) => requestEvents.patch<IEvent>(`/${eventId}`, eventData);
 
-const addParticipant = (eventId: string, participant: IServerUserParticipant) => requestEventParticipants.post<IServerUserParticipant>(`/${eventId}/participants`, participant);
+const findAvailableTimeSlots = (body: IEventTimeManagement) =>
+	requestEvents.postTimeManagement<string[]>('/find-available-time', body);
 
-const deleteParticipant = (eventId: string, userId: string) => requestEventParticipants.delete<unknown>(`/${eventId}/participants/${userId}`);
+const getEventMessages = (eventId: string) =>
+	requestEvents.get<{ data: IEventChatHistory[]; count: number }>(`/${eventId}/messages`);
+
+const addParticipant = (eventId: string, participant: IServerUserParticipant) =>
+	requestEventParticipants.post<IServerUserParticipant>(`/${eventId}/participants`, participant);
+
+const deleteParticipant = (eventId: string, userId: string) =>
+	requestEventParticipants.delete<unknown>(`/${eventId}/participants/${userId}`);
 
 export default {
-  getEvents,
-  createEvent,
-  deleteEvent,
-  updateEvent,
-  patchEvent,
-  addParticipant,
-  deleteParticipant,
-}
+	getEvents,
+	createEvent,
+	deleteEvent,
+	updateEvent,
+	patchEvent,
+	addParticipant,
+	deleteParticipant,
+	findAvailableTimeSlots,
+	getEventMessages,
+};

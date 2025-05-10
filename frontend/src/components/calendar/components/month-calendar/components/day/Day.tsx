@@ -11,129 +11,120 @@ import ShortEvent from 'components/common/short-event/ShortEvent';
 import styles from './day.module.scss';
 
 interface IDayProps {
-  weekDays: IMonthDay[];
-  day: IMonthDay;
-  selectedMonth: TMonth;
-  dayShortEvents: IEvent[];
-  dayLongEvents: IEvent[];
-  dayEventsPositionY: string[];
-  weekEventsPositionY: string[][];
-  weekShortEvents: IEvent[][];
-  countRows: number;
-  dayOfWeek: number;
+	weekDays: IMonthDay[];
+	day: IMonthDay;
+	selectedMonth: TMonth;
+	dayShortEvents: IEvent[];
+	dayLongEvents: IEvent[];
+	dayEventsPositionY: string[];
+	weekEventsPositionY: string[][];
+	weekShortEvents: IEvent[][];
+	countRows: number;
+	dayOfWeek: number;
 }
 
 const Day: FC<IDayProps> = ({
-  weekDays,
-  day,
-  selectedMonth,
-  dayShortEvents,
-  dayLongEvents,
-  dayEventsPositionY,
-  weekEventsPositionY,
-  weekShortEvents,
-  countRows,
-  dayOfWeek
+	weekDays,
+	day,
+	selectedMonth,
+	dayShortEvents,
+	dayLongEvents,
+	dayEventsPositionY,
+	weekEventsPositionY,
+	weekShortEvents,
+	countRows,
+	dayOfWeek,
 }) => {
-  const { openModalCreate, openModalDayInfo } = useModal();
-  
-  const maxCountEventsInDay = countRows === 6 ? 3 : 4;
+	const { openModalCreate, openModalDayInfo } = useModal();
 
-  const restWeekEventsPositionY = weekEventsPositionY.slice(dayOfWeek + 1);
+	const maxCountEventsInDay = countRows === 6 ? 3 : 4;
 
-  const isShowMoreBtn = restWeekEventsPositionY.some((eventsPositionY, indx) => {
-    const idsEventsOutBounds = dayEventsPositionY.slice(maxCountEventsInDay - 1);
-    const isIdsEventsContaintsInDay = idsEventsOutBounds.some((idEvent) => eventsPositionY.includes(idEvent));
-    
-    const dayShortEvents = weekShortEvents[dayOfWeek + indx + 1];
-    const countEventsInDay = dayShortEvents.length + eventsPositionY.length;
-    
-    return isIdsEventsContaintsInDay && (maxCountEventsInDay < countEventsInDay);
-  })
+	const restWeekEventsPositionY = weekEventsPositionY.slice(dayOfWeek + 1);
 
-  const countShortEvents = maxCountEventsInDay - dayEventsPositionY.length;
+	const isShowMoreBtn = restWeekEventsPositionY.some((eventsPositionY, indx) => {
+		const idsEventsOutBounds = dayEventsPositionY.slice(maxCountEventsInDay - 1);
+		const isIdsEventsContaintsInDay = idsEventsOutBounds.some((idEvent) => eventsPositionY.includes(idEvent));
 
-  const maxCountLongEvents = isShowMoreBtn ? maxCountEventsInDay - 1 : maxCountEventsInDay;
+		const dayShortEvents = weekShortEvents[dayOfWeek + indx + 1];
+		const countEventsInDay = dayShortEvents.length + eventsPositionY.length;
 
-  const countLongEvents = dayEventsPositionY.slice(0, maxCountLongEvents).reduce((total, _) => total + 1, 0);
+		return isIdsEventsContaintsInDay && maxCountEventsInDay < countEventsInDay;
+	});
 
-  const restCountEvents = dayShortEvents.length + dayLongEvents.length - countLongEvents;
-  
-  const styleForMoreBtn = { top: (maxCountEventsInDay - 1) * 24 };
+	const countShortEvents = maxCountEventsInDay - dayEventsPositionY.length;
 
-  const handleCreateEvent = () => {
-    const { hours, minutes } = createDate({ date: new Date() });
-    const startMins = getNextStartMinutes(minutes);
-    const selectedDate = shmoment(day.date).add('hours', hours).add('minutes', minutes + startMins).result();
+	const maxCountLongEvents = isShowMoreBtn ? maxCountEventsInDay - 1 : maxCountEventsInDay;
 
-    openModalCreate({ selectedDate, type: 'long-event' })
-  }
+	const countLongEvents = dayEventsPositionY.slice(0, maxCountLongEvents).reduce((total, _) => total + 1, 0);
 
-  const handleShowModalDayInfo = (e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    openModalDayInfo(day.date);
-  }
-  
-  return (
-    <div
-      className={styles.day}
-      onClick={handleCreateEvent}
-    >
-      <div className={cn(styles.day__label, {
-        [styles.day__label_active]: checkIsToday(day.date),
-        [styles.day__label_additional]: day.monthIndex !== selectedMonth.monthIndex
-      })}>
-        {day.dayNumber === 1
-          ? `${day.dayNumber} ${day.monthShort}`
-          : day.dayNumber
-        }
-      </div>
-      <div className={styles.day__events}>
-        {dayEventsPositionY.slice(0, maxCountLongEvents).map((eventId, indx) => {
+	const restCountEvents = dayShortEvents.length + dayLongEvents.length - countLongEvents;
 
-          const event = dayLongEvents.find(event => event.id === eventId);
+	const styleForMoreBtn = { top: (maxCountEventsInDay - 1) * 24 };
 
-          const { width, isShowEvent, isMovingFromPrev, isMovingToNext } = getStyledForLongEvent(weekDays, day, event);
+	const handleCreateEvent = () => {
+		const { hours, minutes } = createDate({ date: new Date() });
+		const startMins = getNextStartMinutes(minutes);
+		const selectedDate = shmoment(day.date)
+			.add('hours', hours)
+			.add('minutes', minutes + startMins)
+			.result();
 
-          const top = indx * 24;
+		openModalCreate({ selectedDate, type: 'long-event' });
+	};
 
-          return (
-            <LongEvent
-              key={event.id}
-              event={event}
-              width={width}
-              top={top}
-              color={event.color}
-              isShowEvent={isShowEvent}
-              isMovingToNext={isMovingToNext}
-              isMovingFromPrev={isMovingFromPrev}
-            />
-          );
-        })}
-        {!isShowMoreBtn && (
-          dayShortEvents.slice(0, countShortEvents).map((event, indx) => {
-            const top = (dayEventsPositionY.length + indx) * 24;
-            return (
-              <ShortEvent
-                key={event.id}
-                event={event}
-                top={top}
-              />
-            )
-          })
-        )}
-        {isShowMoreBtn && (
-          <button
-            className={styles.day__more__btn}
-            style={styleForMoreBtn}
-            onClick={handleShowModalDayInfo}
-          >
-            {restCountEvents} More
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
+	const handleShowModalDayInfo = (e: MouseEvent<HTMLButtonElement>) => {
+		e.stopPropagation();
+		openModalDayInfo(day.date);
+	};
+
+	return (
+		<div className={styles.day} onClick={handleCreateEvent}>
+			<div
+				className={cn(styles.day__label, {
+					[styles.day__label_active]: checkIsToday(day.date),
+					[styles.day__label_additional]: day.monthIndex !== selectedMonth.monthIndex,
+				})}
+			>
+				{day.dayNumber === 1 ? `${day.dayNumber} ${day.monthShort}` : day.dayNumber}
+			</div>
+			<div className={styles.day__events}>
+				{dayEventsPositionY.slice(0, maxCountLongEvents).map((eventId, indx) => {
+					const event = dayLongEvents.find((event) => event.id === eventId);
+
+					const { width, isShowEvent, isMovingFromPrev, isMovingToNext } = getStyledForLongEvent(
+						weekDays,
+						day,
+						event,
+					);
+
+					const top = indx * 24;
+
+					return (
+						<LongEvent
+							key={event.id}
+							event={event}
+							width={width}
+							top={top}
+							color={event.color}
+							isShowEvent={isShowEvent}
+							isMovingToNext={isMovingToNext}
+							isMovingFromPrev={isMovingFromPrev}
+						/>
+					);
+				})}
+				{!isShowMoreBtn &&
+					dayShortEvents.slice(0, countShortEvents).map((event, indx) => {
+						const top = (dayEventsPositionY.length + indx) * 24;
+						return <ShortEvent key={event.id} event={event} top={top} />;
+					})}
+				{isShowMoreBtn && (
+					<button className={styles.day__more__btn} style={styleForMoreBtn} onClick={handleShowModalDayInfo}>
+						{restCountEvents} More
+					</button>
+				)}
+			</div>
+		</div>
+	);
+};
 
 export default Day;

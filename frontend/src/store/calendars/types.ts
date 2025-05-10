@@ -1,6 +1,6 @@
-import { ICalendar } from "types/calendar";
+import { ICalendar } from 'types/calendar';
 
 export interface ICalendarsState {
-  calendars: ICalendar[];
-  selectedCalendarIds: string[];
+	calendars: ICalendar[];
+	selectedCalendarIds: string[];
 }

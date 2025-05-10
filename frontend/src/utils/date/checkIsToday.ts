@@ -1,7 +1,7 @@
 import { checkDateIsEqual } from './checkDateIsEqual';
 
 export const checkIsToday = (date: Date) => {
-  const today = new Date();
+	const today = new Date();
 
-  return checkDateIsEqual(today, date);
+	return checkDateIsEqual(today, date);
 };

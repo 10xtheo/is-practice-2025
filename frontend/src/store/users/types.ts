@@ -1,6 +1,6 @@
-import { IUser } from "types/user";
+import { IUser } from 'types/user';
 
 export interface IUsersState {
-  user: IUser;
-  users: IUser[];
-} 
+	user: IUser;
+	users: IUser[];
+}

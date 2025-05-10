@@ -10,14 +10,14 @@ import { useActions } from './useActions';
 import { useTypedSelector } from './useTypedSelector';
 
 export {
-  useCalendar,
-  useClickOutside,
-  useModal,
-  usePopup,
-  useForm,
-  useValidator,
-  useThrottle,
-  useWindowSize,
-  useActions,
-  useTypedSelector
-}
+	useCalendar,
+	useClickOutside,
+	useModal,
+	usePopup,
+	useForm,
+	useValidator,
+	useThrottle,
+	useWindowSize,
+	useActions,
+	useTypedSelector,
+};

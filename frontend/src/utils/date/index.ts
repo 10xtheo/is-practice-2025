@@ -4,7 +4,7 @@ export * from './checkTimesInSameDay';
 export * from './checkIsToday';
 
 export * from './createDate';
-export * from './createWeek'
+export * from './createWeek';
 export * from './createMonth';
 
 export * from './formatDate';

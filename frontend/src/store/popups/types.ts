@@ -1,11 +1,11 @@
 export interface IPopupState {
-  isOpenPopup: boolean;
-  popupOptions: IPopupOptions | null;
+	isOpenPopup: boolean;
+	popupOptions: IPopupOptions | null;
 }
 
 export interface IPopupOptions {
-  x: number;
-  y: number;
-  eventId?: string;
-  calendarId?: string;
+	x: number;
+	y: number;
+	eventId?: string;
+	calendarId?: string;
 }
