@@ -1,8 +1,8 @@
-"""Add repeat fields to event
+"""add repeat fields to event
 
 Revision ID: 4681d8d13e89
 Revises: 840607e8fdcb
-Create Date: 2025-05-09 13:47:13.019987
+Create Date: 2025-05-08 17:06:29.070804
 
 """
 from typing import Sequence, Union
@@ -29,20 +29,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Проверяем существование колонок перед удалением
-    conn = op.get_bind()
-    inspector = sa.inspect(conn)
-    columns = [col['name'] for col in inspector.get_columns('event')]
-    
-    # Удаляем колонки только если они существуют
-    if 'repeat_until' in columns:
-        op.drop_column('event', 'repeat_until')
-    if 'repeat_type' in columns:
-        op.drop_column('event', 'repeat_type')
+    # Удаляем колонки
+    op.drop_column('event', 'repeat_until')
+    op.drop_column('event', 'repeat_type')
     
     # Удаляем enum тип
     repeat_type = postgresql.ENUM('none', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', name='repeattype')
-    try:
-        repeat_type.drop(op.get_bind())
-    except Exception:
-        pass  # Игнорируем ошибку, если тип не существует
+    repeat_type.drop(op.get_bind())
