@@ -1,4 +1,4 @@
-import { IUser } from "./user";
+import { IUser, IServerUserCategoryParticipant } from "./user";
 
 export interface ICalendar {
   id: string;
@@ -13,7 +13,7 @@ export type TPartialCalendar = Partial<ICalendar>
 export interface ICalendarCreate {
   title: string;
   // color: string;
-  participants: string[];
+  participants: IServerUserCategoryParticipant[];
 }
 
 export enum CategoryPermission {

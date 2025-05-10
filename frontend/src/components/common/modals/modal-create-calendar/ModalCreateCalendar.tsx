@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { ICalendarCreate, TPartialCalendar } from 'types/calendar';
+import { CategoryPermission, ICalendarCreate, TPartialCalendar } from 'types/calendar';
 import './ModalCreateCalendar.scss';
 import { useTypedSelector } from 'hooks/index';
 import { TSubmitHandler } from 'hooks/useForm/types';
@@ -18,19 +18,27 @@ interface ModalCreateCalendarProps {
 
 const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal, handlerSubmit }) => {
   const { user } = useTypedSelector(({ users }) => users);
+  const currentUser = user;
   const dispatch = useDispatch<typeof store.dispatch>();
   const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValuesCalendar>({
     defaultValues: {
       title: '',
+      participants: [],
       // color: '#FF5733',
     },
     // rules: createEventSchema @TODO добавить валидацию
   });
 
-  const onSubmit: TSubmitHandler<IModalValuesCalendar> = async (data) => {
+  const onSubmit: TSubmitHandler<IModalValuesCalendar> = async (data) => {    
     const newCalendar: ICalendarCreate = {
       title: data.title,
-      participants: data.participants as string[],
+      participants: data.participants.map(uid => ({
+        user_id: uid, 
+        is_creator: currentUser.id === uid, 
+        permissions: currentUser.id === uid
+         ? CategoryPermission.MANAGE
+         : CategoryPermission.EDIT
+        })),
     };
     
     try {            

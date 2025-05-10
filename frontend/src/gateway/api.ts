@@ -188,9 +188,7 @@ class HttpCalendars {
   get = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.GET });
   post = async <IDto>(url: string, body: ICalendarCreate) => this.makeRequest<IDto>({ url, method: METHODS.POST, body: 
     { category_in: 
-      { title: body.title, participants: 
-        body.participants.map(p => ({user_id: p, is_creator: false, permissions: CategoryPermission.VIEW})) 
-      }, event_ids: [] 
+      { title: body.title, participants: body.participants }, event_ids: [] 
     } 
   });
   delete = async <IDto>(url: string) => this.makeRequest<IDto>({ url, method: METHODS.DELETE });

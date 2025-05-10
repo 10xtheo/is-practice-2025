@@ -41,6 +41,7 @@ export const createCalendar = createAsyncThunk<ICalendar, ICalendarCreate, { rej
     try {
       return await apiCalendars.createCalendar(calendarData);
     } catch (error) {
+      alert(error)
       return rejectWithValue('Failed to create calendar');
     }
   }
@@ -86,6 +87,7 @@ export const addCalendarParticipant = createAsyncThunk<
       await apiCalendars.addParticipant(calendarId, participant);
       return calendarId;
     } catch (error) {
+      alert(error)
       return thunkAPI.rejectWithValue(error)
     }
   }
@@ -101,6 +103,7 @@ export const deleteCalendarParticipant = createAsyncThunk<
       await apiCalendars.deleteParticipant(calendarId, userId);
       return calendarId;
     } catch (error) {
+      alert(error)
       return thunkAPI.rejectWithValue(error)
     }
   }
