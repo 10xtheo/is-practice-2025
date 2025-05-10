@@ -41,11 +41,8 @@ const CalendarsList: FC<CalendarsListProps> = ({ onSelectedCalendarsChange }) =>
 	};
 
 	const onCreateCalendar = (calendar: ICalendarCreate) => {
-		console.log('calendar', calendar);
-
 		createCalendar(calendar);
 		getCalendars();
-		// getEvents();
 	};
 
 	return (

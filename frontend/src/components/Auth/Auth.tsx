@@ -29,7 +29,6 @@ const Auth: FC = () => {
 			...prev,
 			[name]: value,
 		}));
-		// Clear error when user starts typing
 		if (error) setError(null);
 	};
 

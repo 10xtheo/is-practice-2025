@@ -13,7 +13,6 @@ export const getStyledByPositionXForEvent = (dayEvents: IEvent[], currentEvent: 
 	const eventIndx = sortedDayEvents.findIndex((event) => event.id === currentEvent.id);
 	const eventsLength = sortedDayEvents.length;
 
-	// All events align to the same right border
 	const left = `calc(30% * ${eventIndx / eventsLength})`;
 	const width = `calc(100% - ${left})`;
 

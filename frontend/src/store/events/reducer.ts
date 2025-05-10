@@ -41,18 +41,10 @@ export const eventsSlice = createSlice({
 				state.events = state.events.filter((event) => event.id !== eventId);
 			})
 			.addCase(addEventParticipant.fulfilled, (state, { payload }) => {
-				const event = state.events.find((event) => event.id === payload);
-				// if (event) { @TODO
-				//   event.participants.push(payload.participant)
-				// }
+				state.events.find((event) => event.id === payload);
 			})
 			.addCase(deleteEventParticipant.fulfilled, (state, { payload }) => {
-				const event = state.events.find((event) => event.id === payload);
-				// if (event) { @TODO
-				//   event.participants = event.participants.filter(
-				//     participant => participant.id !== payload
-				//   )
-				// }
+				state.events.find((event) => event.id === payload);
 			});
 	},
 });

@@ -56,7 +56,7 @@ export interface IEventCreate {
 	repeat_until?: number; // timestamp
 	repeat_step: number;
 	is_private: boolean;
-	max_repeats_count: number; // @TODO ивент может повторяться до даты!
+	max_repeats_count: number;
 	color: string;
 	type: EventType;
 	priority: EventPriority;
@@ -76,7 +76,7 @@ export interface IServerEventCreate {
 	max_repeats_count: number;
 	type: EventType;
 	priority: EventPriority;
-	category_id: string; // @TODO много категорий
+	category_id: string;
 	participants: IServerUserParticipant[];
 }
 

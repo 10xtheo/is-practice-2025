@@ -56,11 +56,10 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 
 	const { values, handleChange, handleSubmit, setValue, errors, submitting } = useForm<IModalValues>({
 		defaultValues: defaultEventValues,
-		// rules: createEventSchema @TODO добавить валидацию
+		// rules: createEventSchema
 	});
 
 	const [isRecurring, setIsRecurring] = useState(defaultEventValues.repeat_type !== RepeatType.NONE);
-	console.log('eveve', defaultEventValues.category_id, defaultEventValues.repeat_type);
 
 	const isValid = Object.keys(errors).length === 0;
 
@@ -186,7 +185,6 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 			max_repeats_count: data.max_repeats_count,
 			type: data.type,
 			priority: data.priority,
-			// color: data.color,
 			category_id: data.category_id,
 			participants: allParticipants,
 		};
@@ -382,14 +380,6 @@ const ModalFormEvent: FC<IModalFormEventProps> = ({
 								placeholder="Выберите информируемых лиц..."
 							/>
 						</div>
-						{/* {values.color !== 'rgb(255, 255, 255)' && (<div className={cn(styles.modal__form__group)}>
-              <ColorPicker
-                selectedColor={values.color}
-                // onChangeColor={onChangeColor}
-                onChangeColor={() => {}}
-              />
-            </div>)} */}
-
 						<div className={cn(styles.modal__form__checkbox__container, styles.modal__form__group)}>
 							<label htmlFor="is_finished">
 								<input

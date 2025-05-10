@@ -5,7 +5,6 @@ import { useActions, useTypedSelector } from './hooks';
 import Auth from './components/Auth/Auth';
 import './common.scss';
 import Profile from 'components/Profile/Profile';
-import EventChatPage from 'components/common/EventChat';
 
 const backendHost = 'localhost';
 const backendPort = 8000;

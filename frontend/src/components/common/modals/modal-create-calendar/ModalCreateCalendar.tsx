@@ -24,9 +24,8 @@ const ModalCreateCalendar: FC<ModalCreateCalendarProps> = ({ isOpen, closeModal,
 		defaultValues: {
 			title: '',
 			participants: [],
-			// color: '#FF5733',
 		},
-		// rules: createEventSchema @TODO добавить валидацию
+		// rules: createEventSchema
 	});
 
 	const onSubmit: TSubmitHandler<IModalValuesCalendar> = async (data) => {
