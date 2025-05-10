@@ -585,6 +585,42 @@ def update_event(
             )
 
     try:
+        # If this is a recurring parent event and we're changing its recurrence settings,
+        # delete all existing duplicate events
+        if event.repeat_type == RepeatType.recurring_parent and (
+            event_in.repeat_type or 
+            event_in.repeat_step or 
+            event_in.repeat_until or 
+            event_in.max_repeats_count
+        ):
+            # Find and delete all duplicate events
+            duplicate_events = session.exec(
+                select(Event).where(
+                    and_(
+                        Event.repeat_type == RepeatType.recurring_duplicate,
+                        Event.start > event.start  # Only delete future duplicates
+                    )
+                )
+            ).all()
+            
+            for duplicate in duplicate_events:
+                # Delete related participants
+                participants = session.exec(
+                    select(EventParticipant).where(EventParticipant.event_id == duplicate.id)
+                ).all()
+                for participant in participants:
+                    session.delete(participant)
+                
+                # Delete related category links
+                category_links = session.exec(
+                    select(EventCategoryLink).where(EventCategoryLink.event_id == duplicate.id)
+                ).all()
+                for link in category_links:
+                    session.delete(link)
+                
+                # Delete the duplicate event
+                session.delete(duplicate)
+
         # Update event data
         event_data = event_in.model_dump(exclude_unset=True)
         if start_date:
@@ -614,7 +650,7 @@ def update_event(
             new_link = EventCategoryLink(event_id=event.id, category_id=category_id)
             session.add(new_link)
 
-        # If event becomes recurring, create recurring events
+        # If event becomes recurring or its recurrence settings changed, create recurring events
         if event_in.repeat_type and event_in.repeat_type != RepeatType.none and event_in.repeat_step and event_in.repeat_step > 0:
             # Create recurring events
             recurring_events = create_recurring_events(session, event, event_in, current_user)
