@@ -6,19 +6,11 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.utils import check_category_permissions
-from app.models import (
-    Category,
-    CategoryCreate,
-    CategoryPublic,
-    CategoriesPublic,
-    CategoryUpdate,
-    Message,
-    Event,
-    EventCategoryLink,
-    CategoryParticipant,
-    CategoryPermission,
-    User,
-    EventParticipant
+from app.models import (Category, CategoryCreate, CategoryPublic, CategoriesPublic, CategoryUpdate,
+                        Message,
+                        Event, EventCategoryLink, CategoryParticipant,  CategoryPermission,
+                        User, 
+                        EventParticipant
 )
 
 router = APIRouter(prefix="/categories", tags=["categories"])

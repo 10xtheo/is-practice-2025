@@ -121,9 +121,8 @@ def check_event_permissions(
     if not participant:
         raise HTTPException(status_code=403, detail="Not an event participant")
 
-    # Permission hierarchy logic
     if required_permission == EventPermission.VIEW:
-        return True  # All participants can view
+        return True
 
     elif required_permission == EventPermission.EDIT:
         return participant.permissions in [
