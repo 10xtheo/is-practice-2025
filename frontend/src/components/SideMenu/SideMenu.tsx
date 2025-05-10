@@ -44,7 +44,6 @@ const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose, onSelectedCalendarsChang
 		'https://www.myinstants.com/media/sounds/na-tvoi-telefon-prishlo-novoe-soobshchenie.mp3',
 	];
 
-	// ээх звуки звучки..
 	const playNotificationSound = () => {
 		try {
 			// Останавливаем предыдущий звук, если он играет

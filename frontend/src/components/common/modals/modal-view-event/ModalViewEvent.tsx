@@ -48,7 +48,7 @@ const ModalViewEvent: FC<IModalViewEventProps> = ({ eventId }) => {
 			};
 
 			await requestEventParticipants.put(`/${eventId}/participants/${userId}`, updatedParticipant);
-			// Refresh events to get updated data
+
 			dispatch(getEvents());
 		} catch (error) {
 			alert(error);

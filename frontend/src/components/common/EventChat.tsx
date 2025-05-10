@@ -87,10 +87,6 @@ const EventChatPage: React.FC<IEventChat> = ({ eventId }) => {
 		}
 	};
 
-	// const goBack = () => {
-	//   window.location.href = '/';
-	// };
-
 	if (!eventId || !token) {
 		return <div>eventId или token не переданы в query-параметрах!</div>;
 	}

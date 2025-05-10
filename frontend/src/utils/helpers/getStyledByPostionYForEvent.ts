@@ -11,9 +11,7 @@ export const getStyledByPostionYForEvent = (event: IEvent, dateDay: Date) => {
 	const time = `${formattedStartTime} - ${formattedEndTime}`;
 	const nextDay = shmoment(dateDay).add('days', 1).result();
 
-	//calculating event height = duration of event in minutes
 	let eventHeight = (end - start) / (1000 * 60);
-	// Ensure minimum height of 60 minutes (1 hour) for visibility
 	eventHeight = Math.max(eventHeight, 60);
 	let offsetTop = startDate.getMinutes();
 

@@ -8,7 +8,6 @@ import UserMultiSelector from 'components/user-multi-selector/UserMultiSelector'
 import { requestCalendarParticipants } from 'gateway/api';
 import { useDispatch } from 'react-redux';
 import apiCalendars from 'gateway/calendars';
-import apiUsers from 'gateway/users';
 import { store } from 'store/store';
 
 interface IModalEditCalendarProps {
@@ -32,7 +31,6 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({ calendarData, calendar
 	const fetchParticipants = async () => {
 		try {
 			const response = await apiCalendars.getParticipants(calendarId);
-			// const users = await apiUsers.getUsers();
 
 			const extendedParticipants = response.data.map((p) => {
 				const user = users.find((u) => u.id === p.user_id);
@@ -111,12 +109,10 @@ const ModalEditCalendar: FC<IModalEditCalendarProps> = ({ calendarData, calendar
 
 			await requestCalendarParticipants.put(`/${calendarId}/participants/${userId}`, updatedParticipant);
 
-			// Update local state immediately
 			setParticipants((prev) =>
 				prev.map((p) => (p.user_id === userId ? { ...p, permissions: newPermission } : p)),
 			);
 
-			// Then update global state
 			dispatch(getCalendars());
 		} catch (error) {
 			alert(error);

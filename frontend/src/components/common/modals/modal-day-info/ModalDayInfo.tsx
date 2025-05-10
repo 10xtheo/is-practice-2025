@@ -40,11 +40,6 @@ const ModalDayInfo: FC<IModalDayInfoProps> = ({ selectedDate }) => {
 
 	useClickOutside(modalRef, handleCloseModal);
 
-	// Получаем eventId для чата (например, первый event дня)
-	const eventId = dayEvents[0]?.id;
-	// Получаем токен из localStorage (или из стора, если есть)
-	const token = localStorage.getItem('token') || '';
-
 	return (
 		<div className="overlay">
 			<div

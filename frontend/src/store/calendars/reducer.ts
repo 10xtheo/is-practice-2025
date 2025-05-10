@@ -26,13 +26,11 @@ export const calendarsSlice = createSlice({
 				state.calendars = state.calendars.map((calendar) =>
 					calendar.id === calendarId ? updatedCalendar : calendar,
 				);
-				// @TODO мб форс апдейт или location.reload() как костыль
 			})
 			.addCase(deleteCalendar.fulfilled, (state, { payload }) => {
 				const { calendarId } = payload;
 				state.calendars = state.calendars.filter((calendar) => calendar.id !== calendarId);
 				state.selectedCalendarIds = state.selectedCalendarIds.filter((id) => id !== calendarId);
-				// @TODO мб форс апдейт или location.reload() как костыль
 			})
 			.addCase(createCalendar.fulfilled, (state, { payload }) => {
 				state.calendars = [...state.calendars, payload];
