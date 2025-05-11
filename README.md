@@ -97,7 +97,8 @@ $ source .venv/bin/activate
 ```bash
 (app) $ alembic revision --autogenerate -m "your message"
 (app) $ alembic upgrade head
-```## Запуск сервера
+```
+## Запуск сервера
 ```bash
 (app) $ fastapi run --reload app/main.py
 ```
